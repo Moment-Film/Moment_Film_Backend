@@ -46,7 +46,7 @@ public class UserService {
 
     // Username 중복 검사 메서드
     private boolean checkUsername(String username) {
-        return userRepository.existsByEmail(username);
+        return userRepository.existsByUsername(username);
     }
 
     // 휴대폰 번호 중복 검사 메서드
