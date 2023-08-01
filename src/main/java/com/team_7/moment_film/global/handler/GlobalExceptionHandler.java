@@ -5,7 +5,9 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -58,5 +60,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public CustomResponseEntity<String> ExceptionHandler(MethodArgumentNotValidException ex) {
         return CustomResponseEntity.errorResponse(HttpStatus.BAD_REQUEST, ex.getFieldError().getDefaultMessage());
+    }
+
+    // Security에서 Username으로 User를 찾을 수 없을 때 exception
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public CustomResponseEntity<String> ExceptionHandler(UsernameNotFoundException ex) {
+        return CustomResponseEntity.errorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    // JPA에서 UserId로 User를 찾을 수 없을 때 exception
+    @ExceptionHandler(EntityNotFoundException.class)
+    public CustomResponseEntity<String> ExceptionHandler(EntityNotFoundException ex) {
+        return CustomResponseEntity.errorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 }
