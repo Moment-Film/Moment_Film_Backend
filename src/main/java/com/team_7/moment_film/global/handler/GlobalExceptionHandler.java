@@ -6,6 +6,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -53,4 +54,9 @@ public class GlobalExceptionHandler {
         return CustomResponseEntity.errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    // 요청 시 전달한 data의 형식이 잘못되었을 경우 exception
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public CustomResponseEntity<String> ExceptionHandler(MethodArgumentNotValidException ex) {
+        return CustomResponseEntity.errorResponse(HttpStatus.BAD_REQUEST, ex.getFieldError().getDefaultMessage());
+    }
 }

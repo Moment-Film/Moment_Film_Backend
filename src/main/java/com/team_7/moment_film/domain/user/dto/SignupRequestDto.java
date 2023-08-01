@@ -8,18 +8,15 @@ import lombok.Getter;
 
 @Getter
 public class SignupRequestDto {
-    @NotBlank
-    @Size(min = 2, max = 10, message = "username은 2자 이상 10자 미만으로 입력해주세요.")
-    private String username; // 공백 x 한/영(2자 이상 ~ 10자 미만)
+    @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,10}$", message = "username은 2자 이상 10자 미만으로 입력해주세요.")
+    private String username; // 한글, 영문 대/소문자, 숫자 구분 없이 2~10자리의 유저네임
 
-    @NotBlank
-    @Size(min = 6, max = 10, message = "비밀번호는 6자 이상 10자 미만으로 입력해주세요.")
-    private String password; // 소문자/대문자/숫자 구분없이 (6자 이상 ~ 10자 미만)
+    @Pattern(regexp = "^[a-zA-Z0-9~!@#$%^&*()+|=]{6,10}$", message = "비밀번호는 6자 이상 10자 미만으로 입력해주세요.")
+    private String password; // 영문 대/소문자, 숫자, 특수문자 구분 없이 6~10자리의 비밀번호
 
-    @Email(message = "이메일 주소 형식이 아닙니다.")
-    @Size(max = 20, message = "이메일 주소는 1자 이상 20자 이하로 입력해주세요.")
-    private String email; // 문자 check@문자 check.com (총길이 = 20자 내)
+    @Pattern(regexp = "^[a-zA-Z0-9]+@[0-9a-zA-Z]+\\.[a-z]+$", message = "유효한 이메일 주소 형식이 아닙니다.")
+    private String email;
 
     @Pattern(regexp = "^010[0-9]{8}$", message = "유효한 휴대폰 번호 형식이 아닙니다.")
-    private String phone; // 01012345678 (11자)
+    private String phone; // 010으로 시작하는 11자리의 숫자
 }
