@@ -13,13 +13,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
     // 클라이언트의 잘못된 요청 exception
     @ExceptionHandler(IllegalArgumentException.class)
-    public CustomResponseEntity<String> ExceptionHandler(IllegalArgumentException ex){
+    public CustomResponseEntity<String> ExceptionHandler(IllegalArgumentException ex) {
         return CustomResponseEntity.errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    // 요청한 값이 존재하지 않을 경우의 exception
+    @ExceptionHandler(NullPointerException.class)
+    public CustomResponseEntity<String> ExceptionHandler(NullPointerException ex) {
+        return CustomResponseEntity.errorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     // 인증, 보안 관련 exception
     @ExceptionHandler(SecurityException.class)
-    public CustomResponseEntity<String> ExceptionHandler(SecurityException ex){
+    public CustomResponseEntity<String> ExceptionHandler(SecurityException ex) {
         return CustomResponseEntity.errorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
@@ -31,7 +37,7 @@ public class GlobalExceptionHandler {
 
     // JWT 서명 검증 실패 exception
     @ExceptionHandler(SignatureException.class)
-    public CustomResponseEntity<String> ExceptionHandelr(SignatureException ex){
+    public CustomResponseEntity<String> ExceptionHandelr(SignatureException ex) {
         return CustomResponseEntity.errorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
