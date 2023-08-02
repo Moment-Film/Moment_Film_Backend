@@ -4,6 +4,9 @@ import lombok.Getter;
 
 @Getter
 public class FilterRequestDto {
-    private String filterName;
-    private int filterValue;
+    private String blur;
+    private String contrast;
+    private String grayscale;
+    private String sepia;
+
 }
