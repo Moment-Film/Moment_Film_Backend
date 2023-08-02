@@ -1,6 +1,8 @@
 package com.team_7.moment_film.domain.customfilter.entity;
 
 import com.team_7.moment_film.domain.customfilter.dto.FilterRequestDto;
+import com.team_7.moment_film.domain.post.Post;
+import com.team_7.moment_film.domain.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,22 +16,25 @@ public class Filter {
     @Column(name = "filter_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String blur;
+    private String contrast;
+    private String grayscale;
+    private String sepia;
 
-    private String filterName;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    private int filterValue;
+    @OneToOne
+    @JoinColumn(name = "post_id")
+    private Post post;
 
-//    @ManyToOne
-//    @JoinColumn(name = "user_id")
-//    private User user;
-//
-//    @OneToOne
-//    @JoinColumn(name = "post_id")
-//    private Post post;
-
-    public Filter(FilterRequestDto requestDto){
-        this.filterName = requestDto.getFilterName();
-        this.filterValue = requestDto.getFilterValue();
+    public Filter(FilterRequestDto requestDto, User user){
+        this.blur = requestDto.getBlur();
+        this.contrast = requestDto.getContrast();
+        this.grayscale = requestDto.getGrayscale();
+        this.sepia = requestDto.getSepia();
+        this.user = user;
     }
 
 }

@@ -4,12 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+
 @Getter
 @Builder
 @AllArgsConstructor
 public class FilterResponseDto {
-
     private Long id;
-    private String filterName;
-    private int filterValue;
+    private String blur;
+    private String contrast;
+    private String grayscale;
+    private String sepia;
+
 }
