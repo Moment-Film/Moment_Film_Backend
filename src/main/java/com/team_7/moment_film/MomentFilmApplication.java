@@ -11,8 +11,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 public class MomentFilmApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(MomentFilmApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(MomentFilmApplication.class, args);
+    }
 
 }
