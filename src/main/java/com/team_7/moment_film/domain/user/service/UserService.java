@@ -24,9 +24,15 @@ public class UserService {
         String phone = signupRequestDto.getPhone();
         String password = passwordEncoder.encode(signupRequestDto.getPassword());
 
-        if (checkEmail(email)) throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
-        if (checkUsername(username)) throw new IllegalArgumentException("이미 존재하는 username 입니다.");
-        if (checkPhone(phone)) throw new IllegalArgumentException("이미 존재하는 휴대폰 번호입니다.");
+        if (checkEmail(email)) {
+            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+        }
+        if (checkUsername(username)) {
+            throw new IllegalArgumentException("이미 존재하는 username 입니다.");
+        }
+        if (checkPhone(phone)) {
+            throw new IllegalArgumentException("이미 존재하는 휴대폰 번호입니다.");
+        }
 
         User user = User.builder()
                 .email(email)
