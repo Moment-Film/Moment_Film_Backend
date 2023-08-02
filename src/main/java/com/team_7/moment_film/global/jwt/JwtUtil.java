@@ -34,13 +34,14 @@ public class JwtUtil {
     }
 
     // JWT(accessToken) 생성 메서드
-    public String createAccessToken(Long id, String username) {
+    public String createAccessToken(Long id, String username, String email) {
         Date date = new Date();
 
         return BEARER_PREFIX +
                 Jwts.builder()
                         .setSubject(String.valueOf(id)) // 토큰 식별자 : UserId
                         .claim("username", username)
+                        .claim("email", email)
                         .setExpiration(new Date(date.getTime() + ACCESS_TOKEN_EXPIRATION))
                         .setIssuedAt(date)
                         .signWith(key, SignatureAlgorithm.HS256)
@@ -48,13 +49,14 @@ public class JwtUtil {
     }
 
     // JWT(refershToken) 생성 메서드
-    public String createRefreshToken(Long id, String username) {
+    public String createRefreshToken(Long id, String username, String email) {
         Date date = new Date();
 
         return BEARER_PREFIX +
                 Jwts.builder()
                         .setSubject(String.valueOf(id)) // 토큰 식별자 : UserId
                         .claim("username", username)
+                        .claim("email", email)
                         .setExpiration(new Date(date.getTime() + REFRESH_TOKEN_EXPIRATION))
                         .setIssuedAt(date)
                         .signWith(key, SignatureAlgorithm.HS256)
@@ -75,29 +77,30 @@ public class JwtUtil {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (SecurityException e){
+        } catch (SecurityException e) {
             log.error("JWT token validation failed, JWT 토큰 유효성 검증에 실패했습니다.");
-            throw new SecurityException("JWT token validation failed, JWT 토큰 유효성 검증에 실패했습니다.");
+//            throw new SecurityException("JWT token validation failed, JWT 토큰 유효성 검증에 실패했습니다.");
         } catch (ExpiredJwtException e) {
             log.error("Expired JWT token, 토큰의 유효 기간이 만료되었습니다.");
-            throw new ExpiredJwtException(null, null,"Expired JWT token, 토큰의 유효 기간이 만료되었습니다.");
+//            throw new ExpiredJwtException(null, null,"Expired JWT token, 토큰의 유효 기간이 만료되었습니다.");
         } catch (UnsupportedJwtException e) {
             log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰입니다.");
-            throw new UnsupportedJwtException("Unsupported JWT token, 지원되지 않는 JWT 토큰입니다.");
+//            throw new UnsupportedJwtException("Unsupported JWT token, 지원되지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
             log.error("JWT claims is empty, 잘못된 JWT 토큰입니다.");
-            throw new IllegalArgumentException("JWT claims is empty, 잘못된 JWT 토큰입니다.");
+//            throw new IllegalArgumentException("JWT claims is empty, 잘못된 JWT 토큰입니다.");
         } catch (MalformedJwtException e) {
             log.error("Invalid JWT token, 유효하지 않은 JWT 토큰 형식입니다.");
-            throw new MalformedJwtException("Invalid JWT token, 유효하지 않은 JWT 토큰 형식입니다.");
+//            throw new MalformedJwtException("Invalid JWT token, 유효하지 않은 JWT 토큰 형식입니다.");
         } catch (SignatureException e) {
             log.error("Invalid JWT signature, 유효하지 않은 JWT 서명입니다.");
-            throw new SignatureException("Invalid JWT signature, 유효하지 않은 JWT 서명입니다.");
+//            throw new SignatureException("Invalid JWT signature, 유효하지 않은 JWT 서명입니다.");
         }
+        return false;
     }
 
     // JWT의 사용자 정보 가져오는 메서드
-    public Claims getUserInfo(String token) {
+    public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 }
