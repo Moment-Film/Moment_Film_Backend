@@ -4,7 +4,7 @@ import com.team_7.moment_film.domain.customframe.dto.FrameRequestDto;
 import com.team_7.moment_film.domain.customframe.dto.FrameResponseDto;
 import com.team_7.moment_film.domain.customframe.entity.Frame;
 import com.team_7.moment_film.domain.customframe.repository.FrameRepository;
-import com.team_7.moment_film.domain.user.User;
+import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

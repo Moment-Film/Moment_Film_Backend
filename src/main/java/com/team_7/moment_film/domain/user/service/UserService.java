@@ -1,5 +1,6 @@
 package com.team_7.moment_film.domain.user.service;
 
+import com.team_7.moment_film.domain.user.dto.SearchResponseDto;
 import com.team_7.moment_film.domain.user.dto.SignupRequestDto;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j(topic = "User Service")
 @Service
@@ -43,6 +46,11 @@ public class UserService {
         userRepository.save(user);
 
         return CustomResponseEntity.msgResponse(HttpStatus.OK, "회원가입을 축하합니다!");
+    }
+
+    // 사용자 검색
+    public CustomResponseEntity<List<SearchResponseDto>> searchUser(String userKeyword) {
+        return CustomResponseEntity.dataResponse(HttpStatus.OK,userRepository.searchUserByName(userKeyword));
     }
 
     // 이메일 중복 검사 메서드
