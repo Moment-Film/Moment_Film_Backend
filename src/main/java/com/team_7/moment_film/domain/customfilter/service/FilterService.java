@@ -4,7 +4,7 @@ import com.team_7.moment_film.domain.customfilter.dto.FilterRequestDto;
 import com.team_7.moment_film.domain.customfilter.dto.FilterResponseDto;
 import com.team_7.moment_film.domain.customfilter.entity.Filter;
 import com.team_7.moment_film.domain.customfilter.repository.FilterRepository;
-import com.team_7.moment_film.domain.user.entity.User;
+import com.team_7.moment_film.domain.user.User;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
