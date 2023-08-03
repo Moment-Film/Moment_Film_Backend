@@ -38,3 +38,5 @@ out/
 
 ### secret ###
 application-secret.properties
+
+generated
