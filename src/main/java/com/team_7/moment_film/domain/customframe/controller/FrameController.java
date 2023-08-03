@@ -3,7 +3,7 @@ package com.team_7.moment_film.domain.customframe.controller;
 import com.team_7.moment_film.domain.customframe.dto.FrameRequestDto;
 import com.team_7.moment_film.domain.customframe.dto.FrameResponseDto;
 import com.team_7.moment_film.domain.customframe.service.FrameService;
-import com.team_7.moment_film.global.config.UserDetailsImpl;
+import com.team_7.moment_film.global.security.UserDetailsImpl;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
