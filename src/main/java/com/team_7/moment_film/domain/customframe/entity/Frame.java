@@ -1,8 +1,8 @@
 package com.team_7.moment_film.domain.customframe.entity;
 
 import com.team_7.moment_film.domain.customframe.dto.FrameRequestDto;
-import com.team_7.moment_film.domain.post.entity.Post;
-import com.team_7.moment_film.domain.user.entity.User;
+import com.team_7.moment_film.domain.post.Post;
+import com.team_7.moment_film.domain.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
