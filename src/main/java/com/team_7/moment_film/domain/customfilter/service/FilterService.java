@@ -6,6 +6,7 @@ import com.team_7.moment_film.domain.customfilter.entity.Filter;
 import com.team_7.moment_film.domain.customfilter.repository.FilterRepository;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -34,19 +35,20 @@ public class FilterService {
         return CustomResponseEntity.dataResponse(HttpStatus.CREATED,responseDto);
     }
 
-    public List<FilterResponseDto> getAllFilter() {
-        return filterRepository.findAll().stream().map(filter -> FilterResponseDto.builder()
+    public CustomResponseEntity<List<FilterResponseDto>> getAllFilter() {
+        List<FilterResponseDto> filterList = filterRepository.findAll().stream().map(filter -> FilterResponseDto.builder()
                 .id(filter.getId())
                 .blur(filter.getBlur())
                 .contrast(filter.getContrast())
                 .grayscale(filter.getGrayscale())
                 .sepia(filter.getSepia())
                 .build()).collect(Collectors.toList());
+        return CustomResponseEntity.dataResponse(HttpStatus.OK,filterList);
     }
 
     public CustomResponseEntity<FilterResponseDto> selectFilter(Long filterId) {
         Filter filter = filterRepository.findById(filterId).orElseThrow(()->
-                new IllegalArgumentException("존재하지 않는 필터입니다."));
+                new EntityNotFoundException("존재하지 않는 필터입니다."));
         FilterResponseDto responseDto = FilterResponseDto.builder()
                 .blur(filter.getBlur())
                 .contrast(filter.getContrast())
@@ -54,5 +56,15 @@ public class FilterService {
                 .sepia(filter.getSepia())
                 .build();
         return CustomResponseEntity.dataResponse(HttpStatus.OK,responseDto);
+    }
+
+    public CustomResponseEntity<String> deleteFilter(Long filterId, User user) {
+        Filter filter = filterRepository.findById(filterId).orElseThrow(()->
+                new EntityNotFoundException("존재하지 않는 필터입니다."));
+        if(!user.getId().equals(filter.getUser().getId())){
+            throw new IllegalArgumentException("직접 생성한 필터만 삭제 가능합니다.");
+        }
+        filterRepository.delete(filter);
+        return CustomResponseEntity.msgResponse(HttpStatus.OK,"필터 삭제 완료");
     }
 }
