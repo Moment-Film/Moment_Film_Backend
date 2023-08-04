@@ -26,7 +26,7 @@ public class FilterController {
 
     //유저들이 커스텀한 필터 모두 조회
     @GetMapping("")
-    public List<FilterResponseDto> getAllFilter(){
+    public CustomResponseEntity<List<FilterResponseDto>> getAllFilter(){
         return filterService.getAllFilter();
     }
 
@@ -34,6 +34,12 @@ public class FilterController {
     @PostMapping("/{filterId}")
     public CustomResponseEntity<FilterResponseDto> selectFilter(@PathVariable Long filterId) {
         return filterService.selectFilter(filterId);
+    }
+
+    //커스텀 필터 지우기
+    @DeleteMapping("/{filterId}")
+    public CustomResponseEntity<String> deleteFilter(@PathVariable Long filterId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return filterService.deleteFilter(filterId, userDetails.getUser());
     }
 
 }
