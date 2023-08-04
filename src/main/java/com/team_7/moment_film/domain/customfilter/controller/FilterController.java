@@ -36,4 +36,10 @@ public class FilterController {
         return filterService.selectFilter(filterId);
     }
 
+    //커스텀 필터 지우기
+    @DeleteMapping("/{filterId}")
+    public CustomResponseEntity<String> deleteFilter(@PathVariable Long filterId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return filterService.deleteFilter(filterId, userDetails.getUser());
+    }
+
 }
