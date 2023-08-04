@@ -26,7 +26,7 @@ public class FrameController {
 
     //유저들이 커스텀한 프레임 모두 조회
     @GetMapping("")
-    public List<FrameResponseDto> getAllFrame(){
+    public CustomResponseEntity<List<FrameResponseDto>> getAllFrame(){
         return frameService.getAllFrame();
     }
 

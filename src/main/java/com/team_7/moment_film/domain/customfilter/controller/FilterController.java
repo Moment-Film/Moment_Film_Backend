@@ -26,7 +26,7 @@ public class FilterController {
 
     //유저들이 커스텀한 필터 모두 조회
     @GetMapping("")
-    public List<FilterResponseDto> getAllFilter(){
+    public CustomResponseEntity<List<FilterResponseDto>> getAllFilter(){
         return filterService.getAllFilter();
     }
 

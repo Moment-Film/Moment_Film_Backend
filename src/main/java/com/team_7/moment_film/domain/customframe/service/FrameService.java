@@ -28,11 +28,12 @@ public class FrameService {
         return CustomResponseEntity.dataResponse(HttpStatus.CREATED,responseDto);
     }
 
-    public List<FrameResponseDto> getAllFrame() {
-        return frameRepository.findAll().stream().map(frame -> FrameResponseDto.builder()
+    public CustomResponseEntity<List<FrameResponseDto>> getAllFrame() {
+        List<FrameResponseDto> frameList = frameRepository.findAll().stream().map(frame -> FrameResponseDto.builder()
                 .id(frame.getId())
                 .frameName(frame.getFrameName())
                 .build()).collect(Collectors.toList());
+        return CustomResponseEntity.dataResponse(HttpStatus.OK,frameList);
     }
 
     public CustomResponseEntity<FrameResponseDto> selectFrame(Long frameId) {
