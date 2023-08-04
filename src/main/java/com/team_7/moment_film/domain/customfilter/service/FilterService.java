@@ -34,14 +34,15 @@ public class FilterService {
         return CustomResponseEntity.dataResponse(HttpStatus.CREATED,responseDto);
     }
 
-    public List<FilterResponseDto> getAllFilter() {
-        return filterRepository.findAll().stream().map(filter -> FilterResponseDto.builder()
+    public CustomResponseEntity<List<FilterResponseDto>> getAllFilter() {
+        List<FilterResponseDto> filterList = filterRepository.findAll().stream().map(filter -> FilterResponseDto.builder()
                 .id(filter.getId())
                 .blur(filter.getBlur())
                 .contrast(filter.getContrast())
                 .grayscale(filter.getGrayscale())
                 .sepia(filter.getSepia())
                 .build()).collect(Collectors.toList());
+        return CustomResponseEntity.dataResponse(HttpStatus.OK,filterList);
     }
 
     public CustomResponseEntity<FilterResponseDto> selectFilter(Long filterId) {
