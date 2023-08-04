@@ -36,4 +36,10 @@ public class FrameController {
         return frameService.selectFrame(frameId);
     }
 
+    //커스텀 프레임 지우기
+    @DeleteMapping("/{frameId}")
+    public CustomResponseEntity<String> deleteFrame(@PathVariable Long frameId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return frameService.deleteFrame(frameId, userDetails.getUser());
+    }
+
 }
