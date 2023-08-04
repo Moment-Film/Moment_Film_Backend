@@ -7,6 +7,7 @@ import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
 import com.team_7.moment_film.global.jwt.JwtUtil;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,9 +59,11 @@ public class KakaoService {
             User kakaoUser = signupKakaoUser(kakaoUserInfo);
         }
 
-        Long id = kakaoUserInfo.getId();
         String email = kakaoUserInfo.getEmail();
-        String username = kakaoUserInfo.getUsername();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+
+        Long id = user.getId();
+        String username = user.getUsername();
 
         // 4. 로그인(JWT 발급)
         String accessToken = jwtUtil.createAccessToken(id, email, username);
