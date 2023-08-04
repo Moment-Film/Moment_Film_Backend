@@ -41,7 +41,9 @@ public class UserService {
                 .email(email)
                 .username(username)
                 .password(password)
-                .phone(phone).build();
+                .phone(phone)
+                .isKakao(false)
+                .build();
 
         userRepository.save(user);
 
@@ -50,7 +52,7 @@ public class UserService {
 
     // 사용자 검색
     public CustomResponseEntity<List<SearchResponseDto>> searchUser(String userKeyword) {
-        return CustomResponseEntity.dataResponse(HttpStatus.OK,userRepository.searchUserByName(userKeyword));
+        return CustomResponseEntity.dataResponse(HttpStatus.OK, userRepository.searchUserByName(userKeyword));
     }
 
     // 이메일 중복 검사 메서드
