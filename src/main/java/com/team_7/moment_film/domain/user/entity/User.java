@@ -1,7 +1,10 @@
 package com.team_7.moment_film.domain.user.entity;
 
+import com.team_7.moment_film.domain.follow.entity.Follow;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Builder
 @Getter
@@ -27,4 +30,14 @@ public class User {
 
     @Column
     private boolean isKakao;
+
+    @Column
+    @OneToMany(mappedBy = "following")
+    private List<Follow> followerList;
+
+    @Column
+    @OneToMany(mappedBy = "follower")
+    private List<Follow> followingList;
+
+
 }

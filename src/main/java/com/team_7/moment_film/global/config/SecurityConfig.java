@@ -74,6 +74,7 @@ public class SecurityConfig {
                         .requestMatchers(GET,"/api/filter").permitAll()
                         .requestMatchers(GET,"/api/frame").permitAll()
                         .requestMatchers("/api/user/kakao/*").permitAll()
+                        .requestMatchers("/api/user/popular").permitAll()
                         .anyRequest().authenticated()
         );
 
