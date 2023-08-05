@@ -1,6 +1,7 @@
 package com.team_7.moment_film.domain.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.team_7.moment_film.domain.user.dto.PopularUserResponseDto;
 import com.team_7.moment_film.domain.user.dto.SearchResponseDto;
 import com.team_7.moment_film.domain.user.dto.SignupRequestDto;
 import com.team_7.moment_film.domain.user.service.KakaoService;
@@ -40,4 +41,11 @@ public class UserController {
         log.info("카카오 인가 코드 = " + code);
         return kakaoService.kakaoLogin(code, response);
     }
+
+    // 인기 많은 사용자 조회 API (팔로워 순)
+    @GetMapping("/popular")
+    public CustomResponseEntity<List<PopularUserResponseDto>> getPopularUser() {
+        return userService.getPopularUser();
+    }
+
 }
