@@ -1,5 +1,6 @@
 package com.team_7.moment_film.domain.user.service;
 
+import com.team_7.moment_film.domain.user.dto.PopularUserResponseDto;
 import com.team_7.moment_film.domain.user.dto.SearchResponseDto;
 import com.team_7.moment_film.domain.user.dto.SignupRequestDto;
 import com.team_7.moment_film.domain.user.entity.User;
@@ -53,6 +54,11 @@ public class UserService {
     // 사용자 검색
     public CustomResponseEntity<List<SearchResponseDto>> searchUser(String userKeyword) {
         return CustomResponseEntity.dataResponse(HttpStatus.OK, userRepository.searchUserByName(userKeyword));
+    }
+
+    // 팔로워 많은 순으로 사용자 조회
+    public CustomResponseEntity<List<PopularUserResponseDto>> getPopularUser() {
+        return CustomResponseEntity.dataResponse(HttpStatus.OK, userRepository.getPopularUser());
     }
 
     // 이메일 중복 검사 메서드
