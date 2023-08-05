@@ -19,17 +19,13 @@ public class FollowService {
     private final FollowRepository followRepository;
 
     public CustomResponseEntity<String> followUser(User user, Long userId) {
-        userRepository.findById(userId).orElseThrow(()-> new EntityNotFoundException("존재하지 않는 사용자입니다."));
-        Long fromUserId = user.getId();
-        Long toUserId = userId;
-        if(user.getId()!=userId){
-            if(followed(fromUserId,toUserId)){
+        User toUser = userRepository.findById(userId).orElseThrow(()-> new EntityNotFoundException("존재하지 않는 사용자입니다."));
+
+        if(!user.getId().equals(userId)){
+            if(followed(user.getId(), userId)){
                 throw new IllegalArgumentException("이미 팔로우한 사용자입니다.");
             }
-            followRepository.save(Follow.builder()
-                    .followerId(fromUserId)
-                    .followingId(toUserId)
-                    .build());
+            followRepository.save(Follow.builder().follower(user).following(toUser).build());
         }else{
             throw new IllegalArgumentException("본인 외 사용자를 선택해주세요.");
         }
@@ -39,18 +35,16 @@ public class FollowService {
     @Transactional
     public CustomResponseEntity<String> unfollowUser(User user, Long userId) {
         userRepository.findById(userId).orElseThrow(()-> new EntityNotFoundException("존재하지 않는 사용자입니다."));
-        Long fromUserId = user.getId();
-        Long toUserId = userId;
-        if(!followed(fromUserId,toUserId)){
+        if(!followed(user.getId(),userId)){
             throw new IllegalArgumentException("잘못된 접근입니다.");
         }
-        followRepository.deleteByFollowerIdAndFollowingId(fromUserId,toUserId);
+        followRepository.deleteByFollowerIdAndFollowingId(user.getId(),userId);
         return CustomResponseEntity.msgResponse(HttpStatus.OK,"팔로우 취소 완료");
     }
 
-    // 팔로우 확인 메서드
-    private boolean followed(Long id1, Long id2) {
-        return followRepository.existsByFollowerIdAndFollowingId(id1, id2);
+     //팔로우 확인 메서드
+    private boolean followed(Long fromUserId, Long toUserId) {
+        return followRepository.existsByFollowerIdAndFollowingId(fromUserId, toUserId);
     }
 
 }
