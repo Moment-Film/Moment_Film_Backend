@@ -3,8 +3,9 @@ package com.team_7.moment_film.domain.customfilter.controller;
 import com.team_7.moment_film.domain.customfilter.dto.FilterRequestDto;
 import com.team_7.moment_film.domain.customfilter.dto.FilterResponseDto;
 import com.team_7.moment_film.domain.customfilter.service.FilterService;
-import com.team_7.moment_film.global.config.UserDetailsImpl;
+
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
+import com.team_7.moment_film.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
