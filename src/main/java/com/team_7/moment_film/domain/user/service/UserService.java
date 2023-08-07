@@ -103,7 +103,7 @@ public class UserService {
                 .followerList(followers)
                 .followingList(followings)
                 .postList(myPostList)
-                .postListCnt(user.getPostList().size())
+                .postListCnt(myPostList.size())
                 .likePosts(likePosts)
                 .build();
 
