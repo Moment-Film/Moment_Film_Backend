@@ -131,8 +131,8 @@ public class KakaoService {
 
         // 정보 확인
         Long id = response.getBody().get("id").asLong();
-        String email = response.getBody().get("kakao_account").get("email").toString();
-        String nickname = response.getBody().get("properties").get("nickname").toString();
+        String email = response.getBody().get("kakao_account").get("email").asText();
+        String nickname = response.getBody().get("properties").get("nickname").asText();
 
         if (!StringUtils.hasText(email)) {
             log.info("동의 항목 중 이메일 동의하지 않았음");
