@@ -34,14 +34,6 @@ public class User {
     private boolean isKakao;
 
     @Column
-    @OneToMany(mappedBy = "user")
-    private List<Post> postList;
-
-    @Column
-    @OneToMany(mappedBy = "user")
-    private List<Like> likeList;
-
-    @Column
     @OneToMany(mappedBy = "follower")
     private List<Follow> followerList;
 
