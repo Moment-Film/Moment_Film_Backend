@@ -2,7 +2,9 @@ package com.team_7.moment_film.domain.user.service;
 
 import com.team_7.moment_film.domain.follow.entity.Follow;
 import com.team_7.moment_film.domain.like.entity.Like;
+import com.team_7.moment_film.domain.like.repository.LikeRepository;
 import com.team_7.moment_film.domain.post.entity.Post;
+import com.team_7.moment_film.domain.post.repository.PostRepository;
 import com.team_7.moment_film.domain.user.dto.PopularUserResponseDto;
 import com.team_7.moment_film.domain.user.dto.ProfileResponseDto;
 import com.team_7.moment_film.domain.user.dto.SearchResponseDto;
@@ -24,6 +26,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PostRepository postRepository;
+    private final LikeRepository likeRepository;
     private final PasswordEncoder passwordEncoder;
 
     // 회원가입 비즈니스 로직
@@ -62,14 +66,14 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다."));
 
         // 내가 작성한 게시글 리스트
-        List<Post> postList = user.getPostList();
+        List<Post> postList = postRepository.findByUserId(user.getId());
         List<Post> myPostList = postList.stream().map(post -> Post.builder()
                 .id(post.getId())
                 .image(post.getImage())
                 .build()).toList();
 
         // 좋아요한 게시글 리스트
-        List<Like> likeList = user.getLikeList();
+        List<Like> likeList = likeRepository.findByUserId(user.getId());
         List<Post> likePosts = likeList.stream().map(like -> Post.builder()
                 .id(like.getPost().getId())
                 .image(like.getPost().getImage())
