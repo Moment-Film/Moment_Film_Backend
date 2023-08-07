@@ -1,6 +1,8 @@
 package com.team_7.moment_film.domain.user.entity;
 
 import com.team_7.moment_film.domain.follow.entity.Follow;
+import com.team_7.moment_film.domain.like.entity.Like;
+import com.team_7.moment_film.domain.post.entity.Post;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,12 +34,18 @@ public class User {
     private boolean isKakao;
 
     @Column
-    @OneToMany(mappedBy = "following")
-    private List<Follow> followerList;
+    @OneToMany(mappedBy = "user")
+    private List<Post> postList;
+
+    @Column
+    @OneToMany(mappedBy = "user")
+    private List<Like> likeList;
 
     @Column
     @OneToMany(mappedBy = "follower")
+    private List<Follow> followerList;
+
+    @Column
+    @OneToMany(mappedBy = "following")
     private List<Follow> followingList;
-
-
 }

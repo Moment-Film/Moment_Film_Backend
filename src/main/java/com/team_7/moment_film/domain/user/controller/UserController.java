@@ -2,6 +2,7 @@ package com.team_7.moment_film.domain.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.team_7.moment_film.domain.user.dto.PopularUserResponseDto;
+import com.team_7.moment_film.domain.user.dto.ProfileResponseDto;
 import com.team_7.moment_film.domain.user.dto.SearchResponseDto;
 import com.team_7.moment_film.domain.user.dto.SignupRequestDto;
 import com.team_7.moment_film.domain.user.service.KakaoService;
@@ -33,6 +34,12 @@ public class UserController {
     @GetMapping("/search")
     public CustomResponseEntity<List<SearchResponseDto>> searchUser(@RequestParam String userKeyword) {
         return userService.searchUser(userKeyword);
+    }
+
+    // 프로필 조회 API
+    @GetMapping("/profile/{userId}")
+    public CustomResponseEntity<ProfileResponseDto> getProfile(@PathVariable Long userId) {
+        return userService.getProfile(userId);
     }
 
     // 카카오 인가 코드 API
