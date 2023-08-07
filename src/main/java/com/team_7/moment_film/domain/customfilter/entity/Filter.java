@@ -1,7 +1,6 @@
 package com.team_7.moment_film.domain.customfilter.entity;
 
 import com.team_7.moment_film.domain.customfilter.dto.FilterRequestDto;
-
 import com.team_7.moment_film.domain.post.entity.Post;
 import com.team_7.moment_film.domain.user.entity.User;
 import jakarta.persistence.*;
