@@ -70,13 +70,14 @@ public class SecurityConfig {
         http.authorizeHttpRequests((authorizeHttpRequests) ->
                 authorizeHttpRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .requestMatchers("/upload").permitAll()
-                        .requestMatchers(GET, "/api/post").permitAll()
                         .requestMatchers("/api/user/signup").permitAll()
-                        .requestMatchers(GET,"/api/filter").permitAll()
-                        .requestMatchers(GET,"/api/frame").permitAll()
                         .requestMatchers("/api/user/kakao/*").permitAll()
                         .requestMatchers("/api/user/popular").permitAll()
+                        .requestMatchers(GET, "/api/user/profile/*").permitAll()
+                        .requestMatchers(GET, "/api/post").permitAll()
+                        .requestMatchers("/upload").permitAll()
+                        .requestMatchers(GET, "/api/filter").permitAll()
+                        .requestMatchers(GET, "/api/frame").permitAll()
                         .anyRequest().authenticated()
         );
 
