@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 public class FrameService {
 
     private final FrameRepository frameRepository;
+
+
     public CustomResponseEntity<FrameResponseDto> createFrame(FrameRequestDto requestDto, User user) {
         Frame frame = new Frame(requestDto, user);
         frameRepository.save(frame);
