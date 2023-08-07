@@ -70,6 +70,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests((authorizeHttpRequests) ->
                 authorizeHttpRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                        .requestMatchers("/upload").permitAll()
+                        .requestMatchers(GET, "/api/post").permitAll()
                         .requestMatchers("/api/user/signup").permitAll()
                         .requestMatchers(GET,"/api/filter").permitAll()
                         .requestMatchers(GET,"/api/frame").permitAll()
