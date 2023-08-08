@@ -43,8 +43,9 @@ public class CommentService {
 
         comment.updateWriter(user);
         comment.updatePost(post);
+        commentRepository.save(comment);
 
-        return new CustomResponseEntity<>(HttpStatus.CREATED,"댓글 성공",commentRepository.save(comment));
+        return new CustomResponseEntity<>(HttpStatus.CREATED,"댓글 성공",comment);
     }
 
     public CustomResponseEntity<?> deleteComment(Long postId, Long commentId, UserDetailsImpl userDetails){
