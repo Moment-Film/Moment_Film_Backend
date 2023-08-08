@@ -41,10 +41,12 @@ public class Comment extends TimeStamped{
 
 
     @ManyToOne(fetch = LAZY)
+    @JsonIgnore
     @JoinColumn(name = "post_id")
     private Post post;
 
     @ManyToOne(fetch = LAZY)
+    @JsonIgnore
     @JoinColumn(name = "users_id")
     private User writer;
 
