@@ -2,16 +2,15 @@ package com.team_7.moment_film.domain.post.dto;
 
 import com.team_7.moment_film.domain.comment.dto.CommentResponseDTO;
 import com.team_7.moment_film.domain.post.entity.Post;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 @Getter
 @Setter
 public class PostResponseDto {

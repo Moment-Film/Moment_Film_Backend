@@ -42,13 +42,20 @@ public class PostService {
         log.info("imageUrl = {}", imageUrl);
 
         Post post = Post.builder()
-                .requestDto(requestDto)
                 .image(imageUrl)
                 .user(user)
                 .build();
-        Post savedpost = postRepository.save(post);
+        postRepository.save(post);
+
+        PostResponseDto responseDto = PostResponseDto.builder()
+                .id(post.getId())
+                .image(post.getImage())
+                .createdAt(post.getCreatedAt())
+                .username(post.getUsername())
+                .build();
+
         log.info("게시물 생성", user.getUsername());
-        return CustomResponseEntity.dataResponse(HttpStatus.CREATED,savedpost);
+        return CustomResponseEntity.dataResponse(HttpStatus.CREATED, responseDto);
     }
 
     //삭제
