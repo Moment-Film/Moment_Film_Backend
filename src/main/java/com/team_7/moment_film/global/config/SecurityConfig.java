@@ -19,6 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 
 @Configuration
 @EnableWebSecurity // spring security 지원을 가능하게 함.
@@ -75,6 +76,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/popular").permitAll()
                         .requestMatchers(GET, "/api/user/profile/*").permitAll()
                         .requestMatchers(GET, "/api/post").permitAll()
+                        .requestMatchers(GET, "/api/post/*").permitAll()
                         .requestMatchers("/upload").permitAll()
                         .requestMatchers(GET, "/api/filter").permitAll()
                         .requestMatchers(GET, "/api/frame").permitAll()
