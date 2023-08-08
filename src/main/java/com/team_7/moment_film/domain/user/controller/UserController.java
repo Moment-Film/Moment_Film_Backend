@@ -63,7 +63,7 @@ public class UserController {
 
     // 개인 정보 수정 API
     @PutMapping("/info")
-    public CustomResponseEntity<String> updateInfo(@RequestBody UpdateRequestDto requestDto,
+    public CustomResponseEntity<String> updateInfo(@Valid @RequestBody UpdateRequestDto requestDto,
                                                    @AuthenticationPrincipal UserDetailsImpl userDetails){
         return userService.updateInfo(requestDto, userDetails.getUser());
     }

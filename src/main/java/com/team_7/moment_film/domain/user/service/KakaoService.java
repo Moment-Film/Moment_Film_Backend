@@ -66,8 +66,8 @@ public class KakaoService {
         String username = user.getUsername();
 
         // 4. 로그인(JWT 발급)
-        String accessToken = jwtUtil.createAccessToken(id, email, username);
-        String refreshToken = jwtUtil.createRefreshToken(id, email, username);
+        String accessToken = jwtUtil.createAccessToken(id, username, email);
+        String refreshToken = jwtUtil.createRefreshToken(id, username, email);
 
         log.info("JWT 발급 : accessToken = " + accessToken);
         log.info("JWT 발급 : refreshToken = " + refreshToken);
