@@ -1,17 +1,16 @@
 package com.team_7.moment_film.domain.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.team_7.moment_film.domain.user.dto.PopularUserResponseDto;
-import com.team_7.moment_film.domain.user.dto.ProfileResponseDto;
-import com.team_7.moment_film.domain.user.dto.SearchResponseDto;
-import com.team_7.moment_film.domain.user.dto.SignupRequestDto;
+import com.team_7.moment_film.domain.user.dto.*;
 import com.team_7.moment_film.domain.user.service.KakaoService;
 import com.team_7.moment_film.domain.user.service.UserService;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
+import com.team_7.moment_film.global.security.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -55,4 +54,17 @@ public class UserController {
         return userService.getPopularUser();
     }
 
+
+    // 개인 정보 조회 API
+    @GetMapping("/info")
+    public CustomResponseEntity<UserInfoDto> getInfo(@AuthenticationPrincipal UserDetailsImpl userDetails){
+        return userService.getInfo(userDetails.getUser());
+    }
+
+    // 개인 정보 수정 API
+    @PutMapping("/info")
+    public CustomResponseEntity<String> updateInfo(@Valid @RequestBody UpdateRequestDto requestDto,
+                                                   @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return userService.updateInfo(requestDto, userDetails.getUser());
+    }
 }

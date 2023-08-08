@@ -5,10 +5,7 @@ import com.team_7.moment_film.domain.like.entity.Like;
 import com.team_7.moment_film.domain.like.repository.LikeRepository;
 import com.team_7.moment_film.domain.post.entity.Post;
 import com.team_7.moment_film.domain.post.repository.PostRepository;
-import com.team_7.moment_film.domain.user.dto.PopularUserResponseDto;
-import com.team_7.moment_film.domain.user.dto.ProfileResponseDto;
-import com.team_7.moment_film.domain.user.dto.SearchResponseDto;
-import com.team_7.moment_film.domain.user.dto.SignupRequestDto;
+import com.team_7.moment_film.domain.user.dto.*;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
@@ -118,6 +115,32 @@ public class UserService {
     // 팔로워 많은 순으로 사용자 조회
     public CustomResponseEntity<List<PopularUserResponseDto>> getPopularUser() {
         return CustomResponseEntity.dataResponse(HttpStatus.OK, userRepository.getPopularUser());
+    }
+
+    // 개인 정보 조회
+    public CustomResponseEntity<UserInfoDto> getInfo(User user) {
+
+        UserInfoDto userInfoDto = UserInfoDto.builder()
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .phone(user.getPhone())
+                .build();
+        return CustomResponseEntity.dataResponse(HttpStatus.OK, userInfoDto);
+    }
+
+    // 개인 정보 수정
+    public CustomResponseEntity<String> updateInfo(UpdateRequestDto requestDto, User user) {
+
+        User updateUser = User.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .username(requestDto.getUsername() != null ? requestDto.getUsername() : user.getUsername())
+                .phone(requestDto.getPhone() != null ? requestDto.getPhone() : user.getPhone())
+                .password(user.getPassword())
+                .build();
+
+        userRepository.save(updateUser);
+        return CustomResponseEntity.msgResponse(HttpStatus.OK,"개인정보 수정 완료");
     }
 
     // 이메일 중복 검사 메서드
