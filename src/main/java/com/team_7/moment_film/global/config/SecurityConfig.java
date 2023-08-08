@@ -2,8 +2,9 @@ package com.team_7.moment_film.global.config;
 
 import com.team_7.moment_film.global.filter.JwtAuthenticationFilter;
 import com.team_7.moment_film.global.filter.JwtAuthorizationFilter;
-import com.team_7.moment_film.global.jwt.JwtUtil;
+import com.team_7.moment_film.global.util.JwtUtil;
 import com.team_7.moment_film.global.security.UserDetailsServiceImpl;
+import com.team_7.moment_film.global.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -19,13 +20,13 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
 
 @Configuration
 @EnableWebSecurity // spring security 지원을 가능하게 함.
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtUtil jwtUtil;
+    private final RedisUtil redisUtil;
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
 
@@ -45,7 +46,7 @@ public class SecurityConfig {
     // 위에서 만든 AuthenticationManager 생성 메서드를 호출 후 반환된 Authentication 을 filter 에 세팅
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, redisUtil);
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
         return filter;
     }

@@ -1,4 +1,4 @@
-package com.team_7.moment_film.global.jwt;
+package com.team_7.moment_film.global.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

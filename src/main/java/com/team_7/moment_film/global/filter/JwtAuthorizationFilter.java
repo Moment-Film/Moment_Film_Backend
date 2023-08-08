@@ -1,6 +1,6 @@
 package com.team_7.moment_film.global.filter;
 
-import com.team_7.moment_film.global.jwt.JwtUtil;
+import com.team_7.moment_film.global.util.JwtUtil;
 import com.team_7.moment_film.global.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
