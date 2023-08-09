@@ -19,6 +19,8 @@ public class Frame {
 
     private String frameName;
 
+    private String image;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -27,8 +29,9 @@ public class Frame {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    public Frame(FrameRequestDto requestDto, User user){
+    public Frame(FrameRequestDto requestDto, String image, User user){
         this.frameName = requestDto.getFrameName();
+        this.image = image;
         this.user = user;
     }
 
