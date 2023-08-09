@@ -11,15 +11,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Where;
+
+
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Builder
-@AllArgsConstructor
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Post extends TimeStamped {
     @Id
@@ -30,26 +33,42 @@ public class Post extends TimeStamped {
     @Column(nullable = false)
     private String image;
 
+    @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false)
+    private String contents;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-
-    @Transient // 테이블의 컬럼으로 추가하지 않기 위해 설정
+    @Transient
     private String username;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Where(clause = "parent_id is null")
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id") // 추가
-    private List<Comment> children = new ArrayList<>();
+//    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @Where(clause = "parent_id is null")
+//    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id") // 추가
+//    private List<Comment> children = new ArrayList<>();
 
-    @Builder
-    public Post(PostRequestDto requestDto, String image, User user){
-        this.image = image;
-        this.user = user;
-    }
+//    @ColumnDefault("0")
+//    @Column(name = "like_count", nullable = false)
+//    private Integer likeCount;
+//
+//    @ColumnDefault("0")
+//    @Column(name = "view_count",nullable = false)
+//    private Integer viewCount;
 
-    public void addComment(Comment comment) {
-        this.children.add(comment);
-    }
+
+
+//    public void setLikeCount(Integer likeCount){
+//        this.likeCount = likeCount;
+//    }
+
+//    public void setViewCount(Integer viewCount) {
+//        this.viewCount = viewCount;
+//    }
+
+
+
 }

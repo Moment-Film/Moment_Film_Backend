@@ -23,6 +23,7 @@ public class JacksonConfig {
         objectMapper.registerModule(new JavaTimeModule()); // Java 8 날짜/시간 모듈 등록
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         objectMapper.configure(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY, true); // 객체 그래프의 최대 깊이를 설정
+        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         return objectMapper;
     }
 
