@@ -6,7 +6,7 @@ import com.team_7.moment_film.domain.user.dto.KakaoUserInfoDto;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
-import com.team_7.moment_film.global.jwt.JwtUtil;
+import com.team_7.moment_film.global.util.JwtUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
