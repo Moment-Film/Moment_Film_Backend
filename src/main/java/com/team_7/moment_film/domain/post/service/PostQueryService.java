@@ -24,4 +24,12 @@ public class PostQueryService {
                 .map(PostSliceResponse::from)
                 .collect(Collectors.toList()));
     }
+
+    // 조회수(무한스크롤)
+//    public CustomResponseEntity<List<PostSliceResponse>> findAllOrderByViewCountDesc(PostSliceRequest request){
+//        return new CustomResponseEntity<>(HttpStatus.OK,"조회수순으로 조회",postQueryRepository.findAllOrderByViewCountDesc(request.id(), request.size()).stream()
+//                .map(PostSliceResponse::from)
+//                .collect(Collectors.toList()));
+//    }
+
 }

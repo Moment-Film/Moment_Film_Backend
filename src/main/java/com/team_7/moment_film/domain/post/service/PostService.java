@@ -1,8 +1,6 @@
 package com.team_7.moment_film.domain.post.service;
 
-import com.team_7.moment_film.domain.comment.dto.CommentRequestDTO;
 import com.team_7.moment_film.domain.comment.dto.CommentResponseDTO;
-import com.team_7.moment_film.domain.comment.entity.Comment;
 import com.team_7.moment_film.domain.comment.repository.CommentRepository;
 import com.team_7.moment_film.domain.like.repository.LikeRepository;
 import com.team_7.moment_film.domain.post.S3.service.S3Service;
@@ -14,6 +12,7 @@ import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
 import com.team_7.moment_film.global.security.UserDetailsImpl;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -37,25 +36,32 @@ public class PostService {
 
     // 생성
     @Transactional
-    public CustomResponseEntity<?> createPost(PostRequestDto requestDto, MultipartFile image,User user)  {
+    public CustomResponseEntity<PostResponseDto> createPost(PostRequestDto requestDto, MultipartFile image, UserDetailsImpl userDetails) {
         String imageUrl = s3Service.upload(image);
-        log.info("imageUrl = {}", imageUrl);
+        log.info("file path = {}" , imageUrl);
+        User user = getUserById(userDetails.getUser().getId());
 
-        Post post = Post.builder()
+        // 게시글 생성 및 저장
+        Post savepost = Post.builder()
+                .id(requestDto.getId())
+                .title(requestDto.getTitle())
+                .contents(requestDto.getContents())
                 .image(imageUrl)
                 .user(user)
                 .build();
-        postRepository.save(post);
 
+        postRepository.save(savepost);
+
+        // 생성된 게시글 정보를 응답 DTO로 만들어 반환
         PostResponseDto responseDto = PostResponseDto.builder()
-                .id(post.getId())
-                .image(post.getImage())
-                .createdAt(post.getCreatedAt())
-                .username(post.getUsername())
+                .id(savepost.getId())
+                .title(savepost.getTitle())
+                .contents(savepost.getContents())
+                .image(savepost.getImage())
+                .user(user)
+                .isLiked(false)
                 .build();
-
-        log.info("게시물 생성", user.getUsername());
-        return CustomResponseEntity.dataResponse(HttpStatus.CREATED, responseDto);
+        return CustomResponseEntity.dataResponse(HttpStatus.CREATED,responseDto);
     }
 
     //삭제
@@ -68,23 +74,40 @@ public class PostService {
         return CustomResponseEntity.msgResponse(HttpStatus.OK,"삭제 성공!");
     }
     //상세조회
-    public CustomResponseEntity<?> getPost(Long postId, UserDetailsImpl userDetails){
+    public CustomResponseEntity<?> getPost(Long postId){
+//        increaseViewCount(postId);
         Post post = postRepository.getPost(postId).orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패!"));
-        boolean isLiked = likeRepository.existsByPostIdAndUserId(postId,userDetails.getUser().getId());
-        List<CommentResponseDTO> commentResponseDTOList = commentRepository.findByPostId(postId);
-        PostResponseDto responseDto = new PostResponseDto(post,isLiked);
-        responseDto.setCommentResponseDTOList(commentResponseDTOList);
+//        boolean isLiked = likeRepository.existsByPostIdAndUserId(postId,userDetails.getUser().getId());
+//        List<CommentResponseDTO> commentResponseDTOList = commentRepository.findByPostId(postId);
+        PostResponseDto responseDto = new PostResponseDto(post);
+//        responseDto.setCommentResponseDTOList(commentResponseDTOList);
         return CustomResponseEntity.dataResponse(HttpStatus.OK,responseDto);
     }
 
 
 
 
-
+//    //좋아요
+//    public void increaseLikeCount(Long postId) {
+//        Post post = postRepository.findById(postId).orElse(null);
+//        if (post != null) {
+//            post.setLikeCount(post.getLikeCount() + 1);
+//            postRepository.save(post);
+//        }
+//    }
+//
+//    //조회수 증가
+//    public void increaseViewCount(Long postId) {
+//        Post post = postRepository.findById(postId).orElse(null);
+//        if (post != null) {
+//            post.setViewCount(post.getViewCount() + 1);
+//            postRepository.save(post);
+//        }
+//    }
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("회원을 찾을 수 없습니다. userId: " + userId));
     }
 
     public Post getPostById(Long postId) {
