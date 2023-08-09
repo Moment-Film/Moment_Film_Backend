@@ -15,6 +15,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.util.Date;
 
 @Slf4j(topic = "JWT 생성 및 인증 필터")
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -66,7 +67,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         // redis에 refreshToken 저장
         String refreshTokenValue = jwtUtil.substringToken(refreshToken);
-        Long expiration = jwtUtil.getUserInfoFromToken(refreshTokenValue).getExpiration().getTime();
+        Date expiration = jwtUtil.getUserInfoFromToken(refreshTokenValue).getExpiration();
         redisUtil.setData(username, refreshTokenValue, expiration);
         log.info("Redis에 RefreshToken 저장");
 

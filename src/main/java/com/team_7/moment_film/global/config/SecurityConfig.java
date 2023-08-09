@@ -54,7 +54,7 @@ public class SecurityConfig {
     // JwtAuthorizationFilter에 필요한 JwtUtil, userDetailsService 객체 주입하여 필터 생성
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() throws Exception {
-        return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
+        return new JwtAuthorizationFilter(jwtUtil, redisUtil, userDetailsService);
     }
 
     // 위에서 만든 Filter 의 순서와 인증 및 인가를 설정
