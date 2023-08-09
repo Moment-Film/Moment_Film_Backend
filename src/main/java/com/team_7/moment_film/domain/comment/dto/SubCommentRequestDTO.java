@@ -1,25 +1,22 @@
 package com.team_7.moment_film.domain.comment.dto;
 
 import com.team_7.moment_film.domain.user.entity.User;
-import lombok.AccessLevel;
+import jakarta.persistence.Lob;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
-public class CommentRequestDTO {
-
+@NoArgsConstructor
+public class SubCommentRequestDTO {
+    private Long commentId;
+    @Lob
+    private String content;
     private User writer;
     private Long PostId;
-    private String content;
 
-    // 기본 생성자 추가
-    public CommentRequestDTO() {
-    }
-
-
-    public CommentRequestDTO(String content, User writer, Long postId) {
+    public SubCommentRequestDTO(Long CommentId,String content, User writer, Long postId) {
+        this.commentId = CommentId;
         this.writer = writer;
         this.content = content;
         this.PostId = postId;

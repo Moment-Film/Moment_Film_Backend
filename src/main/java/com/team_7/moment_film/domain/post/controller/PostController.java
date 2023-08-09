@@ -29,11 +29,11 @@ public class PostController {
 
     //생성
     @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
-    public CustomResponseEntity<?> createPost(@RequestPart(value = "data", required = false)PostRequestDto requestDto,
-                                              @RequestPart(value = "imageFile", required = false) MultipartFile image,
+    public CustomResponseEntity<?> createPost(@RequestPart(value = "data", required = false) PostRequestDto requestDto,
+                                              @RequestPart(value = "imageFile") MultipartFile image,
                                               @AuthenticationPrincipal UserDetailsImpl userDetails
                                                 ){
-        return postService.createPost(requestDto,image,userDetails.getUser());
+        return postService.createPost(requestDto,image,userDetails);
     }
     //삭제
     @DeleteMapping("/{postId}")
@@ -47,9 +47,23 @@ public class PostController {
         return postQueryService.getAll(request);
     }
 
-    //상세보기
+    // 조회수 순으로 조회
+//    @GetMapping("/view")
+//    public CustomResponseEntity<List<PostSliceResponse>> findAllOrderByViewCountDesc(PostSliceRequest request){
+//        return postQueryService.findAllOrderByViewCountDesc(request);
+//    }
+
+    //좋아요 순으로 조회
+    @GetMapping("/like")
+    public CustomResponseEntity<List<PostSliceResponse>> findAllOrderByLikeCountDesc(PostSliceRequest request){
+        return null;
+    }
+
+
+
+    //상세보기, @AuthenticationPrincipal UserDetailsImpl userDetails
     @GetMapping("/{postId}")
-    public CustomResponseEntity<?> getPost(@PathVariable(value = "postId") Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return postService.getPost(postId,userDetails);
+    public CustomResponseEntity<?> getPost(@PathVariable(value = "postId") Long postId){
+        return postService.getPost(postId);
     }
 }
