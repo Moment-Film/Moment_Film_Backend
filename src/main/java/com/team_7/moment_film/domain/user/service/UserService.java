@@ -137,6 +137,7 @@ public class UserService {
                 .username(requestDto.getUsername() != null ? requestDto.getUsername() : user.getUsername())
                 .phone(requestDto.getPhone() != null ? requestDto.getPhone() : user.getPhone())
                 .password(user.getPassword())
+                .isKakao(user.isKakao())
                 .build();
 
         userRepository.save(updateUser);
