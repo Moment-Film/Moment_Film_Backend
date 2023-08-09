@@ -66,6 +66,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 } else {
                     // accessToken 검증 실패 후 제출한 refreshToken 의 형식이 올바르지 않거나, redis 의 refreshToken 이 만료되었을 경우
                     log.error("올바르지 않은 refreshToken 형식이거나, refreshToken이 만료되었습니다. 다시 로그인을 해주세요.");
+                    res.setCharacterEncoding("UTF-8");
+                    res.setContentType("application/json");
+                    res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    res.getWriter().write("올바르지 않은 refreshToken 형식이거나, refreshToken이 만료되었습니다. 다시 로그인을 해주세요.");
                     return;
                 }
             }
