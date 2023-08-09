@@ -23,6 +23,11 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
                 .from(user)
                 .where(user.username.like("%" + userKeyword + "%"))
                 .fetch();
+
+        if(result.isEmpty()){
+            throw new NullPointerException("해당하는 사용자가 없습니다.");
+        }
+
         return result;
     }
 
