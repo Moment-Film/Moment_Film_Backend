@@ -45,7 +45,8 @@ public class SubCommentService {
         subCommentRepository.save(subComment);
         SubCommentResponseDTO responseDTO = SubCommentResponseDTO.builder()
                 .post(subComment.getComment().getPost())
-                .writer(subComment.getWriter())
+                .username(writer.getUsername())
+                .UserId(writer.getId())
                 .content(subComment.getContent())
                 .commentId(comment.getId())
                 .build();
