@@ -7,6 +7,7 @@ import com.team_7.moment_film.domain.post.dto.PostRequestDto;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.global.config.TimeStamped;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,9 @@ import java.util.List;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Post extends TimeStamped {
     @Id
@@ -40,6 +43,9 @@ public class Post extends TimeStamped {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Transient
+    private String username;
+
 //    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 //    @Where(clause = "parent_id is null")
 //    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id") // 추가
@@ -53,14 +59,6 @@ public class Post extends TimeStamped {
 //    @Column(name = "view_count",nullable = false)
 //    private Integer viewCount;
 
-    @Builder
-    public Post(Long id, String title, String contents, String image, User user){
-        this.id = id;
-        this.image = image;
-        this.title = title;
-        this.contents = contents;
-        this.user = user;
-    }
 
 
 //    public void setLikeCount(Integer likeCount){
