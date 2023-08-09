@@ -10,6 +10,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Where;
 
 
@@ -31,24 +32,46 @@ public class Post extends TimeStamped {
     @Column(nullable = false)
     private String image;
 
+    @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false)
+    private String contents;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Where(clause = "parent_id is null")
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id") // 추가
-    private List<Comment> children = new ArrayList<>();
+//    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @Where(clause = "parent_id is null")
+//    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id") // 추가
+//    private List<Comment> children = new ArrayList<>();
+
+//    @ColumnDefault("0")
+//    @Column(name = "like_count", nullable = false)
+//    private Integer likeCount;
+//
+//    @ColumnDefault("0")
+//    @Column(name = "view_count",nullable = false)
+//    private Integer viewCount;
 
     @Builder
-    public Post(PostRequestDto requestDto, String image, User user){
+    public Post(Long id, String title, String contents, String image, User user){
+        this.id = id;
         this.image = image;
+        this.title = title;
+        this.contents = contents;
         this.user = user;
     }
 
-    public void addComment(Comment comment) {
-        this.children.add(comment);
-    }
+
+//    public void setLikeCount(Integer likeCount){
+//        this.likeCount = likeCount;
+//    }
+
+//    public void setViewCount(Integer viewCount) {
+//        this.viewCount = viewCount;
+//    }
 
 
 
