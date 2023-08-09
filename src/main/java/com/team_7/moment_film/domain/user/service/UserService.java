@@ -109,6 +109,9 @@ public class UserService {
 
     // 사용자 검색
     public CustomResponseEntity<List<SearchResponseDto>> searchUser(String userKeyword) {
+        if(userKeyword.isBlank()){
+            throw new IllegalArgumentException("검색어를 입력해주세요.");
+        }
         return CustomResponseEntity.dataResponse(HttpStatus.OK, userRepository.searchUserByName(userKeyword));
     }
 
@@ -130,6 +133,10 @@ public class UserService {
 
     // 개인 정보 수정
     public CustomResponseEntity<String> updateInfo(UpdateRequestDto requestDto, User user) {
+        // username, phone 정보만 수정 가능
+        if (requestDto.getUsername() == null && requestDto.getPhone() == null) {
+            throw new IllegalArgumentException("이름과 휴대폰 번호만 수정 가능합니다.");
+        }
 
         User updateUser = User.builder()
                 .id(user.getId())
