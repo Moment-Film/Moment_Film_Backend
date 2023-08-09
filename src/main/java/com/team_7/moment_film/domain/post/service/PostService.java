@@ -33,7 +33,7 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
 
-    //PostRequestDto requestDto
+
     // 생성
     @Transactional
     public CustomResponseEntity<PostResponseDto> createPost(PostRequestDto requestDto, MultipartFile image, UserDetailsImpl userDetails) {

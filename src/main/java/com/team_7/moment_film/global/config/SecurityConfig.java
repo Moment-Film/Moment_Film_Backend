@@ -18,6 +18,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
+
 @Configuration
 @EnableWebSecurity // spring security 지원을 가능하게 함.
 @RequiredArgsConstructor
@@ -68,9 +71,15 @@ public class SecurityConfig {
         http.authorizeHttpRequests((authorizeHttpRequests) ->
                 authorizeHttpRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .requestMatchers("/api/user/**").permitAll()
+                        .requestMatchers("/api/user/signup").permitAll()
+                        .requestMatchers("/api/user/kakao/*").permitAll()
+                        .requestMatchers("/api/user/popular").permitAll()
+                        .requestMatchers(GET, "/api/user/profile/*").permitAll()
+                        .requestMatchers(GET, "/api/post").permitAll()
+                        .requestMatchers(GET, "/api/post/*").permitAll()
                         .requestMatchers("/upload").permitAll()
-                        .requestMatchers("/api/post/**").permitAll()
+                        .requestMatchers(GET, "/api/filter").permitAll()
+                        .requestMatchers(GET, "/api/frame").permitAll()
                         .anyRequest().authenticated()
         );
 

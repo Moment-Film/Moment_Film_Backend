@@ -10,4 +10,5 @@ import lombok.Getter;
 public class FrameResponseDto {
     private Long id;
     private String frameName;
+    private String image;
 }

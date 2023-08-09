@@ -3,11 +3,13 @@ package com.team_7.moment_film.domain.customframe.controller;
 import com.team_7.moment_film.domain.customframe.dto.FrameRequestDto;
 import com.team_7.moment_film.domain.customframe.dto.FrameResponseDto;
 import com.team_7.moment_film.domain.customframe.service.FrameService;
+import com.team_7.moment_film.global.security.UserDetailsImpl;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
 import com.team_7.moment_film.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,13 +22,15 @@ public class FrameController {
 
     //프레임 커스텀하기(등록하기)
     @PostMapping("")
-    public CustomResponseEntity<FrameResponseDto> createFrame(@RequestBody FrameRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return frameService.createFrame(requestDto, userDetails.getUser());
+    public CustomResponseEntity<FrameResponseDto> createFrame(@RequestPart(value = "name") FrameRequestDto requestDto,
+                                                              @RequestPart(value = "frame") MultipartFile image,
+                                                              @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return frameService.createFrame(requestDto, image, userDetails.getUser());
     }
 
     //유저들이 커스텀한 프레임 모두 조회
     @GetMapping("")
-    public List<FrameResponseDto> getAllFrame(){
+    public CustomResponseEntity<List<FrameResponseDto>> getAllFrame(){
         return frameService.getAllFrame();
     }
 
@@ -34,6 +38,12 @@ public class FrameController {
     @PostMapping("/{frameId}")
     public CustomResponseEntity<FrameResponseDto> selectFrame(@PathVariable Long frameId) {
         return frameService.selectFrame(frameId);
+    }
+
+    //커스텀 프레임 지우기
+    @DeleteMapping("/{frameId}")
+    public CustomResponseEntity<String> deleteFrame(@PathVariable Long frameId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return frameService.deleteFrame(frameId, userDetails.getUser());
     }
 
 }
