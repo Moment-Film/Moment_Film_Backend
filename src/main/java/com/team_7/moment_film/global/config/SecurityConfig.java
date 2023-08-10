@@ -2,11 +2,13 @@ package com.team_7.moment_film.global.config;
 
 import com.team_7.moment_film.global.filter.JwtAuthenticationFilter;
 import com.team_7.moment_film.global.filter.JwtAuthorizationFilter;
+import com.team_7.moment_film.global.filter.JwtLogoutFilter;
 import com.team_7.moment_film.global.handler.CustomAccessDeniedHandler;
 import com.team_7.moment_film.global.handler.CustomAuthenticationEntryPoint;
 import com.team_7.moment_film.global.security.UserDetailsServiceImpl;
 import com.team_7.moment_film.global.util.JwtUtil;
 import com.team_7.moment_film.global.util.RedisUtil;
+import jakarta.servlet.ServletException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +22,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.io.IOException;
 
 import static org.springframework.http.HttpMethod.GET;
 
@@ -61,6 +65,11 @@ public class SecurityConfig {
         return new JwtAuthorizationFilter(jwtUtil, redisUtil, userDetailsService);
     }
 
+    @Bean
+    public JwtLogoutFilter jwtLogoutFilter() throws ServletException, IOException {
+        return new JwtLogoutFilter(jwtUtil, redisUtil);
+    }
+
     // 위에서 만든 Filter 의 순서와 인증 및 인가를 설정
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -97,6 +106,7 @@ public class SecurityConfig {
         );
 
         // 필터 순서 (인가 -> 인증)
+        http.addFilterBefore(jwtLogoutFilter(), JwtAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
