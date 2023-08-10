@@ -75,6 +75,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/signup").permitAll()
                         .requestMatchers("/api/user/kakao/*").permitAll()
                         .requestMatchers("/api/user/popular").permitAll()
+                        .requestMatchers("/api/user/search").permitAll()
                         .requestMatchers(GET, "/api/user/profile/*").permitAll()
                         .requestMatchers(GET, "/api/post").permitAll()
                         .requestMatchers(GET, "/api/post/*").permitAll()
