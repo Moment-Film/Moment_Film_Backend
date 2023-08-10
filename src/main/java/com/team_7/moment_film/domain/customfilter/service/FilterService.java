@@ -50,6 +50,7 @@ public class FilterService {
         Filter filter = filterRepository.findById(filterId).orElseThrow(()->
                 new EntityNotFoundException("존재하지 않는 필터입니다."));
         FilterResponseDto responseDto = FilterResponseDto.builder()
+                .id(filter.getId())
                 .blur(filter.getBlur())
                 .contrast(filter.getContrast())
                 .grayscale(filter.getGrayscale())

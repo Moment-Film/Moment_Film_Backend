@@ -3,6 +3,8 @@ package com.team_7.moment_film.global.config;
 import com.team_7.moment_film.global.filter.JwtAuthenticationFilter;
 import com.team_7.moment_film.global.filter.JwtAuthorizationFilter;
 import com.team_7.moment_film.global.filter.JwtLogoutFilter;
+import com.team_7.moment_film.global.handler.CustomAccessDeniedHandler;
+import com.team_7.moment_film.global.handler.CustomAuthenticationEntryPoint;
 import com.team_7.moment_film.global.security.UserDetailsServiceImpl;
 import com.team_7.moment_film.global.util.JwtUtil;
 import com.team_7.moment_film.global.util.RedisUtil;
@@ -33,6 +35,8 @@ public class SecurityConfig {
     private final RedisUtil redisUtil;
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -84,6 +88,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/signup").permitAll()
                         .requestMatchers("/api/user/kakao/*").permitAll()
                         .requestMatchers("/api/user/popular").permitAll()
+                        .requestMatchers("/api/user/search").permitAll()
                         .requestMatchers(GET, "/api/user/profile/*").permitAll()
                         .requestMatchers(GET, "/api/post").permitAll()
                         .requestMatchers(GET, "/api/post/*").permitAll()
@@ -91,6 +96,13 @@ public class SecurityConfig {
                         .requestMatchers(GET, "/api/filter").permitAll()
                         .requestMatchers(GET, "/api/frame").permitAll()
                         .anyRequest().authenticated()
+        );
+
+        // 예외처리
+        http.exceptionHandling(exceptionHandling ->
+                exceptionHandling
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
         );
 
         // 필터 순서 (인가 -> 인증)
