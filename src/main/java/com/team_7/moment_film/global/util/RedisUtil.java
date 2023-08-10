@@ -21,8 +21,14 @@ public class RedisUtil {
 
     // redis 데이터 조회 메서드
     public String getData(String key) {
-        return redisTemplate.opsForValue().get(key).toString();
+        return (String) redisTemplate.opsForValue().get(key);
     }
+
+    // 해당 key값을 AccessToken이 있는지 조회하는 메서드
+    public boolean checkData(String key) {
+        return redisTemplate.hasKey(key);
+    }
+
 
     // redis 데이터 삭제 메서드
     public void deleteData(String key) {
