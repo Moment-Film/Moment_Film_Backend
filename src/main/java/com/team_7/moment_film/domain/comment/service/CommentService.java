@@ -4,7 +4,9 @@ package com.team_7.moment_film.domain.comment.service;
 import com.team_7.moment_film.domain.comment.dto.CommentRequestDTO;
 import com.team_7.moment_film.domain.comment.dto.CommentResponseDTO;
 import com.team_7.moment_film.domain.comment.entity.Comment;
+import com.team_7.moment_film.domain.comment.entity.SubComment;
 import com.team_7.moment_film.domain.comment.repository.CommentRepository;
+import com.team_7.moment_film.domain.comment.repository.SubCommentRepository;
 import com.team_7.moment_film.domain.post.entity.Post;
 import com.team_7.moment_film.domain.post.repository.PostRepository;
 import com.team_7.moment_film.domain.user.entity.User;
@@ -29,6 +31,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postrepository;
     private final UserRepository userRepository;
+    private final SubCommentRepository subCommentRepository;
     private static final Logger logger = LoggerFactory.getLogger(CommentService.class);
 
 
@@ -50,9 +53,8 @@ public class CommentService {
                     .build();
             commentRepository.save(comment);
             CommentResponseDTO responseDTO = CommentResponseDTO.builder()
+                    .id(comment.getId())
                     .username(writer.getUsername())
-                    .userId(writer.getId())
-                    .post(comment.getPost())
                     .content(comment.getContent())
                     .build();
             return CustomResponseEntity.dataResponse(HttpStatus.CREATED, responseDTO);
@@ -60,7 +62,6 @@ public class CommentService {
             log.error("IllegalArgumentException occurred: {}", e.getMessage(), e);
             return CustomResponseEntity.errorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("An error occurred: " + e.getMessage());
             return CustomResponseEntity.errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
         }
@@ -71,6 +72,7 @@ public class CommentService {
         Post post = postrepository.findById(postId).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않은 게시글 입니다.")
         );
+
         List<Comment> commentList = commentRepository.findAllByPostId(postId);
         List<CommentResponseDTO> commentResponseDTOList = new ArrayList<>();
         for(Comment comment : commentList){
@@ -91,10 +93,18 @@ public class CommentService {
         );
 
         User user = userRepository.findById(userDetails.getUser().getId()).orElseThrow(
-                ()-> new IllegalArgumentException("잘못된 사용자 입니다.")
+                ()-> new IllegalArgumentException("올바른 사용자가 아닙니다.")
         );
-        commentRepository.delete(comment);
-        return CustomResponseEntity.msgResponse(HttpStatus.OK,"삭제 성공!");
+        if(!comment.getWriter().getId().equals(user.getId())){
+            throw new IllegalArgumentException("해당 사용자가 아닙니다.");
+        }else {
+            // 댓글에 속한 대댓글들도 삭제
+            List<SubComment> subComments = comment.getSubComments();
+            subComments.forEach(subCommentRepository::delete);
+
+            commentRepository.delete(comment);
+            return CustomResponseEntity.msgResponse(HttpStatus.OK, "삭제 성공!");
+        }
     }
 
 

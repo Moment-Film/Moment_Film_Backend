@@ -44,11 +44,10 @@ public class SubCommentService {
                 .build();
         subCommentRepository.save(subComment);
         SubCommentResponseDTO responseDTO = SubCommentResponseDTO.builder()
-                .post(subComment.getComment().getPost())
-                .username(writer.getUsername())
-                .UserId(writer.getId())
-                .content(subComment.getContent())
+                .id(subComment.getId())
                 .commentId(comment.getId())
+                .username(writer.getUsername())
+                .content(subComment.getContent())
                 .build();
 
         return CustomResponseEntity.dataResponse(HttpStatus.CREATED,responseDTO);
@@ -60,12 +59,18 @@ public class SubCommentService {
                 () -> new IllegalArgumentException("존재하지 않는 대댓글입니다.")
         );
 
+        User user = userRepository.findById(userDetails.getId()).orElseThrow(
+                () -> new IllegalArgumentException("올바른 사용자가 아닙니다.")
+        );
+
         if (!subComment.getWriter().getId().equals(userDetails.getUser().getId())) {
-            throw new IllegalArgumentException("본인이 작성한 대댓글이 아닙니다.");
+            return CustomResponseEntity.errorResponse(HttpStatus.FORBIDDEN, "해당 대댓글의 작성자가 아닙니다. 삭제 권한이 없습니다.");
         }
 
         subCommentRepository.delete(subComment);
-        return CustomResponseEntity.msgResponse(HttpStatus.OK,"삭제 완료!");
+        return CustomResponseEntity.msgResponse(HttpStatus.OK, "삭제 성공!");
+
+
     }
 
 
