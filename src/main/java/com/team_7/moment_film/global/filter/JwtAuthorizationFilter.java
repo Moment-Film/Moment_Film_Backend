@@ -19,7 +19,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Date;
 
 @Slf4j(topic = "JWT 검증 및 인가 필터")
 @RequiredArgsConstructor
@@ -36,6 +35,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(accessToken)) {
             accessToken = jwtUtil.substringToken(accessToken);
 
+            // 제출한 accessToken(KEY)로 redis 조회 시 해당 KEY 값이 있고, Value가 logout인 경우
+            // 해당 경우는 이미 로그아웃 했고, 이 토큰이 만료될 때 까지 사용할 수 없도록 예외처리
+            if (redisUtil.checkData(accessToken) && redisUtil.getData(accessToken).equals("logout")) {
+                res.setCharacterEncoding("UTF-8");
+                res.setContentType("application/json");
+                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                res.getWriter().write("이미 로그아웃된 사용자입니다. 다시 로그인을 해주세요.");
+                return;
+            }
             // accessToken 검증 실패 시 refreshToken 을 통해 accessToken 재발급 진행
             if (!jwtUtil.validateToken(accessToken)) {
                 log.warn("Token Error, accessToken 검증 실패! refreshToken 으로 accessToken 재발급 시도");
