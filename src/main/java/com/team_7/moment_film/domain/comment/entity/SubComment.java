@@ -22,28 +22,37 @@ public class SubComment extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "commentId", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comment_id")
     private Comment comment;
+
 
     @Lob
     @Column
     private String content;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "post_id")
-    private Post post;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id") // 수정: post_id로 변경
+    private Post post; // 수정: Post 타입으로 변경
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "users_id")
     private User writer;
 
-    public SubComment(Long id, Comment comment, String content, Post post, User writer){
+    private String username;
+
+    private Long userId;
+
+    public SubComment(Long id, Comment comment, String content, Post post, User writer,String username,Long userId){
         this.id = id;
         this.comment = comment;
         this.content = content;
         this.post = post;
         this.writer = writer;
+        this.username = username;
+        this.userId = userId;
     }
+
+
 
 }
