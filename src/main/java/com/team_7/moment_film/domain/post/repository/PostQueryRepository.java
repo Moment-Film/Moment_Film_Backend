@@ -1,6 +1,7 @@
 package com.team_7.moment_film.domain.post.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.team_7.moment_film.domain.post.dto.PostSliceRequest;
 import com.team_7.moment_film.domain.post.entity.Post;
@@ -18,46 +19,35 @@ public class PostQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<Post> getSliceOfPost(
-            @Nullable
-            Long id,
-            int size
-    ) {
+
+    //공통
+    private JPAQuery<Post> baseQuery(Long id) {
         return jpaQueryFactory.selectFrom(post)
                 .where(ltPostId(id))
-                .join(post)
-                .fetchJoin()
-                .where(post.id.eq(post.id))
-                .orderBy(post.id.desc())
-                .limit(size)
-                .fetch();
-
+                .orderBy(post.id.desc());
     }
 
-//    public List<Post> findAllOrderByViewCountDesc(
-//            @Nullable
-//            Long id,
-//            int size) {
-//        return jpaQueryFactory
-//                .selectFrom(post)
-//                .where(ltPostId(id))
-//                .orderBy(post.viewCount.desc())
-//                .limit(size)
-//                .fetch();
-//    }
-//
-//
-//    public List<Post> findAllOrderByLikeCountDesc(
-//            @Nullable
-//            Long id,
-//            int size){
-//        return jpaQueryFactory
-//                .selectFrom(post)
-//                .where(ltPostId(id))
-//                .orderBy(post.likeCount.desc())
-//                .limit(size)
-//                .fetch();
-//    }
+    //최신순 (무한스크롤)
+    public List<Post> getSliceOfPost(@Nullable Long id, int size) {
+        return baseQuery(id)
+                .limit(size)
+                .fetch();
+    }
+    //조회수 (무한스크롤)
+    public List<Post> findAllOrderByViewCountDesc(@Nullable Long id, int size) {
+        return baseQuery(id)
+                .orderBy(post.viewCount.desc())
+                .limit(size)
+                .fetch();
+    }
+
+    //좋아요 (무한스크롤)
+    public List<Post> findAllOrderByLikeCountDesc(@Nullable Long id, int size) {
+        return baseQuery(id)
+                .orderBy(post.likeCount.desc())
+                .limit(size)
+                .fetch();
+    }
 
 
 

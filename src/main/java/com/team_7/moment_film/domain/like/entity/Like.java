@@ -28,4 +28,11 @@ public class Like {
         this.user = user;
         this.post = post;
     }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.post != null) {
+            this.post.increaseLikeCount();
+        }
+    }
 }

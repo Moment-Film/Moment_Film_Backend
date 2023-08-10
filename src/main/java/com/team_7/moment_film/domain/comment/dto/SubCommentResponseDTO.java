@@ -15,13 +15,11 @@ import lombok.NoArgsConstructor;
 public class SubCommentResponseDTO {
     //subcommentId
     private Long id;
+    private Long postId;
     private Long commentId;
+    private Long UserId;
+    private String username;
     @Lob
     private String content;
-    private String username;
-    private Long UserId;
-    private Post post;
-    private Long postId;
-
 
 }
