@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static jakarta.persistence.FetchType.LAZY;
 
 @Entity
@@ -27,6 +30,9 @@ public class Comment extends TimeStamped{
     @Lob
     private String content;
 
+    private String username;
+
+    private Long userId;
 
 //    @ColumnDefault("FALSE")
 //    @Column(nullable = false)
@@ -41,12 +47,23 @@ public class Comment extends TimeStamped{
     @JoinColumn(name = "users_id")
     private User writer;
 
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SubComment> subComments = new ArrayList<>();
     @Builder
-    public Comment(Long id, String content, boolean isDeleted, Post post, User writer){
+    public Comment(Long id, String content, boolean isDeleted, Post post, User writer, String username, Long userId){
         this.id = id;
         this.content = content;
-//        this.isDeleted = isDeleted;
         this.post = post;
         this.writer = writer;
+        this.username = username;
+        this.userId = userId;
     }
+
+    public List<SubComment> getSubComments() {
+        return subComments;
+    }
+    public void setSubComments(List<SubComment> subComments) {
+        this.subComments = subComments;
+    }
+
 }

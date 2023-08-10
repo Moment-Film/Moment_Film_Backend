@@ -37,8 +37,8 @@ public class PostController {
     }
     //삭제
     @DeleteMapping("/{postId}")
-    public CustomResponseEntity<?> deletePost(@PathVariable Long postId){
-        return postService.deletePost(postId);
+    public CustomResponseEntity<?> deletePost(@PathVariable Long postId,@AuthenticationPrincipal UserDetailsImpl userDetails){
+        return postService.deletePost(postId,userDetails);
     }
 
     // 무한 스크롤 페이징
@@ -48,15 +48,15 @@ public class PostController {
     }
 
     // 조회수 순으로 조회
-//    @GetMapping("/view")
-//    public CustomResponseEntity<List<PostSliceResponse>> findAllOrderByViewCountDesc(PostSliceRequest request){
-//        return postQueryService.findAllOrderByViewCountDesc(request);
-//    }
+    @GetMapping("/view")
+    public CustomResponseEntity<List<PostSliceResponse>> findAllOrderByViewCountAsc(PostSliceRequest request){
+        return postQueryService.findAllOrderByViewCountDesc(request);
+    }
 
     //좋아요 순으로 조회
     @GetMapping("/like")
-    public CustomResponseEntity<List<PostSliceResponse>> findAllOrderByLikeCountDesc(PostSliceRequest request){
-        return null;
+    public CustomResponseEntity<List<PostSliceResponse>> findAllOrderByLikeCountAsc(PostSliceRequest request){
+        return postQueryService.findAllOrderByLikeCountDesc(request);
     }
 
 
