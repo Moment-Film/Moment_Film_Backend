@@ -19,10 +19,10 @@ public class JwtUtil {
     public static final String HEADER_ACCESS_TOKEN = "accessToken";
     public static final String HEADER_REFRESH_TOKEN = "refreshToken";
     public static final String BEARER_PREFIX = "Bearer ";
-    //    private final Long ACCESS_TOKEN_EXPIRATION = 6 * 60 * 60 * 1000L; // 6시간
-//    private final Long REFRESH_TOKEN_EXPIRATION = 12 * 60 * 60 * 1000L; // 12시간
-    private final Long ACCESS_TOKEN_EXPIRATION = 60_000L; // 1분
-    private final Long REFRESH_TOKEN_EXPIRATION = 180_000L; // 3분
+    private final Long ACCESS_TOKEN_EXPIRATION = 6 * 60 * 60 * 1000L; // 6시간
+    private final Long REFRESH_TOKEN_EXPIRATION = 12 * 60 * 60 * 1000L; // 12시간
+//    private final Long ACCESS_TOKEN_EXPIRATION = 60_000L; // 1분
+//    private final Long REFRESH_TOKEN_EXPIRATION = 180_000L; // 3분
 
     @Value("${jwt.secret.key}")
     private String secretKey;
