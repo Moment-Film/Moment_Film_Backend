@@ -49,6 +49,7 @@ public class FrameService {
         Frame frame = frameRepository.findById(frameId).orElseThrow(() ->
                 new EntityNotFoundException("존재하지 않는 프레임입니다."));
         FrameResponseDto responseDto = FrameResponseDto.builder()
+                .id(frame.getId())
                 .frameName(frame.getFrameName())
                 .image(frame.getImage())
                 .build();
