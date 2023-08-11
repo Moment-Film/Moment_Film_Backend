@@ -22,6 +22,7 @@ public class JwtLogoutFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        log.info("클라이언트 요청 URI 확인 : "+request.getRequestURI());
         if (request.getRequestURI().equals("/api/user/logout")) {
             String accessToken = jwtUtil.substringToken(request.getHeader("accessToken"));
             String refreshToken = jwtUtil.substringToken(request.getHeader("refreshToken"));
