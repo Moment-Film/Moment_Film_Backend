@@ -22,6 +22,15 @@ repositories {
 }
 
 dependencies {
+	// Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	// java 8이상의 날짜 시간
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+	//Mapper
+	implementation 'org.mapstruct:mapstruct:1.5.3.Final'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
+	// https://mvnrepository.com/artifact/tk.mybatis/mapper
+	implementation group: 'tk.mybatis', name: 'mapper', version: '4.1.5'
 	//aws
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.112'
 	implementation 'javax.xml.bind:jaxb-api:2.3.1'
@@ -59,4 +68,11 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+def querydslSrcDir = 'src/main/generated'
+clean {
+	delete file(querydslSrcDir)
+}
+tasks.withType(JavaCompile) {
+	options.generatedSourceOutputDirectory = file(querydslSrcDir)
 }
