@@ -86,7 +86,7 @@ public class SecurityConfig {
                 authorizeHttpRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/api/user/signup").permitAll()
-                        .requestMatchers("/api/user/kakao/*").permitAll()
+                        .requestMatchers("/api/user/kakao/callback").permitAll()
                         .requestMatchers("/api/user/popular").permitAll()
                         .requestMatchers("/api/user/search").permitAll()
                         .requestMatchers(GET, "/api/user/profile/*").permitAll()

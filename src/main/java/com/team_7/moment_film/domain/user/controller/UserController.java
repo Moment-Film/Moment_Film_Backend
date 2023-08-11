@@ -42,7 +42,7 @@ public class UserController {
     }
 
     // 카카오 인가 코드 API
-    @GetMapping("/kakao/callback")
+    @PostMapping("/kakao/callback")
     public CustomResponseEntity<String> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
         log.info("카카오 인가 코드 = " + code);
         return kakaoService.kakaoLogin(code, response);
@@ -57,14 +57,14 @@ public class UserController {
 
     // 개인 정보 조회 API
     @GetMapping("/info")
-    public CustomResponseEntity<UserInfoDto> getInfo(@AuthenticationPrincipal UserDetailsImpl userDetails){
+    public CustomResponseEntity<UserInfoDto> getInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.getInfo(userDetails.getUser());
     }
 
     // 개인 정보 수정 API
     @PutMapping("/info")
     public CustomResponseEntity<String> updateInfo(@Valid @RequestBody UpdateRequestDto requestDto,
-                                                   @AuthenticationPrincipal UserDetailsImpl userDetails){
+                                                   @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.updateInfo(requestDto, userDetails.getUser());
     }
 }
