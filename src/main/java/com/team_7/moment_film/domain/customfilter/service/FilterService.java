@@ -23,6 +23,11 @@ public class FilterService {
     private final FilterRepository filterRepository;
 
     public CustomResponseEntity<FilterResponseDto> createFilter(FilterRequestDto requestDto, User user) {
+        if(requestDto.getBlur()==null && requestDto.getContrast()==null &&
+                requestDto.getGrayscale()==null && requestDto.getSepia()==null){
+            throw new IllegalArgumentException("필터 값을 선택해주세요.");
+        }
+
         Filter filter = new Filter(requestDto, user);
         filterRepository.save(filter);
         FilterResponseDto responseDto = FilterResponseDto.builder()
