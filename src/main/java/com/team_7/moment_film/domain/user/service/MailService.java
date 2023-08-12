@@ -40,8 +40,7 @@ public class MailService {
         try {
             mailSender.send(message);
         }catch (MailException e){
-            e.printStackTrace();
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("메일 전송 오류입니다: " + e.getMessage());
         }
 
         return CustomResponseEntity.msgResponse(HttpStatus.OK,"code = " + authCode);
