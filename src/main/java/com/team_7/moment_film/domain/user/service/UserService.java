@@ -1,9 +1,9 @@
 package com.team_7.moment_film.domain.user.service;
 
 import com.team_7.moment_film.domain.follow.entity.Follow;
-import com.team_7.moment_film.domain.like.entity.Like;
 import com.team_7.moment_film.domain.like.repository.LikeRepository;
-import com.team_7.moment_film.domain.post.entity.Post;
+import com.team_7.moment_film.domain.post.entity.TempPost;
+import com.team_7.moment_film.domain.post.repository.PostQueryRepository;
 import com.team_7.moment_film.domain.post.repository.PostRepository;
 import com.team_7.moment_film.domain.user.dto.*;
 import com.team_7.moment_film.domain.user.entity.User;
@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j(topic = "User Service")
 @Service
@@ -27,6 +28,7 @@ public class UserService {
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PostQueryRepository postQueryRepository;
     private final RedisUtil redisUtil;
 
     // 회원가입 비즈니스 로직
@@ -64,20 +66,51 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다."));
 
-        // 내가 작성한 게시글 리스트
-        List<Post> postList = postRepository.findByUserId(user.getId());
-        List<Post> myPostList = postList.stream().map(post -> Post.builder()
-                .id(post.getId())
-                .image(post.getImage())
-                .build()).toList();
+//         내가 작성한 게시글 리스트 (1번 방법 : userId로 PostRepository에서 게시글 리스트 조회)
+//        List<Post> postList = postRepository.findByUserId(user.getId());
+//        List<Post> myPostList = postList.stream().map(post -> Post.builder()
+//                .id(post.getId())
+//                .title(post.getTitle())
+//                .image(post.getImage())
+//                .contents(post.getContents())
+//                .build()).toList();
 
-        // 좋아요한 게시글 리스트
-        List<Like> likeList = likeRepository.findByUserId(user.getId());
-        List<Post> likePosts = likeList.stream().map(like -> Post.builder()
-                .id(like.getPost().getId())
-                .image(like.getPost().getImage())
-                .username(like.getUser().getUsername())
-                .build()).toList();
+//        내가 작성한 게시글 리스트 (2번 방법 : User Entity에서 양방향 참조로 연관된 PostList를 Getter로 조회) ✨
+//        List<Post> postList = user1.getPostList().stream().map(post -> Post.builder()
+//                .id(post.getId())
+//                .title(post.getTitle())
+//                .contents(post.getContents())
+//                .image(post.getImage())
+//                .build())
+//                .toList();
+
+        // 내가 작성한 게시글 리스트 테스트 (임시 Entity: Post Entity에서 일부 필드만 가져왔을 때 연관된 댓글/대댓글 필드도 다가져와짐)
+        List<TempPost> postList = postQueryRepository.getMyPosts(userId);
+        postList.stream().map(tempPost -> TempPost.builder()
+                .id(tempPost.getId())
+                .title(tempPost.getTitle())
+                .contents(tempPost.getContents())
+                .image(tempPost.getImage())
+                .build())
+                .collect(Collectors.toList());
+
+//         좋아요한 게시글 리스트 (원본)
+//        List<Like> likeList = likeRepository.findByUserId(user.getId());
+//        List<Post> likePosts = likeList.stream().map(like -> Post.builder()
+//                .id(like.getPost().getId())
+//                .image(like.getPost().getImage())
+//                .username(like.getUser().getUsername())
+//                .build()).toList();
+        List<TempPost> likedPostList = postQueryRepository.getLikedPosts(userId);
+        likedPostList.stream().map(tempPost -> TempPost.builder()
+                .id(tempPost.getId())
+                .title(tempPost.getTitle())
+                .contents(tempPost.getContents())
+                .image(tempPost.getImage())
+                .userId(tempPost.getUserId())
+                .username(tempPost.getUsername())
+                .build())
+                .collect(Collectors.toList());
 
 
         // 조회한 유저의 팔로잉 리스트
@@ -101,9 +134,9 @@ public class UserService {
                 .username(user.getUsername())
                 .followerList(followers)
                 .followingList(followings)
-                .postList(myPostList)
-                .postListCnt(myPostList.size())
-                .likePosts(likePosts)
+                .postList(postList)
+                .postListCnt(postList.size())
+                .likePosts(likedPostList)
                 .build();
 
         return CustomResponseEntity.dataResponse(HttpStatus.OK, responseDto);
