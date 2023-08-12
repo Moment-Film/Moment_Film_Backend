@@ -18,8 +18,7 @@ public class SubCommentResponseDTO {
     private Long postId;
     private Long commentId;
     private Long UserId;
-    private String username;
     @Lob
     private String content;
-
+    private String username;
 }

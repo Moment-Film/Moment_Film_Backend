@@ -16,6 +16,7 @@ public class CommentResponseDTO implements Serializable {
     private Long id;
     private Long postId;
     private Long userId;
+    private User writer;
     private String username;
     private String content;
 }

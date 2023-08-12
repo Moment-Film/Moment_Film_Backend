@@ -30,9 +30,10 @@ public class Comment extends TimeStamped{
     @Lob
     private String content;
 
+
+    @Column(nullable = false)
     private String username;
 
-    private Long userId;
 
 //    @ColumnDefault("FALSE")
 //    @Column(nullable = false)
@@ -50,13 +51,12 @@ public class Comment extends TimeStamped{
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubComment> subComments = new ArrayList<>();
     @Builder
-    public Comment(Long id, String content, boolean isDeleted, Post post, User writer, String username, Long userId){
+    public Comment(Long id, String content, Post post, User writer, String username){
         this.id = id;
         this.content = content;
         this.post = post;
         this.writer = writer;
         this.username = username;
-        this.userId = userId;
     }
 
     public List<SubComment> getSubComments() {

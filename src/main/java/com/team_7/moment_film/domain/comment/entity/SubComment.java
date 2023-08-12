@@ -26,7 +26,6 @@ public class SubComment extends TimeStamped {
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
-
     @Lob
     @Column
     private String content;
@@ -39,18 +38,18 @@ public class SubComment extends TimeStamped {
     @JoinColumn(name = "users_id")
     private User writer;
 
+    @Column(nullable = false)
     private String username;
 
-    private Long userId;
 
-    public SubComment(Long id, Comment comment, String content, Post post, User writer,String username,Long userId){
+
+    public SubComment(Long id, Comment comment, String content, Post post, User writer, String username){
         this.id = id;
         this.comment = comment;
         this.content = content;
         this.post = post;
         this.writer = writer;
         this.username = username;
-        this.userId = userId;
     }
 
 

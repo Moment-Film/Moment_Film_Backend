@@ -67,8 +67,8 @@ public class PostService {
                     .title(savepost.getTitle())
                     .contents(savepost.getContents())
                     .image(savepost.getImage())
-                    .user_Id(savepost.getUser().getId())
                     .username(savepost.getUsername())
+                    .createdAt(savepost.getCreatedAt())
                     .build();
 
             return CustomResponseEntity.dataResponse(HttpStatus.CREATED, responseDto);

@@ -44,18 +44,19 @@ public class CommentService {
             User user = userRepository.findById(userDetails.getUser().getId()).orElseThrow(
                     () -> new IllegalArgumentException("존재하지 않은 사용자 입니다.")
             );
-            User writer = userDetails.getUser();
+
 
             Comment comment = Comment.builder()
                     .post(post)
-                    .writer(writer)
+                    .writer(user)
+                    .username(user.getUsername())
                     .content(requestDTO.getContent())
                     .build();
             commentRepository.save(comment);
             CommentResponseDTO responseDTO = CommentResponseDTO.builder()
                     .id(comment.getId())
-                    .username(writer.getUsername())
                     .content(comment.getContent())
+                    .username(comment.getUsername())
                     .build();
             return CustomResponseEntity.dataResponse(HttpStatus.CREATED, responseDTO);
         } catch (IllegalArgumentException e) {

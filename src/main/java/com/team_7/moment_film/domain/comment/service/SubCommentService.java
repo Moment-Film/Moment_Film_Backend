@@ -41,12 +41,13 @@ public class SubCommentService {
                 .writer(writer)
                 .comment(comment)
                 .content(requestDTO.getContent())
+                .username(writer.getUsername())
                 .build();
         subCommentRepository.save(subComment);
         SubCommentResponseDTO responseDTO = SubCommentResponseDTO.builder()
                 .id(subComment.getId())
                 .commentId(comment.getId())
-                .username(writer.getUsername())
+                .username(subComment.getWriter().getUsername())
                 .content(subComment.getContent())
                 .build();
 

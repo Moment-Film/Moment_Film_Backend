@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Fetch;
-import org.yaml.snakeyaml.comments.CommentLine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +46,7 @@ public class Post extends TimeStamped {
     @JsonIgnore
     private User user;
 
-    @Transient
+    @Column(nullable = false)
     private String username;
 
 //    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -99,7 +98,6 @@ public class Post extends TimeStamped {
         for (Comment comment : commentList) {
             Comment newComment = Comment.builder()
                     .id(comment.getId())
-                    .userId(user.getId())
                     .username(user.getUsername())
                     .content(comment.getContent())
                     .build();
@@ -108,8 +106,6 @@ public class Post extends TimeStamped {
             for (SubComment subComment : comment.getSubComments()) {
                 SubComment newSubComment = SubComment.builder()
                         .id(subComment.getId())
-                        .userId(user.getId())
-                        .username(subComment.getWriter().getUsername())
                         .content(subComment.getContent())
                         .build();
                 newSubComments.add(newSubComment);
