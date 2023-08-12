@@ -9,6 +9,7 @@ import com.team_7.moment_film.domain.user.dto.*;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
+import com.team_7.moment_film.global.util.RedisUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ public class UserService {
     private final LikeRepository likeRepository;
     private final PasswordEncoder passwordEncoder;
     private final PostQueryRepository postQueryRepository;
+    private final RedisUtil redisUtil;
 
     // 회원가입 비즈니스 로직
     public CustomResponseEntity<String> signup(SignupRequestDto signupRequestDto) {
@@ -182,6 +184,38 @@ public class UserService {
 
         userRepository.save(updateUser);
         return CustomResponseEntity.msgResponse(HttpStatus.OK,"개인정보 수정 완료");
+    }
+
+    // 비밀번호 변경
+    public CustomResponseEntity<String> resetPassword(UpdateRequestDto requestDto, User user, String code) {
+        if(!checkCode(user, code)){
+            throw new IllegalArgumentException("코드가 일치하지 않습니다.");
+        }
+        if (requestDto.getPassword()==null) {
+            throw new IllegalArgumentException("새비밀번호를 입력해주세요.");
+        }
+
+        String newPassword = passwordEncoder.encode(requestDto.getPassword());
+
+        User updateUser = User.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .phone(user.getPhone())
+                .password(newPassword)
+                .isKakao(user.isKakao())
+                .build();
+
+        userRepository.save(updateUser);
+
+        return CustomResponseEntity.msgResponse(HttpStatus.OK,"비밀번호 변경 완료");
+    }
+
+    // 메일로 전송한 인증코드 일치 확인 메서드
+    public Boolean checkCode(User user, String code) {
+        String authCode = redisUtil.getData(user.getEmail());
+        log.info("code="+ authCode);
+        return authCode.equals(code);
     }
 
     // 이메일 중복 검사 메서드
