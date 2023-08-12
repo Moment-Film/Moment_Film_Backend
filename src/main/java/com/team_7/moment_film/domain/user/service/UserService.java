@@ -9,6 +9,7 @@ import com.team_7.moment_film.domain.user.dto.*;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
+import com.team_7.moment_film.global.util.JwtUtil;
 import com.team_7.moment_film.global.util.RedisUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,8 +32,9 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final PostQueryRepository postQueryRepository;
     private final RedisUtil redisUtil;
+    private final JwtUtil jwtUtil;
 
-    // 회원가입 비즈니스 로직
+    // 회원가입
     public CustomResponseEntity<String> signup(SignupRequestDto signupRequestDto) {
         String email = signupRequestDto.getEmail();
         String username = signupRequestDto.getUsername();
@@ -87,11 +90,11 @@ public class UserService {
         // 내가 작성한 게시글 리스트 테스트 (임시 Entity: Post Entity에서 일부 필드만 가져왔을 때 연관된 댓글/대댓글 필드도 다가져와짐)
         List<TempPost> postList = postQueryRepository.getMyPosts(userId);
         postList.stream().map(tempPost -> TempPost.builder()
-                .id(tempPost.getId())
-                .title(tempPost.getTitle())
-                .contents(tempPost.getContents())
-                .image(tempPost.getImage())
-                .build())
+                        .id(tempPost.getId())
+                        .title(tempPost.getTitle())
+                        .contents(tempPost.getContents())
+                        .image(tempPost.getImage())
+                        .build())
                 .collect(Collectors.toList());
 
 //         좋아요한 게시글 리스트 (원본)
@@ -101,15 +104,17 @@ public class UserService {
 //                .image(like.getPost().getImage())
 //                .username(like.getUser().getUsername())
 //                .build()).toList();
+
+        // 내가 좋아효한 게시글 리스트 (임시 Entity: Post Entity에서 일부 필드만 가져왔을 때 연관된 댓글/대댓글 필드도 다가져와짐)
         List<TempPost> likedPostList = postQueryRepository.getLikedPosts(userId);
         likedPostList.stream().map(tempPost -> TempPost.builder()
-                .id(tempPost.getId())
-                .title(tempPost.getTitle())
-                .contents(tempPost.getContents())
-                .image(tempPost.getImage())
-                .userId(tempPost.getUserId())
-                .username(tempPost.getUsername())
-                .build())
+                        .id(tempPost.getId())
+                        .title(tempPost.getTitle())
+                        .contents(tempPost.getContents())
+                        .image(tempPost.getImage())
+                        .userId(tempPost.getUserId())
+                        .username(tempPost.getUsername())
+                        .build())
                 .collect(Collectors.toList());
 
 
@@ -144,7 +149,7 @@ public class UserService {
 
     // 사용자 검색
     public CustomResponseEntity<List<SearchResponseDto>> searchUser(String userKeyword) {
-        if(userKeyword.isBlank()){
+        if (userKeyword.isBlank()) {
             throw new IllegalArgumentException("검색어를 입력해주세요.");
         }
         return CustomResponseEntity.dataResponse(HttpStatus.OK, userRepository.searchUserByName(userKeyword));
@@ -183,15 +188,15 @@ public class UserService {
                 .build();
 
         userRepository.save(updateUser);
-        return CustomResponseEntity.msgResponse(HttpStatus.OK,"개인정보 수정 완료");
+        return CustomResponseEntity.msgResponse(HttpStatus.OK, "개인정보 수정 완료");
     }
 
     // 비밀번호 변경
     public CustomResponseEntity<String> resetPassword(UpdateRequestDto requestDto, User user, String code) {
-        if(!checkCode(user, code)){
+        if (!checkCode(user, code)) {
             throw new IllegalArgumentException("코드가 일치하지 않습니다.");
         }
-        if (requestDto.getPassword()==null) {
+        if (requestDto.getPassword() == null) {
             throw new IllegalArgumentException("새비밀번호를 입력해주세요.");
         }
 
@@ -208,29 +213,47 @@ public class UserService {
 
         userRepository.save(updateUser);
 
-        return CustomResponseEntity.msgResponse(HttpStatus.OK,"비밀번호 변경 완료");
+        return CustomResponseEntity.msgResponse(HttpStatus.OK, "비밀번호 변경 완료");
+    }
+
+    // 회원탈퇴
+    public CustomResponseEntity<String> withdrawal(User user, String accessToken) {
+        // redis에 저장된 refreshToken 삭제
+        if (redisUtil.checkData(user.getUsername())) {
+            redisUtil.deleteData(user.getUsername());
+        }
+
+        // 사용자가 제출한 accessToken 블랙리스트에 추가 및 TTL 설정(남은 시간)
+        String accessTokenValue = jwtUtil.substringToken(accessToken);
+        Date expiration = jwtUtil.getUserInfoFromToken(accessTokenValue).getExpiration();
+        redisUtil.setData(accessTokenValue, "logout", expiration);
+
+        // repository에서 해당 유저 제거
+        userRepository.delete(user);
+
+        return CustomResponseEntity.msgResponse(HttpStatus.OK, "회원 탈퇴 완료");
     }
 
     // 메일로 전송한 인증코드 일치 확인 메서드
+
     public Boolean checkCode(User user, String code) {
         String authCode = redisUtil.getData(user.getEmail());
-        log.info("code="+ authCode);
+        log.info("code=" + authCode);
         return authCode.equals(code);
     }
-
     // 이메일 중복 검사 메서드
+
     private boolean checkEmail(String email) {
         return userRepository.existsByEmail(email);
     }
-
     // Username 중복 검사 메서드
+
     private boolean checkUsername(String username) {
         return userRepository.existsByUsername(username);
     }
-
     // 휴대폰 번호 중복 검사 메서드
+
     private boolean checkPhone(String phone) {
         return userRepository.existsByPhone(phone);
     }
-
 }

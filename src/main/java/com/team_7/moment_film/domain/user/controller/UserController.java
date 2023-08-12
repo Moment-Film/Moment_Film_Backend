@@ -7,6 +7,7 @@ import com.team_7.moment_film.domain.user.service.MailService;
 import com.team_7.moment_film.domain.user.service.UserService;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
 import com.team_7.moment_film.global.security.UserDetailsImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -82,5 +83,13 @@ public class UserController {
                                                       @AuthenticationPrincipal UserDetailsImpl userDetails,
                                                       @RequestParam String code) {
         return userService.resetPassword(requestDto, userDetails.getUser(), code);
+    }
+
+    // 회원 탈퇴 API
+    @DeleteMapping("/withdrawal")
+    public CustomResponseEntity<String> withdrawal(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                   HttpServletRequest request) {
+        String accessToken = request.getHeader("accessToken");
+        return userService.withdrawal(userDetails.getUser(), accessToken);
     }
 }
