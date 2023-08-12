@@ -27,7 +27,7 @@ public class LikeService {
     private final PostService postService;
 
     @Transactional
-    public CustomResponseEntity<?> likePost(Long postId, UserDetailsImpl userDetails){
+    public CustomResponseEntity<?> likePost(Long postId, UserDetailsImpl userDetails) {
         Post post;
         try {
             post = postService.getPostById(postId);
@@ -35,15 +35,21 @@ public class LikeService {
             return CustomResponseEntity.errorResponse(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다.");
         }
         User user = userDetails.getUser();
-        Optional<Like> optionalLike = likeRepository.findByUserIdAndPostId(user.getId(),post.getId());
+        Optional<Like> optionalLike = likeRepository.findByUserIdAndPostId(user.getId(), post.getId());
 
-        if(optionalLike.isPresent()){
-            likeRepository.deleteByUserIdAndPostId(user.getId(),post.getId());
-            return msgResponse(HttpStatus.OK,"좋아요 취소!");
-        }else {
-            Like like = new Like(user,post);
+
+        if (optionalLike.isPresent()) {
+
+            likeRepository.deleteByUserIdAndPostId(user.getId(), post.getId());
+            return msgResponse(HttpStatus.OK, "좋아요 취소!");
+        } else {
+
+            Like like = Like.builder()
+                    .post(post)
+                    .user(user)
+                    .build();
             likeRepository.save(like);
-            return msgResponse(HttpStatus.OK,"좋아요!");
+            return msgResponse(HttpStatus.OK, "좋아요!");
         }
 
     }

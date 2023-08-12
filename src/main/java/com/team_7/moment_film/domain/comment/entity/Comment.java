@@ -4,12 +4,8 @@ import com.team_7.moment_film.domain.post.entity.Post;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.global.config.TimeStamped;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.FetchType.LAZY;
@@ -17,8 +13,10 @@ import static jakarta.persistence.FetchType.LAZY;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Table(name = "comments")
-public class Comment extends TimeStamped{
+public class Comment extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,16 +28,6 @@ public class Comment extends TimeStamped{
     @Lob
     private String content;
 
-
-    @Column(nullable = false)
-    private String username;
-
-
-//    @ColumnDefault("FALSE")
-//    @Column(nullable = false)
-//    private Boolean isDeleted;
-
-
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
@@ -48,22 +36,7 @@ public class Comment extends TimeStamped{
     @JoinColumn(name = "users_id")
     private User writer;
 
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SubComment> subComments = new ArrayList<>();
-    @Builder
-    public Comment(Long id, String content, Post post, User writer, String username){
-        this.id = id;
-        this.content = content;
-        this.post = post;
-        this.writer = writer;
-        this.username = username;
-    }
-
-    public List<SubComment> getSubComments() {
-        return subComments;
-    }
-    public void setSubComments(List<SubComment> subComments) {
-        this.subComments = subComments;
-    }
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE, fetch = LAZY)
+    private List<SubComment> subComments;
 
 }

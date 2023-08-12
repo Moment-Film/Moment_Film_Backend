@@ -1,7 +1,5 @@
 package com.team_7.moment_film.domain.comment.dto;
 
-import com.team_7.moment_film.domain.post.entity.Post;
-import com.team_7.moment_film.domain.user.entity.User;
 import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,4 +19,9 @@ public class SubCommentResponseDTO {
     @Lob
     private String content;
     private String username;
+
+    public SubCommentResponseDTO(Long id, String content) {
+        this.id = id;
+        this.content = content;
+    }
 }

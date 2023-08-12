@@ -27,12 +27,13 @@ public class PostController {
     private final PostService postService;
     private final PostQueryService postQueryService;
 
-    //생성
-    @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
-    public CustomResponseEntity<?> createPost(@RequestPart(value = "data", required = false) PostRequestDto requestDto,
+
+
+    @PostMapping
+    public CustomResponseEntity<?> createPost(@RequestPart(value = "data") PostRequestDto requestDto,
                                               @RequestPart(value = "imageFile") MultipartFile image,
                                               @AuthenticationPrincipal UserDetailsImpl userDetails
-                                                ){
+    ){
         return postService.createPost(requestDto,image,userDetails);
     }
     //삭제
