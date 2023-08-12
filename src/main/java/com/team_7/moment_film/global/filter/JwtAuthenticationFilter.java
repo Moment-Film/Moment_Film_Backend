@@ -2,8 +2,9 @@ package com.team_7.moment_film.global.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team_7.moment_film.domain.user.dto.LoginRequestDto;
-import com.team_7.moment_film.global.jwt.JwtUtil;
 import com.team_7.moment_film.global.security.UserDetailsImpl;
+import com.team_7.moment_film.global.util.JwtUtil;
+import com.team_7.moment_film.global.util.RedisUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,13 +15,18 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.util.Date;
 
 @Slf4j(topic = "JWT 생성 및 인증 필터")
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final JwtUtil jwtUtil;
+    private final RedisUtil redisUtil;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, RedisUtil redisUtil) {
         this.jwtUtil = jwtUtil;
+        this.redisUtil = redisUtil;
+
         setFilterProcessesUrl("/api/user/login");
     }
 
@@ -28,6 +34,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws AuthenticationException {
         try {
+            log.info("Authentication 객체 생성 시도");
             // 사용자 전송 data DTO 객체로 Mapping
             LoginRequestDto requestDto = new ObjectMapper().readValue(req.getInputStream(), LoginRequestDto.class);
 
@@ -57,6 +64,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String accessToken = jwtUtil.createAccessToken(userId, username, email);
         String refreshToken = jwtUtil.createRefreshToken(userId, username, email);
         log.info("로그인 성공 및 JWT 생성");
+
+
+        // redis에 refreshToken 저장
+        String refreshTokenValue = jwtUtil.substringToken(refreshToken);
+        Date expiration = jwtUtil.getUserInfoFromToken(refreshTokenValue).getExpiration();
+        redisUtil.setData(username, refreshTokenValue, expiration);
+        log.info("Redis에 RefreshToken 저장");
 
         // response Header
         res.setHeader("accessToken", accessToken);
