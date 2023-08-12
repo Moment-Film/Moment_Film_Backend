@@ -47,8 +47,11 @@ public class Comment extends TimeStamped{
     @JoinColumn(name = "users_id")
     private User writer;
 
+    // Post Entity에서 subComments가 Post Entity 대상으로 orphanRemoval 옵션이 걸려져 있는데 여기서 한 번 더 거는 이유?
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubComment> subComments = new ArrayList<>();
+
+    // Builder pattern과 생성자 pattern을 혼용해서 사용하는 이유?
     @Builder
     public Comment(Long id, String content, boolean isDeleted, Post post, User writer, String username, Long userId){
         this.id = id;
@@ -59,9 +62,11 @@ public class Comment extends TimeStamped{
         this.userId = userId;
     }
 
+    // @Getter가 달려있는데 Get 메서드가 필요한 이유?
     public List<SubComment> getSubComments() {
         return subComments;
     }
+    // Set메서드가 필요한 이유?
     public void setSubComments(List<SubComment> subComments) {
         this.subComments = subComments;
     }
