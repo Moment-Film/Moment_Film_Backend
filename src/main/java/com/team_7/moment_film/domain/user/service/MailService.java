@@ -5,7 +5,6 @@ import com.team_7.moment_film.global.dto.CustomResponseEntity;
 import com.team_7.moment_film.global.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -22,9 +21,6 @@ public class MailService {
 
     private final JavaMailSender mailSender;
     private final RedisUtil redisUtil;
-
-    @Value("${spring.mail.username}")
-    private String from;
 
 
     // 사용자 정보에 등록된 이메일로 인증 코드 발송
@@ -52,7 +48,7 @@ public class MailService {
         message.setTo(user.getEmail());
         message.setSubject("Moment Film 비밀번호 재설정 인증코드입니다.");
         message.setText("이메일 인증코드: "+ authCode);
-        message.setFrom(from);
+        message.setFrom("momentfilm7@naver.com");
 
         return message;
     }
