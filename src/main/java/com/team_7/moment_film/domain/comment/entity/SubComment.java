@@ -14,6 +14,7 @@ import static jakarta.persistence.FetchType.LAZY;
 
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Getter
 @Entity
@@ -27,10 +28,11 @@ public class SubComment extends TimeStamped {
     private Comment comment;
 
 
-    @Lob
+    @Lob // 대용량 데이터를 처리하는 @Lob이 꼭 필요할까?
     @Column
     private String content;
 
+    // 대댓글에서 게시글을 참조하는 이유?
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id") // 수정: post_id로 변경
     private Post post; // 수정: Post 타입으로 변경
@@ -39,9 +41,9 @@ public class SubComment extends TimeStamped {
     @JoinColumn(name = "users_id")
     private User writer;
 
+    // 위에서 user_id로 User Entity를 참조하는데 아래 두 필드가 테이블에 저장될 필요가 있을까?
     private String username;
 
-    private Long userId;
 
     public SubComment(Long id, Comment comment, String content, Post post, User writer,String username,Long userId){
         this.id = id;
@@ -50,9 +52,5 @@ public class SubComment extends TimeStamped {
         this.post = post;
         this.writer = writer;
         this.username = username;
-        this.userId = userId;
     }
-
-
-
 }
