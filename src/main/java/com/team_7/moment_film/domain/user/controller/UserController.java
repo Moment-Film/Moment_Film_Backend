@@ -3,6 +3,7 @@ package com.team_7.moment_film.domain.user.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.team_7.moment_film.domain.user.dto.*;
 import com.team_7.moment_film.domain.user.service.KakaoService;
+import com.team_7.moment_film.domain.user.service.MailService;
 import com.team_7.moment_film.domain.user.service.UserService;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
 import com.team_7.moment_film.global.security.UserDetailsImpl;
@@ -22,6 +23,7 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     private final KakaoService kakaoService;
+    private final MailService mailService;
 
     // 회원가입 API
     @PostMapping("/signup")
@@ -66,5 +68,19 @@ public class UserController {
     public CustomResponseEntity<String> updateInfo(@Valid @RequestBody UpdateRequestDto requestDto,
                                                    @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.updateInfo(requestDto, userDetails.getUser());
+    }
+
+    // 메일 전송 API
+    @PostMapping("/email")
+    public CustomResponseEntity<String> sendEmail(@AuthenticationPrincipal UserDetailsImpl userDetails){
+        return mailService.sendEmail(userDetails.getUser());
+    }
+
+    // 비밀번호 재설정 API
+    @PutMapping("/password-reset")
+    public CustomResponseEntity<String> resetPassword(@Valid @RequestBody UpdateRequestDto requestDto,
+                                                      @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                      @RequestParam String code) {
+        return userService.resetPassword(requestDto, userDetails.getUser(), code);
     }
 }
