@@ -1,14 +1,16 @@
 package com.team_7.moment_film.domain.user.service;
 
 import com.team_7.moment_film.domain.follow.entity.Follow;
-import com.team_7.moment_film.domain.like.entity.Like;
 import com.team_7.moment_film.domain.like.repository.LikeRepository;
-import com.team_7.moment_film.domain.post.entity.Post;
+import com.team_7.moment_film.domain.post.entity.TempPost;
+import com.team_7.moment_film.domain.post.repository.PostQueryRepository;
 import com.team_7.moment_film.domain.post.repository.PostRepository;
 import com.team_7.moment_film.domain.user.dto.*;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
+import com.team_7.moment_film.global.util.JwtUtil;
+import com.team_7.moment_film.global.util.RedisUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j(topic = "User Service")
 @Service
@@ -26,8 +30,11 @@ public class UserService {
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PostQueryRepository postQueryRepository;
+    private final RedisUtil redisUtil;
+    private final JwtUtil jwtUtil;
 
-    // 회원가입 비즈니스 로직
+    // 회원가입
     public CustomResponseEntity<String> signup(SignupRequestDto signupRequestDto) {
         String email = signupRequestDto.getEmail();
         String username = signupRequestDto.getUsername();
@@ -62,20 +69,53 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다."));
 
-        // 내가 작성한 게시글 리스트
-        List<Post> postList = postRepository.findByUserId(user.getId());
-        List<Post> myPostList = postList.stream().map(post -> Post.builder()
-                .id(post.getId())
-                .image(post.getImage())
-                .build()).toList();
+//         내가 작성한 게시글 리스트 (1번 방법 : userId로 PostRepository에서 게시글 리스트 조회)
+//        List<Post> postList = postRepository.findByUserId(user.getId());
+//        List<Post> myPostList = postList.stream().map(post -> Post.builder()
+//                .id(post.getId())
+//                .title(post.getTitle())
+//                .image(post.getImage())
+//                .contents(post.getContents())
+//                .build()).toList();
 
-        // 좋아요한 게시글 리스트
-        List<Like> likeList = likeRepository.findByUserId(user.getId());
-        List<Post> likePosts = likeList.stream().map(like -> Post.builder()
-                .id(like.getPost().getId())
-                .image(like.getPost().getImage())
-                .username(like.getUser().getUsername())
-                .build()).toList();
+//        내가 작성한 게시글 리스트 (2번 방법 : User Entity에서 양방향 참조로 연관된 PostList를 Getter로 조회) ✨
+//        List<Post> postList = user1.getPostList().stream().map(post -> Post.builder()
+//                .id(post.getId())
+//                .title(post.getTitle())
+//                .contents(post.getContents())
+//                .image(post.getImage())
+//                .build())
+//                .toList();
+
+        // 내가 작성한 게시글 리스트 테스트 (임시 Entity: Post Entity에서 일부 필드만 가져왔을 때 연관된 댓글/대댓글 필드도 다가져와짐)
+        List<TempPost> postList = postQueryRepository.getMyPosts(userId);
+        postList.stream().map(tempPost -> TempPost.builder()
+                        .id(tempPost.getId())
+                        .title(tempPost.getTitle())
+                        .contents(tempPost.getContents())
+                        .image(tempPost.getImage())
+                        .build())
+                .collect(Collectors.toList());
+
+//         좋아요한 게시글 리스트 (원본)
+//        List<Like> likeList = likeRepository.findByUserId(user.getId());
+//        List<Post> likePosts = likeList.stream().map(like -> Post.builder()
+//                .id(like.getPost().getId())
+//                .image(like.getPost().getImage())
+//                .username(like.getUser().getUsername())
+//                .build()).toList();
+
+        // 내가 좋아효한 게시글 리스트 (임시 Entity: Post Entity에서 일부 필드만 가져왔을 때 연관된 댓글/대댓글 필드도 다가져와짐)
+        List<TempPost> likedPostList = postQueryRepository.getLikedPosts(userId);
+        likedPostList.stream().map(tempPost -> TempPost.builder()
+                        .id(tempPost.getId())
+                        .title(tempPost.getTitle())
+                        .contents(tempPost.getContents())
+                        .image(tempPost.getImage())
+                        .userId(tempPost.getUserId())
+                        .username(tempPost.getUsername())
+                        .build())
+                .collect(Collectors.toList());
 
 
         // 조회한 유저의 팔로잉 리스트
@@ -99,9 +139,9 @@ public class UserService {
                 .username(user.getUsername())
                 .followerList(followers)
                 .followingList(followings)
-                .postList(myPostList)
-                .postListCnt(myPostList.size())
-                .likePosts(likePosts)
+                .postList(postList)
+                .postListCnt(postList.size())
+                .likePosts(likedPostList)
                 .build();
 
         return CustomResponseEntity.dataResponse(HttpStatus.OK, responseDto);
@@ -109,7 +149,7 @@ public class UserService {
 
     // 사용자 검색
     public CustomResponseEntity<List<SearchResponseDto>> searchUser(String userKeyword) {
-        if(userKeyword.isBlank()){
+        if (userKeyword.isBlank()) {
             throw new IllegalArgumentException("검색어를 입력해주세요.");
         }
         return CustomResponseEntity.dataResponse(HttpStatus.OK, userRepository.searchUserByName(userKeyword));
@@ -148,22 +188,72 @@ public class UserService {
                 .build();
 
         userRepository.save(updateUser);
-        return CustomResponseEntity.msgResponse(HttpStatus.OK,"개인정보 수정 완료");
+        return CustomResponseEntity.msgResponse(HttpStatus.OK, "개인정보 수정 완료");
     }
 
+    // 비밀번호 변경
+    public CustomResponseEntity<String> resetPassword(UpdateRequestDto requestDto, User user, String code) {
+        if (!checkCode(user, code)) {
+            throw new IllegalArgumentException("코드가 일치하지 않습니다.");
+        }
+        if (requestDto.getPassword() == null) {
+            throw new IllegalArgumentException("새비밀번호를 입력해주세요.");
+        }
+
+        String newPassword = passwordEncoder.encode(requestDto.getPassword());
+
+        User updateUser = User.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .phone(user.getPhone())
+                .password(newPassword)
+                .isKakao(user.isKakao())
+                .build();
+
+        userRepository.save(updateUser);
+
+        return CustomResponseEntity.msgResponse(HttpStatus.OK, "비밀번호 변경 완료");
+    }
+
+    // 회원탈퇴
+    public CustomResponseEntity<String> withdrawal(User user, String accessToken) {
+        // redis에 저장된 refreshToken 삭제
+        if (redisUtil.checkData(user.getUsername())) {
+            redisUtil.deleteData(user.getUsername());
+        }
+
+        // 사용자가 제출한 accessToken 블랙리스트에 추가 및 TTL 설정(남은 시간)
+        String accessTokenValue = jwtUtil.substringToken(accessToken);
+        Date expiration = jwtUtil.getUserInfoFromToken(accessTokenValue).getExpiration();
+        redisUtil.setData(accessTokenValue, "logout", expiration);
+
+        // repository에서 해당 유저 제거
+        userRepository.delete(user);
+
+        return CustomResponseEntity.msgResponse(HttpStatus.OK, "회원 탈퇴 완료");
+    }
+
+    // 메일로 전송한 인증코드 일치 확인 메서드
+
+    public Boolean checkCode(User user, String code) {
+        String authCode = redisUtil.getData(user.getEmail());
+        log.info("code=" + authCode);
+        return authCode.equals(code);
+    }
     // 이메일 중복 검사 메서드
+
     private boolean checkEmail(String email) {
         return userRepository.existsByEmail(email);
     }
-
     // Username 중복 검사 메서드
+
     private boolean checkUsername(String username) {
         return userRepository.existsByUsername(username);
     }
-
     // 휴대폰 번호 중복 검사 메서드
+
     private boolean checkPhone(String phone) {
         return userRepository.existsByPhone(phone);
     }
-
 }
