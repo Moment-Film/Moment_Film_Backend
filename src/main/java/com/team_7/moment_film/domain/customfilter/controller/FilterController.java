@@ -4,6 +4,7 @@ import com.team_7.moment_film.domain.customfilter.dto.FilterRequestDto;
 import com.team_7.moment_film.domain.customfilter.service.FilterService;
 import com.team_7.moment_film.global.dto.ApiResponse;
 import com.team_7.moment_film.global.security.UserDetailsImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,7 +19,7 @@ public class FilterController {
 
     //필터 커스텀하기(등록하기)
     @PostMapping("")
-    public ResponseEntity<ApiResponse> createFilter(@RequestBody FilterRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ApiResponse> createFilter(@Valid @RequestBody FilterRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
         return filterService.createFilter(requestDto, userDetails.getUser());
     }
 
