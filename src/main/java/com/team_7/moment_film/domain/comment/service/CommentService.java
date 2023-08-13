@@ -44,17 +44,16 @@ public class CommentService {
             User user = userRepository.findById(userDetails.getUser().getId()).orElseThrow(
                     () -> new IllegalArgumentException("존재하지 않은 사용자 입니다.")
             );
-            User writer = userDetails.getUser();
+
 
             Comment comment = Comment.builder()
                     .post(post)
-                    .writer(writer)
+                    .writer(user)
                     .content(requestDTO.getContent())
                     .build();
             commentRepository.save(comment);
             CommentResponseDTO responseDTO = CommentResponseDTO.builder()
                     .id(comment.getId())
-                    .username(writer.getUsername())
                     .content(comment.getContent())
                     .build();
             return CustomResponseEntity.dataResponse(HttpStatus.CREATED, responseDTO);
@@ -68,14 +67,14 @@ public class CommentService {
     }
 
     //댓글 조회 메서드
-    public CustomResponseEntity<List<CommentResponseDTO>> getAllComment(Long postId){
+    public CustomResponseEntity<List<CommentResponseDTO>> getAllComment(Long postId) {
         Post post = postrepository.findById(postId).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않은 게시글 입니다.")
         );
 
         List<Comment> commentList = commentRepository.findAllByPostId(postId);
         List<CommentResponseDTO> commentResponseDTOList = new ArrayList<>();
-        for(Comment comment : commentList){
+        for (Comment comment : commentList) {
             commentResponseDTOList.add(
                     CommentResponseDTO.builder()
                             .id(comment.getId())
@@ -84,20 +83,20 @@ public class CommentService {
                             .build()
             );
         }
-        return CustomResponseEntity.dataResponse(HttpStatus.OK,commentResponseDTOList);
+        return CustomResponseEntity.dataResponse(HttpStatus.OK, commentResponseDTOList);
     }
 
-    public CustomResponseEntity<Comment> deleteComment(Long commentId, UserDetailsImpl userDetails){
+    public CustomResponseEntity<Comment> deleteComment(Long commentId, UserDetailsImpl userDetails) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(
-                ()-> new IllegalArgumentException("존재하지 않은 댓글입니다.")
+                () -> new IllegalArgumentException("존재하지 않은 댓글입니다.")
         );
 
         User user = userRepository.findById(userDetails.getUser().getId()).orElseThrow(
-                ()-> new IllegalArgumentException("올바른 사용자가 아닙니다.")
+                () -> new IllegalArgumentException("올바른 사용자가 아닙니다.")
         );
-        if(!comment.getWriter().getId().equals(user.getId())){
+        if (!comment.getWriter().getId().equals(user.getId())) {
             throw new IllegalArgumentException("해당 사용자가 아닙니다.");
-        }else {
+        } else {
             // 댓글에 속한 대댓글들도 삭제
             List<SubComment> subComments = comment.getSubComments();
             subComments.forEach(subCommentRepository::delete);
@@ -106,9 +105,6 @@ public class CommentService {
             return CustomResponseEntity.msgResponse(HttpStatus.OK, "삭제 성공!");
         }
     }
-
-
-
 
 
 }

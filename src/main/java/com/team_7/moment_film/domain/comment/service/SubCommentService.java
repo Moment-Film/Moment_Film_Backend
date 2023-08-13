@@ -24,15 +24,14 @@ import java.util.List;
 public class SubCommentService {
 
 
-
     private final CommentRepository commentRepository;
     private final SubCommentRepository subCommentRepository;
     private final UserRepository userRepository;
 
     // 대댓글 생성
-    public CustomResponseEntity<SubCommentResponseDTO> createSubComment(Long commentId,SubCommentRequestDTO requestDTO, UserDetailsImpl userDetails){
+    public CustomResponseEntity<SubCommentResponseDTO> createSubComment(Long commentId, SubCommentRequestDTO requestDTO, UserDetailsImpl userDetails) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(
-                ()-> new IllegalArgumentException("존재하지 않은 댓글입니다.")
+                () -> new IllegalArgumentException("존재하지 않은 댓글입니다.")
         );
         Post post = comment.getPost();
         User writer = userDetails.getUser();
@@ -46,15 +45,14 @@ public class SubCommentService {
         SubCommentResponseDTO responseDTO = SubCommentResponseDTO.builder()
                 .id(subComment.getId())
                 .commentId(comment.getId())
-                .username(writer.getUsername())
                 .content(subComment.getContent())
                 .build();
 
-        return CustomResponseEntity.dataResponse(HttpStatus.CREATED,responseDTO);
+        return CustomResponseEntity.dataResponse(HttpStatus.CREATED, responseDTO);
     }
 
     // 대댓글 삭제
-    public CustomResponseEntity<?> deleteSubComment(Long subcommentId, UserDetailsImpl userDetails){
+    public CustomResponseEntity<?> deleteSubComment(Long subcommentId, UserDetailsImpl userDetails) {
         SubComment subComment = subCommentRepository.findById(subcommentId).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 대댓글입니다.")
         );
@@ -75,14 +73,14 @@ public class SubCommentService {
 
 
     //대댓글 조회
-    public CustomResponseEntity<List<SubCommentResponseDTO>> getSubComment(Long commentId){
+    public CustomResponseEntity<List<SubCommentResponseDTO>> getSubComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 댓글입니다.")
         );
 
         List<SubComment> subCommentList = subCommentRepository.findAllByCommentId(commentId);
         List<SubCommentResponseDTO> subCommentResponseDTOList = new ArrayList<>();
-        for(SubComment subComment : subCommentList){
+        for (SubComment subComment : subCommentList) {
             subCommentResponseDTOList.add(
                     SubCommentResponseDTO.builder()
                             .id(subComment.getId())
@@ -92,6 +90,6 @@ public class SubCommentService {
             );
 
         }
-        return CustomResponseEntity.dataResponse(HttpStatus.OK,subCommentResponseDTOList);
+        return CustomResponseEntity.dataResponse(HttpStatus.OK, subCommentResponseDTOList);
     }
 }

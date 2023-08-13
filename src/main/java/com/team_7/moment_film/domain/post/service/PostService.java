@@ -1,10 +1,11 @@
 package com.team_7.moment_film.domain.post.service;
 
+import com.team_7.moment_film.domain.comment.dto.CommentResponseDTO;
+import com.team_7.moment_film.domain.comment.dto.SubCommentResponseDTO;
 import com.team_7.moment_film.domain.comment.entity.Comment;
 import com.team_7.moment_film.domain.comment.entity.SubComment;
 import com.team_7.moment_film.domain.comment.repository.CommentRepository;
 import com.team_7.moment_film.domain.comment.repository.SubCommentRepository;
-import com.team_7.moment_film.domain.like.repository.LikeRepository;
 import com.team_7.moment_film.domain.post.S3.service.S3Service;
 import com.team_7.moment_film.domain.post.dto.PostRequestDto;
 import com.team_7.moment_film.domain.post.dto.PostResponseDto;
@@ -17,7 +18,6 @@ import com.team_7.moment_film.global.security.UserDetailsImpl;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mapstruct.control.MappingControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +35,6 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final S3Service s3Service;
-    private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final SubCommentRepository subCommentRepository;
 
@@ -46,29 +45,28 @@ public class PostService {
             String imageUrl = s3Service.upload(image);
             log.info("file path = {}", imageUrl);
             User user = getUserById(userDetails.getUser().getId());
-
+            Post post = new Post();
             // 게시글 생성 및 저장
             Post savepost = Post.builder()
-                    .id(requestDto.getId())
+                    .id(post.getId())
                     .title(requestDto.getTitle())
                     .contents(requestDto.getContents())
                     .image(imageUrl)
                     .user(user)
                     .username(user.getUsername())
-                    .commentCount(0)
-                    .viewCount(0)
-                    .likeCount(0)
                     .build();
 
             postRepository.save(savepost);
+
+
             // 생성된 게시글 정보를 응답 DTO로 만들어 반환
             PostResponseDto responseDto = PostResponseDto.builder()
                     .id(savepost.getId())
                     .title(savepost.getTitle())
                     .contents(savepost.getContents())
                     .image(savepost.getImage())
-                    .user_Id(savepost.getUser().getId())
-                    .username(savepost.getUsername())
+                    .username(savepost.getUser().getUsername())
+                    .createdAt(savepost.getCreatedAt())
                     .build();
 
             return CustomResponseEntity.dataResponse(HttpStatus.CREATED, responseDto);
@@ -104,14 +102,14 @@ public class PostService {
             Post post = postRepository.getPost(postId).orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패!"));
             PostResponseDto responseDto = PostResponseDto.builder()
                     .id(postId)
-                    .username(post.getUser().getUsername())
+                    .userId(post.getUser().getId())
                     .title(post.getTitle())
                     .contents(post.getContents())
                     .image(post.getImage())
-                    .likeCount(post.getLikeCount())
+                    .likeCount(post.getLikeList().size())
                     .viewCount(post.getViewCount())
-                    .commentCount(post.getCommentCount())
-                    .commentList(post.getAllCommentsWithSubComments())
+                    .commentCount(post.getCommentList().size())
+                    .commentList(getAllCommentsWithSubComments(post))
                     .createdAt(post.getCreatedAt())
                     .build();
             return CustomResponseEntity.dataResponse(HttpStatus.OK, responseDto);
@@ -142,9 +140,27 @@ public class PostService {
         }
     }
 
+    // 댓글 대댓글 리스트 반환 메서드.
+    public List<CommentResponseDTO> getAllCommentsWithSubComments(Post post) {
+        List<CommentResponseDTO> allCommentsWithSubComments = new ArrayList<>();
 
+        List<Comment> commentList = post.getCommentList();
 
+        for (Comment comment : commentList) {
+            CommentResponseDTO newComment = new CommentResponseDTO(comment.getId(), comment.getContent());
 
+            List<SubCommentResponseDTO> newSubComments = new ArrayList<>();
+            for (SubComment subComment : comment.getSubComments()) {
+                SubCommentResponseDTO newSubComment = new SubCommentResponseDTO(subComment.getId(), subComment.getContent());
+                newSubComments.add(newSubComment);
+            }
+
+            newComment.initializeSubComments(newSubComments);
+            allCommentsWithSubComments.add(newComment);
+        }
+
+        return allCommentsWithSubComments;
+    }
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
