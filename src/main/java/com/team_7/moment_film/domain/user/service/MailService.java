@@ -6,6 +6,7 @@ import com.team_7.moment_film.global.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -26,16 +27,16 @@ public class MailService {
     // 사용자 정보에 등록된 이메일로 인증 코드 발송
     public CustomResponseEntity<String> sendEmail(User user) {
         // 랜덤 문자열 코드 6자리 생성
-        String authCode = UUID.randomUUID().toString().substring(0,6);
+        String authCode = UUID.randomUUID().toString().substring(0, 6);
         SimpleMailMessage message = createMessage(user, authCode);
 
         // redis에 3분간 인증코드 저장
         Date date = new Date();
-        redisUtil.setData(user.getEmail(), authCode, new Date(date.getTime() + 180*1000L));
+        redisUtil.setData(user.getEmail(), authCode, new Date(date.getTime() + 180 * 1000L));
 
         try {
             mailSender.send(message);
-        }catch (MailException e){
+        } catch (MailException e) {
             throw new IllegalArgumentException("메일 전송 오류입니다: " + e.getMessage());
         }
 

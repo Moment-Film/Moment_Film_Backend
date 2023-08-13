@@ -49,7 +49,8 @@ public class LikeService {
                     .user(user)
                     .build();
             likeRepository.save(like);
-            return msgResponse(HttpStatus.OK, "좋아요!");
+            ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("좋아요!").build();
+            return ResponseEntity.ok(apiResponse);
         }
 
     }

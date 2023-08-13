@@ -28,7 +28,7 @@ public class JwtUtil {
     private String secretKey;
     private Key key;
 
-    // JWT 생성 시 seretKey를 decode 후 Key 객체에 대입
+    // JWT 생성 시 secretKey를 decode 후 Key 객체에 대입
     @PostConstruct
     public void init() {
         byte[] bytes = Base64.getDecoder().decode(secretKey);
@@ -50,7 +50,7 @@ public class JwtUtil {
                         .compact();
     }
 
-    // JWT(refershToken) 생성 메서드
+    // JWT(refreshToken) 생성 메서드
     public String createRefreshToken(Long id, String username, String email) {
         Date date = new Date();
 

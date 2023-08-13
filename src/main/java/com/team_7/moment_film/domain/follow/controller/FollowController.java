@@ -4,6 +4,7 @@ import com.team_7.moment_film.domain.follow.service.FollowService;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
 import com.team_7.moment_film.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
