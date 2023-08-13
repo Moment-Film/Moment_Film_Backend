@@ -32,6 +32,7 @@ public class FilterService {
         filterRepository.save(filter);
         FilterResponseDto responseDto = FilterResponseDto.builder()
                 .id(filter.getId())
+                .filterName(filter.getFilterName())
                 .blur(filter.getBlur())
                 .contrast(filter.getContrast())
                 .grayscale(filter.getGrayscale())
@@ -43,6 +44,7 @@ public class FilterService {
     public CustomResponseEntity<List<FilterResponseDto>> getAllFilter() {
         List<FilterResponseDto> filterList = filterRepository.findAll().stream().map(filter -> FilterResponseDto.builder()
                 .id(filter.getId())
+                .filterName(filter.getFilterName())
                 .blur(filter.getBlur())
                 .contrast(filter.getContrast())
                 .grayscale(filter.getGrayscale())
@@ -56,6 +58,7 @@ public class FilterService {
                 new EntityNotFoundException("존재하지 않는 필터입니다."));
         FilterResponseDto responseDto = FilterResponseDto.builder()
                 .id(filter.getId())
+                .filterName(filter.getFilterName())
                 .blur(filter.getBlur())
                 .contrast(filter.getContrast())
                 .grayscale(filter.getGrayscale())

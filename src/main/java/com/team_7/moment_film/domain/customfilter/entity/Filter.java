@@ -16,6 +16,7 @@ public class Filter {
     @Column(name = "filter_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String filterName;
     private String blur;
     private String contrast;
     private String grayscale;
@@ -30,6 +31,7 @@ public class Filter {
     private Post post;
 
     public Filter(FilterRequestDto requestDto, User user){
+        this.filterName = requestDto.getFilterName();
         this.blur = requestDto.getBlur();
         this.contrast = requestDto.getContrast();
         this.grayscale = requestDto.getGrayscale();
