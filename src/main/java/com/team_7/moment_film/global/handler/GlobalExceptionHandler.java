@@ -8,11 +8,13 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -75,10 +77,23 @@ public class GlobalExceptionHandler {
     public CustomResponseEntity<String> ExceptionHandler(EntityNotFoundException ex) {
         return CustomResponseEntity.errorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
+
     //JSON 변환에 실패하였을 때 exception
     @ExceptionHandler(HttpMessageNotWritableException.class)
     public ResponseEntity<String> handleHttpMessageNotWritableException(HttpMessageNotWritableException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("JSON 변환에 실패하였습니다.");
+    }
+
+    // 요청된 데이터 형식이 잘못되었을 때 exception
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<String> handleHttpMessageNotWritableException(HttpMessageNotReadableException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("올바른 JSON 형식의 데이터를 전송해주세요.");
+    }
+
+    // 필요 파트나 매개변수 누락되었을 때 exception
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<String> ExceptionHandler(MissingServletRequestPartException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
 }
