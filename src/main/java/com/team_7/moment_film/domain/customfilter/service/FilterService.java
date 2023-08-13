@@ -40,7 +40,7 @@ public class FilterService {
                 .sepia(filter.getSepia())
                 .build();
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.CREATED).data(responseDto).build();
-        return ResponseEntity.ok(apiResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
 
     public ResponseEntity<ApiResponse> getAllFilter() {
