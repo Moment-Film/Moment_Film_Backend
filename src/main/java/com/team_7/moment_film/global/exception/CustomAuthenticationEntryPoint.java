@@ -1,4 +1,4 @@
-package com.team_7.moment_film.global.handler;
+package com.team_7.moment_film.global.exception;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

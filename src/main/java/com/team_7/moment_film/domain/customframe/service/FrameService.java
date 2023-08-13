@@ -6,7 +6,7 @@ import com.team_7.moment_film.domain.customframe.entity.Frame;
 import com.team_7.moment_film.domain.customframe.repository.FrameRepository;
 import com.team_7.moment_film.domain.post.S3.service.S3Service;
 import com.team_7.moment_film.domain.user.entity.User;
-import com.team_7.moment_film.global.dto.CustomResponseEntity;
+import com.team_7.moment_film.global.dto.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,7 +25,7 @@ public class FrameService {
     private final S3Service s3Service;
 
 
-    public CustomResponseEntity<FrameResponseDto> createFrame(FrameRequestDto requestDto, MultipartFile image, User user) {
+    public ResponseEntity<ApiResponse> createFrame(FrameRequestDto requestDto, MultipartFile image, User user) {
         String imageUrl = s3Service.upload(image);
         Frame frame = new Frame(requestDto, imageUrl, user);
         frameRepository.save(frame);
@@ -34,19 +34,21 @@ public class FrameService {
                 .frameName(frame.getFrameName())
                 .image(frame.getImage())
                 .build();
-        return CustomResponseEntity.dataResponse(HttpStatus.CREATED,responseDto);
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.CREATED).data(responseDto).build();
+        return ResponseEntity.ok(apiResponse);
     }
 
-    public CustomResponseEntity<List<FrameResponseDto>> getAllFrame() {
+    public ResponseEntity<ApiResponse> getAllFrame() {
         List<FrameResponseDto> frameList = frameRepository.findAll().stream().map(frame -> FrameResponseDto.builder()
                 .id(frame.getId())
                 .frameName(frame.getFrameName())
                 .image(frame.getImage())
                 .build()).collect(Collectors.toList());
-        return CustomResponseEntity.dataResponse(HttpStatus.OK,frameList);
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(frameList).build();
+        return ResponseEntity.ok(apiResponse);
     }
 
-    public CustomResponseEntity<FrameResponseDto> selectFrame(Long frameId) {
+    public ResponseEntity<ApiResponse> selectFrame(Long frameId) {
         Frame frame = frameRepository.findById(frameId).orElseThrow(() ->
                 new EntityNotFoundException("존재하지 않는 프레임입니다."));
         FrameResponseDto responseDto = FrameResponseDto.builder()
@@ -54,16 +56,18 @@ public class FrameService {
                 .frameName(frame.getFrameName())
                 .image(frame.getImage())
                 .build();
-        return CustomResponseEntity.dataResponse(HttpStatus.OK, responseDto);
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(responseDto).build();
+        return ResponseEntity.ok(apiResponse);
     }
 
-    public CustomResponseEntity<String> deleteFrame(Long frameId, User user) {
-        Frame frame = frameRepository.findById(frameId).orElseThrow(()->
+    public ResponseEntity<ApiResponse> deleteFrame(Long frameId, User user) {
+        Frame frame = frameRepository.findById(frameId).orElseThrow(() ->
                 new EntityNotFoundException("존재하지 않는 프레임입니다."));
-        if(!user.getId().equals(frame.getUser().getId())){
+        if (!user.getId().equals(frame.getUser().getId())) {
             throw new IllegalArgumentException("직접 생성한 프레임만 삭제 가능합니다.");
         }
         frameRepository.delete(frame);
-        return CustomResponseEntity.msgResponse(HttpStatus.OK,"프레임 삭제 완료");
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("프레임 삭제 완료").build();
+        return ResponseEntity.ok(apiResponse);
     }
 }

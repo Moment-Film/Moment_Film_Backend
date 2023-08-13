@@ -1,20 +1,22 @@
 package com.team_7.moment_film.domain.user.service;
 
 import com.team_7.moment_film.domain.follow.entity.Follow;
-import com.team_7.moment_film.domain.like.repository.LikeRepository;
 import com.team_7.moment_film.domain.post.entity.TempPost;
 import com.team_7.moment_film.domain.post.repository.PostQueryRepository;
-import com.team_7.moment_film.domain.post.repository.PostRepository;
-import com.team_7.moment_film.domain.user.dto.*;
+import com.team_7.moment_film.domain.user.dto.ProfileResponseDto;
+import com.team_7.moment_film.domain.user.dto.SignupRequestDto;
+import com.team_7.moment_film.domain.user.dto.UpdateRequestDto;
+import com.team_7.moment_film.domain.user.dto.UserInfoDto;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
-import com.team_7.moment_film.global.dto.CustomResponseEntity;
+import com.team_7.moment_film.global.dto.ApiResponse;
 import com.team_7.moment_film.global.util.JwtUtil;
 import com.team_7.moment_film.global.util.RedisUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,15 +29,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final PostRepository postRepository;
-    private final LikeRepository likeRepository;
     private final PasswordEncoder passwordEncoder;
     private final PostQueryRepository postQueryRepository;
     private final RedisUtil redisUtil;
     private final JwtUtil jwtUtil;
 
     // 회원가입
-    public CustomResponseEntity<String> signup(SignupRequestDto signupRequestDto) {
+    public ResponseEntity<ApiResponse> signup(SignupRequestDto signupRequestDto) {
         String email = signupRequestDto.getEmail();
         String username = signupRequestDto.getUsername();
         String phone = signupRequestDto.getPhone();
@@ -61,11 +61,12 @@ public class UserService {
 
         userRepository.save(user);
 
-        return CustomResponseEntity.msgResponse(HttpStatus.OK, "회원가입을 축하합니다!");
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("회원가입을 축하합니다!").build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     // 프로필 조회
-    public CustomResponseEntity<ProfileResponseDto> getProfile(Long userId) {
+    public ResponseEntity<ApiResponse> getProfile(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다."));
 
@@ -143,36 +144,39 @@ public class UserService {
                 .postListCnt(postList.size())
                 .likePosts(likedPostList)
                 .build();
-
-        return CustomResponseEntity.dataResponse(HttpStatus.OK, responseDto);
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(responseDto).build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     // 사용자 검색
-    public CustomResponseEntity<List<SearchResponseDto>> searchUser(String userKeyword) {
+    public ResponseEntity<ApiResponse> searchUser(String userKeyword) {
         if (userKeyword.isBlank()) {
             throw new IllegalArgumentException("검색어를 입력해주세요.");
         }
-        return CustomResponseEntity.dataResponse(HttpStatus.OK, userRepository.searchUserByName(userKeyword));
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(userRepository.searchUserByName(userKeyword)).build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     // 팔로워 많은 순으로 사용자 조회
-    public CustomResponseEntity<List<PopularUserResponseDto>> getPopularUser() {
-        return CustomResponseEntity.dataResponse(HttpStatus.OK, userRepository.getPopularUser());
+    public ResponseEntity<ApiResponse> getPopularUser() {
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(userRepository.getPopularUser()).build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     // 개인 정보 조회
-    public CustomResponseEntity<UserInfoDto> getInfo(User user) {
+    public ResponseEntity<ApiResponse> getInfo(User user) {
 
         UserInfoDto userInfoDto = UserInfoDto.builder()
                 .email(user.getEmail())
                 .username(user.getUsername())
                 .phone(user.getPhone())
                 .build();
-        return CustomResponseEntity.dataResponse(HttpStatus.OK, userInfoDto);
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(userInfoDto).build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     // 개인 정보 수정
-    public CustomResponseEntity<String> updateInfo(UpdateRequestDto requestDto, User user) {
+    public ResponseEntity<ApiResponse> updateInfo(UpdateRequestDto requestDto, User user) {
         // username, phone 정보만 수정 가능
         if (requestDto.getUsername() == null && requestDto.getPhone() == null) {
             throw new IllegalArgumentException("이름과 휴대폰 번호만 수정 가능합니다.");
@@ -188,11 +192,12 @@ public class UserService {
                 .build();
 
         userRepository.save(updateUser);
-        return CustomResponseEntity.msgResponse(HttpStatus.OK, "개인정보 수정 완료");
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("개인정보 수정 완료").build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     // 비밀번호 변경
-    public CustomResponseEntity<String> resetPassword(UpdateRequestDto requestDto, User user, String code) {
+    public ResponseEntity<ApiResponse> resetPassword(UpdateRequestDto requestDto, User user, String code) {
         if (!checkCode(user, code)) {
             throw new IllegalArgumentException("코드가 일치하지 않습니다.");
         }
@@ -212,12 +217,12 @@ public class UserService {
                 .build();
 
         userRepository.save(updateUser);
-
-        return CustomResponseEntity.msgResponse(HttpStatus.OK, "비밀번호 변경 완료");
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("비밀번호 변경 완료").build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     // 회원탈퇴
-    public CustomResponseEntity<String> withdrawal(User user, String accessToken) {
+    public ResponseEntity<ApiResponse> withdrawal(User user, String accessToken) {
         // redis에 저장된 refreshToken 삭제
         if (redisUtil.checkData(user.getUsername())) {
             redisUtil.deleteData(user.getUsername());
@@ -230,29 +235,28 @@ public class UserService {
 
         // repository에서 해당 유저 제거
         userRepository.delete(user);
-
-        return CustomResponseEntity.msgResponse(HttpStatus.OK, "회원 탈퇴 완료");
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("회원 탈퇴 완료").build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     // 메일로 전송한 인증코드 일치 확인 메서드
-
     public Boolean checkCode(User user, String code) {
         String authCode = redisUtil.getData(user.getEmail());
         log.info("code=" + authCode);
         return authCode.equals(code);
     }
-    // 이메일 중복 검사 메서드
 
+    // 이메일 중복 검사 메서드
     private boolean checkEmail(String email) {
         return userRepository.existsByEmail(email);
     }
-    // Username 중복 검사 메서드
 
+    // Username 중복 검사 메서드
     private boolean checkUsername(String username) {
         return userRepository.existsByUsername(username);
     }
-    // 휴대폰 번호 중복 검사 메서드
 
+    // 휴대폰 번호 중복 검사 메서드
     private boolean checkPhone(String phone) {
         return userRepository.existsByPhone(phone);
     }

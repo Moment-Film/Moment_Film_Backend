@@ -11,13 +11,14 @@ import com.team_7.moment_film.domain.post.entity.Post;
 import com.team_7.moment_film.domain.post.repository.PostRepository;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
-import com.team_7.moment_film.global.dto.CustomResponseEntity;
+import com.team_7.moment_film.global.dto.ApiResponse;
 import com.team_7.moment_film.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class CommentService {
 
 
     //댓글 작성 메소드
-    public CustomResponseEntity<CommentResponseDTO> createComment(Long postId, CommentRequestDTO requestDTO, UserDetailsImpl userDetails) {
+    public ResponseEntity<ApiResponse> createComment(Long postId, CommentRequestDTO requestDTO, UserDetailsImpl userDetails) {
         try {
             Post post = postrepository.findById(postId).orElseThrow(
                     () -> new IllegalArgumentException("존재하지 않은 게시글 입니다.")
@@ -56,18 +57,21 @@ public class CommentService {
                     .id(comment.getId())
                     .content(comment.getContent())
                     .build();
-            return CustomResponseEntity.dataResponse(HttpStatus.CREATED, responseDTO);
+            ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.CREATED).data(responseDTO).build();
+            return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
         } catch (IllegalArgumentException e) {
             log.error("IllegalArgumentException occurred: {}", e.getMessage(), e);
-            return CustomResponseEntity.errorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+            ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.BAD_REQUEST).msg(e.getMessage()).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
         } catch (Exception e) {
             logger.error("An error occurred: " + e.getMessage());
-            return CustomResponseEntity.errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
+            ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.INTERNAL_SERVER_ERROR).msg("서버 오류가 발생했습니다.").build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse);
         }
     }
 
     //댓글 조회 메서드
-    public CustomResponseEntity<List<CommentResponseDTO>> getAllComment(Long postId) {
+    public ResponseEntity<ApiResponse> getAllComment(Long postId) {
         Post post = postrepository.findById(postId).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않은 게시글 입니다.")
         );
@@ -83,10 +87,11 @@ public class CommentService {
                             .build()
             );
         }
-        return CustomResponseEntity.dataResponse(HttpStatus.OK, commentResponseDTOList);
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(commentResponseDTOList).build();
+        return ResponseEntity.ok(apiResponse);
     }
 
-    public CustomResponseEntity<Comment> deleteComment(Long commentId, UserDetailsImpl userDetails) {
+    public ResponseEntity<ApiResponse> deleteComment(Long commentId, UserDetailsImpl userDetails) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않은 댓글입니다.")
         );
@@ -102,9 +107,8 @@ public class CommentService {
             subComments.forEach(subCommentRepository::delete);
 
             commentRepository.delete(comment);
-            return CustomResponseEntity.msgResponse(HttpStatus.OK, "삭제 성공!");
+            ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("삭제 성공!").build();
+            return ResponseEntity.ok(apiResponse);
         }
     }
-
-
 }
