@@ -81,31 +81,34 @@ public class SecurityConfig {
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
 
-        // 요청 url 및 resources에 대한 인가 설정
+        // 요청 url 및 resources에 대한 인증/인가 설정
         http.authorizeHttpRequests((authorizeHttpRequests) ->
-                authorizeHttpRequests
-                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .requestMatchers("/api/user/signup").permitAll()
-                        .requestMatchers("/api/user/kakao/callback").permitAll()
-                        .requestMatchers("/api/user/popular").permitAll()
-                        .requestMatchers("/api/user/search").permitAll()
-                        .requestMatchers(GET, "/api/user/profile/*").permitAll()
-                        .requestMatchers(GET, "/api/post").permitAll()
-                        .requestMatchers(GET, "/api/post/*").permitAll()
-                        .requestMatchers("/upload").permitAll()
-                        .requestMatchers(GET, "/api/filter").permitAll()
-                        .requestMatchers(GET, "/api/frame").permitAll()
-                        .anyRequest().authenticated()
+                        authorizeHttpRequests
+                                .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                                .requestMatchers("/api/user/signup").permitAll() // check
+                                .requestMatchers("/api/user/kakao/callback").permitAll() // check
+                                .requestMatchers("/api/user/popular").permitAll() // check
+                                .requestMatchers("/api/user/search").permitAll() // check
+                                .requestMatchers(GET, "/api/user/profile/*").permitAll() // check
+                                .requestMatchers(GET, "/api/post").permitAll() // check
+                                .requestMatchers(GET, "/api/post/like").permitAll() // check
+                                .requestMatchers(GET, "/api/post/view").permitAll() // check
+                                .requestMatchers(GET, "/api/post/{postId}").permitAll() // check
+//                        .requestMatchers(GET, "/api/post/*").permitAll() // 로그인 필요
+//                        .requestMatchers("/upload").permitAll() // 로그인 필요
+                                .requestMatchers(GET, "/api/filter").permitAll() // check
+                                .requestMatchers(GET, "/api/frame").permitAll() // check
+                                .anyRequest().authenticated()
         );
 
-        // 예외처리
+        // 인증/인가 예외처리
         http.exceptionHandling(exceptionHandling ->
                 exceptionHandling
-                        .accessDeniedHandler(customAccessDeniedHandler)
-                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler) // 접근 권한
+                        .authenticationEntryPoint(customAuthenticationEntryPoint) // 미인증
         );
 
-        // 필터 순서 (인가 -> 인증)
+        // 필터 순서 (로그아웃 -> 인가 -> 인증)
         http.addFilterBefore(jwtLogoutFilter(), JwtAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
