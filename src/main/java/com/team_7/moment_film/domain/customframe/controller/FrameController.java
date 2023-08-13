@@ -3,9 +3,9 @@ package com.team_7.moment_film.domain.customframe.controller;
 import com.team_7.moment_film.domain.customframe.dto.FrameRequestDto;
 import com.team_7.moment_film.domain.customframe.dto.FrameResponseDto;
 import com.team_7.moment_film.domain.customframe.service.FrameService;
-import com.team_7.moment_film.global.security.UserDetailsImpl;
 import com.team_7.moment_film.global.dto.CustomResponseEntity;
 import com.team_7.moment_film.global.security.UserDetailsImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +22,7 @@ public class FrameController {
 
     //프레임 커스텀하기(등록하기)
     @PostMapping("")
-    public CustomResponseEntity<FrameResponseDto> createFrame(@RequestPart(value = "name") FrameRequestDto requestDto,
+    public CustomResponseEntity<FrameResponseDto> createFrame(@Valid @RequestPart(value = "name") FrameRequestDto requestDto,
                                                               @RequestPart(value = "frame") MultipartFile image,
                                                               @AuthenticationPrincipal UserDetailsImpl userDetails){
         return frameService.createFrame(requestDto, image, userDetails.getUser());
