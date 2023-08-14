@@ -10,5 +10,8 @@ import lombok.Getter;
 public class FrameResponseDto {
     private Long id;
     private String frameName;
+    private String hue;
+    private String saturation;
+    private String lightness;
     private String image;
 }
