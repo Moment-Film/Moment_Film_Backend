@@ -80,7 +80,7 @@ public class PostService {
                 .build();
 
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.CREATED).data(responseDto).build();
-        return ResponseEntity.ok(apiResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
 
     //삭제
@@ -90,8 +90,7 @@ public class PostService {
         User user = getUserById(userDetails.getId());
 
         if (!post.getUser().getId().equals(user.getId())) {
-            ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("해당 사용자가 아닙니다.").build();
-            return ResponseEntity.ok(apiResponse);
+            throw new IllegalArgumentException("해당 사용자가 아닙니다.");
         } else {
             // 게시글 삭제 후 댓글과 대댓글들도 함께 삭제
             List<Comment> comments = post.getCommentList();
