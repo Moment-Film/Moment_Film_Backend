@@ -4,7 +4,7 @@ import com.team_7.moment_film.domain.customframe.dto.FrameRequestDto;
 import com.team_7.moment_film.domain.customframe.dto.FrameResponseDto;
 import com.team_7.moment_film.domain.customframe.entity.Frame;
 import com.team_7.moment_film.domain.customframe.repository.FrameRepository;
-import com.team_7.moment_film.domain.post.S3.service.S3Service;
+import com.team_7.moment_film.domain.post.service.S3Service;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.global.dto.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;

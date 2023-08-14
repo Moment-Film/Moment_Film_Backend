@@ -58,4 +58,8 @@ public class Post extends TimeStamped {
     @Column(name = "viewCount")
     private Long viewCount;
 
+    // 조회수 증가 메서드
+    public void incereaseViewCount(Post post) {
+        this.viewCount++;
+    }
 }

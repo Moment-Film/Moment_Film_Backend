@@ -34,10 +34,8 @@ public class SubCommentService {
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않은 댓글입니다.")
         );
-        Post post = comment.getPost();
         User writer = userDetails.getUser();
         SubComment subComment = SubComment.builder()
-                .post(post)
                 .writer(writer)
                 .comment(comment)
                 .content(requestDTO.getContent())
@@ -69,29 +67,6 @@ public class SubCommentService {
 
         subCommentRepository.delete(subComment);
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("삭제 성공!").build();
-        return ResponseEntity.ok(apiResponse);
-    }
-
-
-    //대댓글 조회
-    public ResponseEntity<ApiResponse> getSubComment(Long commentId) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 댓글입니다.")
-        );
-
-        List<SubComment> subCommentList = subCommentRepository.findAllByCommentId(commentId);
-        List<SubCommentResponseDTO> subCommentResponseDTOList = new ArrayList<>();
-        for (SubComment subComment : subCommentList) {
-            subCommentResponseDTOList.add(
-                    SubCommentResponseDTO.builder()
-                            .id(subComment.getId())
-                            .commentId(commentId)
-                            .content(subComment.getContent())
-                            .build()
-            );
-
-        }
-        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(subCommentResponseDTOList).build();
         return ResponseEntity.ok(apiResponse);
     }
 }

@@ -8,15 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class SubCommentRequestDTO {
-    private Long commentId;
     @Lob
     private String content;
-    private User writer;
-    private Long PostId;
-    private Long userId;
-
 }

@@ -6,7 +6,6 @@ import com.team_7.moment_film.domain.comment.entity.Comment;
 import com.team_7.moment_film.domain.comment.entity.SubComment;
 import com.team_7.moment_film.domain.comment.repository.CommentRepository;
 import com.team_7.moment_film.domain.comment.repository.SubCommentRepository;
-import com.team_7.moment_film.domain.post.S3.service.S3Service;
 import com.team_7.moment_film.domain.post.dto.PostRequestDto;
 import com.team_7.moment_film.domain.post.dto.PostResponseDto;
 import com.team_7.moment_film.domain.post.entity.Post;
@@ -24,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,8 +97,10 @@ public class PostService {
 
     //상세조회
     public ResponseEntity<ApiResponse> getPost(Long postId) {
-        increaseViewCount(postId);
         Post post = postRepository.getPost(postId).orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패!"));
+        post.incereaseViewCount(post);
+        postRepository.save(post);
+
         PostResponseDto responseDto = PostResponseDto.builder()
                 .id(postId)
                 .userId(post.getUser().getId())
@@ -115,29 +115,6 @@ public class PostService {
                 .build();
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(responseDto).build();
         return ResponseEntity.ok(apiResponse);
-    }
-
-
-    // 조회수 증가
-    public void increaseViewCount(Long postId) {
-        increaseCount(postId, "viewCount");
-    }
-
-    // 카운터 증가 공통 메소드
-    private void increaseCount(Long postId, String countField) {
-        Post post = postRepository.findById(postId).orElse(null);
-        if (post != null) {
-            Field field;
-            try {
-                field = Post.class.getDeclaredField(countField);
-                field.setAccessible(true);
-                Long count = (Long) field.get(post);
-                field.set(post, count + 1);
-                postRepository.save(post);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     // 댓글 대댓글 리스트 반환 메서드.

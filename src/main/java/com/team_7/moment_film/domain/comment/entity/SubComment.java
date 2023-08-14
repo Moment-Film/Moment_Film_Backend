@@ -30,9 +30,9 @@ public class SubComment extends TimeStamped {
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id") // 수정: post_id로 변경
-    private Post post; // 수정: Post 타입으로 변경
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "post_id") // 수정: post_id로 변경
+//    private Post post; // 수정: Post 타입으로 변경
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "users_id")
