@@ -28,16 +28,17 @@ public class PostQueryRepository {
     //공통
     private JPAQuery<Post> baseQuery(Long id) {
         return jpaQueryFactory.selectFrom(post)
-                .where(ltPostId(id))
-                .orderBy(post.id.desc());
+                .where(ltPostId(id));
     }
 
     //최신순 (무한스크롤)
     public List<Post> getSliceOfPost(@Nullable Long id, int size) {
         return baseQuery(id)
+                .orderBy(post.id.desc())
                 .limit(size)
                 .fetch();
     }
+
     //조회수 (무한스크롤)
     public List<Post> findAllOrderByViewCountDesc(@Nullable Long id, int size) {
         return baseQuery(id)
@@ -49,7 +50,7 @@ public class PostQueryRepository {
     //좋아요 (무한스크롤)
     public List<Post> findAllOrderByLikeCountDesc(@Nullable Long id, int size) {
         return baseQuery(id)
-                .orderBy(post.likeCount.desc())
+                .orderBy(post.likeList.size().desc())
                 .limit(size)
                 .fetch();
     }
@@ -64,6 +65,7 @@ public class PostQueryRepository {
                 .fetch();
         return  postList;
     }
+
 
     // 내가 좋아요한 게시글(필요한 필드만)
     public List<TempPost> getLikedPosts(Long userId) {
@@ -84,6 +86,9 @@ public class PostQueryRepository {
 
         return likedPostList;
     }
+
+
+
 
 
 

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.team_7.moment_film.domain.user.dto.KakaoUserInfoDto;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
-import com.team_7.moment_film.global.dto.CustomResponseEntity;
+import com.team_7.moment_film.global.dto.ApiResponse;
 import com.team_7.moment_film.global.util.JwtUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,7 +41,7 @@ public class KakaoService {
     @Value("${kakao.redirect.uri}")
     private String redirectUri;
 
-    public CustomResponseEntity<String> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+    public ResponseEntity<ApiResponse> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         // 1. 카카오 서버로 accessToken 요청
         String token = getToken(code);
         log.info("카카오 엑세스 토큰 = " + token);
@@ -75,7 +75,8 @@ public class KakaoService {
         response.setHeader("accessToken", accessToken);
         response.setHeader("refreshToken", refreshToken);
 
-        return CustomResponseEntity.msgResponse(HttpStatus.OK, "카카오 로그인 성공");
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("카카오 로그인 성공").build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     // 카카오 계정으로 회원가입(신규만)

@@ -19,16 +19,16 @@ public class JwtUtil {
     public static final String HEADER_ACCESS_TOKEN = "accessToken";
     public static final String HEADER_REFRESH_TOKEN = "refreshToken";
     public static final String BEARER_PREFIX = "Bearer ";
-    private final Long ACCESS_TOKEN_EXPIRATION = 6 * 60 * 60 * 1000L; // 6시간
-    private final Long REFRESH_TOKEN_EXPIRATION = 12 * 60 * 60 * 1000L; // 12시간
-//    private final Long ACCESS_TOKEN_EXPIRATION = 60_000L; // 1분
-//    private final Long REFRESH_TOKEN_EXPIRATION = 180_000L; // 3분
+    //    private final Long ACCESS_TOKEN_EXPIRATION = 6 * 60 * 60 * 1000L; // 6시간
+//    private final Long REFRESH_TOKEN_EXPIRATION = 12 * 60 * 60 * 1000L; // 12시간
+    private final Long ACCESS_TOKEN_EXPIRATION = 30 * 60 * 1000L; // 30분
+    private final Long REFRESH_TOKEN_EXPIRATION = 1 * 60 * 60 * 1000L; // 1시간
 
     @Value("${jwt.secret.key}")
     private String secretKey;
     private Key key;
 
-    // JWT 생성 시 seretKey를 decode 후 Key 객체에 대입
+    // JWT 생성 시 secretKey를 decode 후 Key 객체에 대입
     @PostConstruct
     public void init() {
         byte[] bytes = Base64.getDecoder().decode(secretKey);
@@ -50,7 +50,7 @@ public class JwtUtil {
                         .compact();
     }
 
-    // JWT(refershToken) 생성 메서드
+    // JWT(refreshToken) 생성 메서드
     public String createRefreshToken(Long id, String username, String email) {
         Date date = new Date();
 

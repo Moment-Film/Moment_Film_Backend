@@ -1,13 +1,11 @@
 package com.team_7.moment_film.domain.like.controller;
 
 
-import com.team_7.moment_film.domain.like.repository.LikeRepository;
 import com.team_7.moment_film.domain.like.service.LikeService;
-import com.team_7.moment_film.global.dto.CustomResponseEntity;
+import com.team_7.moment_film.global.dto.ApiResponse;
 import com.team_7.moment_film.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +22,7 @@ public class LikeController {
     private LikeService likeService;
 
     @PostMapping("/likes")
-    public CustomResponseEntity<?> likePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ApiResponse> likePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return likeService.likePost(postId, userDetails);
     }
 

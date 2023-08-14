@@ -1,4 +1,4 @@
-package com.team_7.moment_film.domain.post.S3.config;
+package com.team_7.moment_film.global.config;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;

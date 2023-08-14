@@ -1,4 +1,4 @@
-package com.team_7.moment_film.domain.post.S3.service;
+package com.team_7.moment_film.domain.post.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
