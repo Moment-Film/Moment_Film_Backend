@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.team_7.moment_film.domain.comment.entity.Comment;
+import com.team_7.moment_film.domain.customfilter.entity.Filter;
+import com.team_7.moment_film.domain.customframe.entity.Frame;
 import com.team_7.moment_film.domain.like.entity.Like;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.global.config.TimeStamped;
@@ -38,13 +40,21 @@ public class Post extends TimeStamped {
     @Column(nullable = false)
     private String contents;
 
+    @Column(nullable = false)
+    private String username;
+
+    @OneToOne
+    @JoinColumn(name = "frame_id")
+    private Frame frame;
+
+    @OneToOne
+    @JoinColumn(name = "filter_id")
+    private Filter filter;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
-
-    @Column(nullable = false)
-    private String username;
 
     @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)

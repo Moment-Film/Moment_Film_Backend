@@ -27,12 +27,11 @@ public class LikeService {
 
     @Transactional
     public ResponseEntity<ApiResponse> likePost(Long postId, UserDetailsImpl userDetails) {
-        Post post;
+        Post post = new Post();
         try {
             post = postService.getPostById(postId);
         } catch (IllegalArgumentException e) {
-            ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.NOT_FOUND).msg("게시글을 찾을 수 없습니다.").build();
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiResponse);
+            new IllegalArgumentException("게시물을 찾을 수 없습니다.");
         }
         User user = userDetails.getUser();
         Optional<Like> optionalLike = likeRepository.findByUserIdAndPostId(user.getId(), post.getId());
