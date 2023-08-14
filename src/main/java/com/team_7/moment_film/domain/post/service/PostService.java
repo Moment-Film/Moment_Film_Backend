@@ -38,38 +38,34 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final SubCommentRepository subCommentRepository;
 
-
     // 생성
     @Transactional
     public CustomResponseEntity<PostResponseDto> createPost(PostRequestDto requestDto, MultipartFile image, UserDetailsImpl userDetails) {
-            String imageUrl = s3Service.upload(image);
-            log.info("file path = {}", imageUrl);
-            User user = getUserById(userDetails.getUser().getId());
-            Post post = new Post();
-            // 게시글 생성 및 저장
-            Post savepost = Post.builder()
-                    .id(post.getId())
-                    .title(requestDto.getTitle())
-                    .contents(requestDto.getContents())
-                    .image(imageUrl)
-                    .user(user)
-                    .username(user.getUsername())
-                    .build();
+        String imageUrl = s3Service.upload(image);
+        log.info("file path = {}", imageUrl);
+        User user = getUserById(userDetails.getUser().getId());
+        // 게시글 생성 및 저장
+        Post savepost = Post.builder()
+                .title(requestDto.getTitle())
+                .contents(requestDto.getContents())
+                .image(imageUrl)
+                .user(user)
+                .username(user.getUsername())
+                .viewCount(0L)
+                .build();
+        postRepository.save(savepost);
 
-            postRepository.save(savepost);
+        // 생성된 게시글 정보를 응답 DTO로 만들어 반환
+        PostResponseDto responseDto = PostResponseDto.builder()
+                .id(savepost.getId())
+                .title(savepost.getTitle())
+                .contents(savepost.getContents())
+                .image(savepost.getImage())
+                .username(savepost.getUser().getUsername())
+                .createdAt(savepost.getCreatedAt())
+                .build();
 
-
-            // 생성된 게시글 정보를 응답 DTO로 만들어 반환
-            PostResponseDto responseDto = PostResponseDto.builder()
-                    .id(savepost.getId())
-                    .title(savepost.getTitle())
-                    .contents(savepost.getContents())
-                    .image(savepost.getImage())
-                    .username(savepost.getUser().getUsername())
-                    .createdAt(savepost.getCreatedAt())
-                    .build();
-
-            return CustomResponseEntity.dataResponse(HttpStatus.CREATED, responseDto);
+        return CustomResponseEntity.dataResponse(HttpStatus.CREATED, responseDto);
     }
 
     //삭제
@@ -97,22 +93,23 @@ public class PostService {
 
 
     //상세조회
+    @Transactional
     public CustomResponseEntity<?> getPost(Long postId) {
-            increaseViewCount(postId);
-            Post post = postRepository.getPost(postId).orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패!"));
-            PostResponseDto responseDto = PostResponseDto.builder()
-                    .id(postId)
-                    .userId(post.getUser().getId())
-                    .title(post.getTitle())
-                    .contents(post.getContents())
-                    .image(post.getImage())
-                    .likeCount(post.getLikeList().size())
-                    .viewCount(post.getViewCount())
-                    .commentCount(post.getCommentList().size())
-                    .commentList(getAllCommentsWithSubComments(post))
-                    .createdAt(post.getCreatedAt())
-                    .build();
-            return CustomResponseEntity.dataResponse(HttpStatus.OK, responseDto);
+        increaseViewCount(postId);
+        Post post = postRepository.getPost(postId).orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패!"));
+        PostResponseDto responseDto = PostResponseDto.builder()
+                .id(postId)
+                .userId(post.getUser().getId())
+                .title(post.getTitle())
+                .contents(post.getContents())
+                .image(post.getImage())
+                .likeCount(post.getLikeList().size())
+                .viewCount(post.getViewCount())
+                .commentCount(post.getCommentList().size())
+                .commentList(getAllCommentsWithSubComments(post))
+                .createdAt(post.getCreatedAt())
+                .build();
+        return CustomResponseEntity.dataResponse(HttpStatus.OK, responseDto);
     }
 
 
@@ -131,7 +128,7 @@ public class PostService {
             try {
                 field = Post.class.getDeclaredField(countField);
                 field.setAccessible(true);
-                Integer count = (Integer) field.get(post);
+                Long count = (Long) field.get(post);
                 field.set(post, count + 1);
                 postRepository.save(post);
             } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -147,11 +144,20 @@ public class PostService {
         List<Comment> commentList = post.getCommentList();
 
         for (Comment comment : commentList) {
-            CommentResponseDTO newComment = new CommentResponseDTO(comment.getId(), comment.getContent());
-
+            CommentResponseDTO newComment = CommentResponseDTO.builder()
+                    .id(comment.getId())
+                    .content(comment.getContent())
+                    .username(comment.getWriter().getUsername())
+                    .userId(comment.getWriter().getId())
+                    .build();
             List<SubCommentResponseDTO> newSubComments = new ArrayList<>();
             for (SubComment subComment : comment.getSubComments()) {
-                SubCommentResponseDTO newSubComment = new SubCommentResponseDTO(subComment.getId(), subComment.getContent());
+                SubCommentResponseDTO newSubComment = SubCommentResponseDTO.builder()
+                        .id(subComment.getId())
+                        .content(subComment.getContent())
+                        .username(subComment.getWriter().getUsername())
+                        .UserId(subComment.getWriter().getId())
+                        .build();
                 newSubComments.add(newSubComment);
             }
 

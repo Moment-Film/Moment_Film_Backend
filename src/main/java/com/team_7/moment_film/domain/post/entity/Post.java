@@ -55,7 +55,7 @@ public class Post extends TimeStamped {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Like> likeList = new ArrayList<>();
 
-    @Transient
-    private int viewCount;
+    @Column(name = "viewCount")
+    private Long viewCount;
 
 }

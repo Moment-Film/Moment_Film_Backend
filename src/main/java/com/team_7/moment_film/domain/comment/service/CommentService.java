@@ -54,6 +54,8 @@ public class CommentService {
             commentRepository.save(comment);
             CommentResponseDTO responseDTO = CommentResponseDTO.builder()
                     .id(comment.getId())
+                    .userId(comment.getWriter().getId())
+                    .username(comment.getWriter().getUsername())
                     .content(comment.getContent())
                     .build();
             return CustomResponseEntity.dataResponse(HttpStatus.CREATED, responseDTO);

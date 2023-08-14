@@ -20,8 +20,4 @@ public class SubCommentResponseDTO {
     private String content;
     private String username;
 
-    public SubCommentResponseDTO(Long id, String content) {
-        this.id = id;
-        this.content = content;
-    }
 }

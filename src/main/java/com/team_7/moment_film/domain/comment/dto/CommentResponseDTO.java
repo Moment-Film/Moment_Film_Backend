@@ -25,12 +25,6 @@ public class CommentResponseDTO implements Serializable {
     private List<SubCommentResponseDTO> subComments;
 
 
-    public CommentResponseDTO(Long id, String content) {
-        this.id = id;
-        this.content = content;
-        this.subComments = new ArrayList<>();
-    }
-
     public void initializeSubComments(List<SubCommentResponseDTO> subComments) {
         this.subComments = subComments;
     }
