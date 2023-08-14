@@ -22,7 +22,7 @@ public class FrameController {
     //프레임 커스텀하기(등록하기)
     @PostMapping("")
     public ResponseEntity<ApiResponse> createFrame(@Valid @RequestPart(value = "name") FrameRequestDto requestDto,
-                                                   @RequestPart(value = "frame") MultipartFile image,
+                                                   @RequestPart(value = "frame", required = false) MultipartFile image,
                                                    @AuthenticationPrincipal UserDetailsImpl userDetails){
         return frameService.createFrame(requestDto, image, userDetails.getUser());
     }
