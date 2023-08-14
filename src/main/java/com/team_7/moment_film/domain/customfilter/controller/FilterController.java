@@ -23,10 +23,10 @@ public class FilterController {
         return filterService.createFilter(requestDto, userDetails.getUser());
     }
 
-    //유저들이 커스텀한 필터 모두 조회
+    //내가 커스텀한 필터 모두 조회
     @GetMapping("")
-    public ResponseEntity<ApiResponse> getAllFilter() {
-        return filterService.getAllFilter();
+    public ResponseEntity<ApiResponse> getAllMyFilter(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return filterService.getAllMyFilter(userDetails.getUser());
     }
 
     //커스텀 필터 선택(적용)하기

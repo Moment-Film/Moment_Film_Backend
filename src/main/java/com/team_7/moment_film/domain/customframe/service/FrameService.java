@@ -48,14 +48,10 @@ public class FrameService {
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
 
-    public ResponseEntity<ApiResponse> getAllFrame() {
-        List<FrameResponseDto> frameList = frameRepository.findAll().stream().map(frame -> FrameResponseDto.builder()
+    public ResponseEntity<ApiResponse> getAllMyFrame(User user) {
+        List<FrameResponseDto> frameList = frameRepository.findAllByUserId(user.getId()).stream().map(frame -> FrameResponseDto.builder()
                 .id(frame.getId())
                 .frameName(frame.getFrameName())
-                .hue(frame.getHue())
-                .saturation(frame.getSaturation())
-                .lightness(frame.getLightness())
-                .image(frame.getImage())
                 .build()).collect(Collectors.toList());
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(frameList).build();
         return ResponseEntity.ok(apiResponse);

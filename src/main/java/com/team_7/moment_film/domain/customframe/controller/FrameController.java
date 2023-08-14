@@ -21,16 +21,16 @@ public class FrameController {
 
     //프레임 커스텀하기(등록하기)
     @PostMapping("")
-    public ResponseEntity<ApiResponse> createFrame(@Valid @RequestPart(value = "name") FrameRequestDto requestDto,
-                                                   @RequestPart(value = "frame", required = false) MultipartFile image,
+    public ResponseEntity<ApiResponse> createFrame(@Valid @RequestPart(value = "data") FrameRequestDto requestDto,
+                                                   @RequestPart(value = "imageFile", required = false) MultipartFile image,
                                                    @AuthenticationPrincipal UserDetailsImpl userDetails){
         return frameService.createFrame(requestDto, image, userDetails.getUser());
     }
 
-    //유저들이 커스텀한 프레임 모두 조회
+    //내가 커스텀한 프레임 모두 조회
     @GetMapping("")
-    public ResponseEntity<ApiResponse> getAllFrame() {
-        return frameService.getAllFrame();
+    public ResponseEntity<ApiResponse> getAllMyFrame(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return frameService.getAllMyFrame(userDetails.getUser());
     }
 
     //커스텀 프레임 선택(적용)하기

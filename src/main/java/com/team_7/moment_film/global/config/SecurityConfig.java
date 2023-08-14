@@ -96,8 +96,6 @@ public class SecurityConfig {
                                 .requestMatchers(GET, "/api/post/{postId}").permitAll() // check
 //                        .requestMatchers(GET, "/api/post/*").permitAll() // 로그인 필요
 //                        .requestMatchers("/upload").permitAll() // 로그인 필요
-                                .requestMatchers(GET, "/api/filter").permitAll() // check
-                                .requestMatchers(GET, "/api/frame").permitAll() // check
                                 .requestMatchers("/swagger-ui/*").permitAll()
                                 .requestMatchers("/v3/api-docs").permitAll()
                                 .requestMatchers("/v3/api-docs/*").permitAll()

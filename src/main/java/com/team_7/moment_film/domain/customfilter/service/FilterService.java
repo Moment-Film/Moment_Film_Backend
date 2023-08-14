@@ -43,16 +43,12 @@ public class FilterService {
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
 
-    public ResponseEntity<ApiResponse> getAllFilter() {
-        List<FilterResponseDto> filterList = filterRepository.findAll().stream().map(filter -> FilterResponseDto.builder()
+    public ResponseEntity<ApiResponse> getAllMyFilter(User user) {
+        List<FilterResponseDto> filterList = filterRepository.findAllByUserId(user.getId()).stream().map(filter -> FilterResponseDto.builder()
                 .id(filter.getId())
                 .filterName(filter.getFilterName())
-                .blur(filter.getBlur())
-                .contrast(filter.getContrast())
-                .grayscale(filter.getGrayscale())
-                .sepia(filter.getSepia())
                 .build()).collect(Collectors.toList());
-        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.CREATED).data(filterList).build();
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(filterList).build();
         return ResponseEntity.ok(apiResponse);
     }
 
@@ -81,4 +77,6 @@ public class FilterService {
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("필터 삭제 완료").build();
         return ResponseEntity.ok(apiResponse);
     }
+
+
 }
