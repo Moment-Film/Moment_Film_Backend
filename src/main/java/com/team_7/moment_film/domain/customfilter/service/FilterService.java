@@ -47,10 +47,6 @@ public class FilterService {
         List<FilterResponseDto> filterList = filterRepository.findAllByUserId(user.getId()).stream().map(filter -> FilterResponseDto.builder()
                 .id(filter.getId())
                 .filterName(filter.getFilterName())
-                .blur(filter.getBlur())
-                .contrast(filter.getContrast())
-                .grayscale(filter.getGrayscale())
-                .sepia(filter.getSepia())
                 .build()).collect(Collectors.toList());
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(filterList).build();
         return ResponseEntity.ok(apiResponse);

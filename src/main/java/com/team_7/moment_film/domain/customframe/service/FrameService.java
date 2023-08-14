@@ -52,10 +52,6 @@ public class FrameService {
         List<FrameResponseDto> frameList = frameRepository.findAllByUserId(user.getId()).stream().map(frame -> FrameResponseDto.builder()
                 .id(frame.getId())
                 .frameName(frame.getFrameName())
-                .hue(frame.getHue())
-                .saturation(frame.getSaturation())
-                .lightness(frame.getLightness())
-                .image(frame.getImage())
                 .build()).collect(Collectors.toList());
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(frameList).build();
         return ResponseEntity.ok(apiResponse);
