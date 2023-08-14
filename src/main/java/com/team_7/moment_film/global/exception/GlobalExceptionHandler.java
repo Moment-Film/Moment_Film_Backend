@@ -95,7 +95,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse> ExceptionHandler(MethodArgumentNotValidException ex) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .status(HttpStatus.BAD_REQUEST)
-                .msg(ex.getMessage())
+                .msg(ex.getFieldErrors().get(0).getDefaultMessage())
                 .build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
     }
