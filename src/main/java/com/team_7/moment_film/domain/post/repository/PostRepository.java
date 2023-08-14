@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
-    List<Post> findByUserId(Long userId);
     @Query("select p from Post p join fetch p.user u where p.id = :postId")
     Optional<Post> getPost(Long postId);
 }

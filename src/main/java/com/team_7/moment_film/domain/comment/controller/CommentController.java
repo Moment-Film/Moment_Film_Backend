@@ -29,10 +29,4 @@ public class CommentController {
         return commentService.deleteComment(commentId, userDetails);
     }
 
-    //조회
-    @GetMapping
-    public ResponseEntity<ApiResponse> getAllComment(@PathVariable Long postId) {
-        return commentService.getAllComment(postId);
-    }
-
 }

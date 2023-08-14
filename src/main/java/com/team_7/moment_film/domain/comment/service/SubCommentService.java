@@ -27,7 +27,6 @@ public class SubCommentService {
 
     private final CommentRepository commentRepository;
     private final SubCommentRepository subCommentRepository;
-    private final UserRepository userRepository;
 
     // 대댓글 생성
     public ResponseEntity<ApiResponse> createSubComment(Long commentId, SubCommentRequestDTO requestDTO, UserDetailsImpl userDetails) {
@@ -54,10 +53,6 @@ public class SubCommentService {
     public ResponseEntity<ApiResponse> deleteSubComment(Long subcommentId, UserDetailsImpl userDetails) {
         SubComment subComment = subCommentRepository.findById(subcommentId).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 대댓글입니다.")
-        );
-
-        User user = userRepository.findById(userDetails.getId()).orElseThrow(
-                () -> new IllegalArgumentException("올바른 사용자가 아닙니다.")
         );
 
         if (!subComment.getWriter().getId().equals(userDetails.getUser().getId())) {
