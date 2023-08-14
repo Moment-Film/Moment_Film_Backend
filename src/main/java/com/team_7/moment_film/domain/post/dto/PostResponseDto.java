@@ -19,11 +19,10 @@ public class PostResponseDto {
     private String contents;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private String createdAt;
-    private String username;
     private int likeCount;
-    private int viewCount;
+    private Long viewCount;
     private int commentCount;
-    private User user;
+    private String username;
     private Long userId;
     private List<CommentResponseDTO> commentList;
 

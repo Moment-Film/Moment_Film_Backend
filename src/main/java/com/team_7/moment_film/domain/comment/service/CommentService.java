@@ -55,6 +55,8 @@ public class CommentService {
             commentRepository.save(comment);
             CommentResponseDTO responseDTO = CommentResponseDTO.builder()
                     .id(comment.getId())
+                    .userId(comment.getWriter().getId())
+                    .username(comment.getWriter().getUsername())
                     .content(comment.getContent())
                     .build();
             ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.CREATED).data(responseDTO).build();
