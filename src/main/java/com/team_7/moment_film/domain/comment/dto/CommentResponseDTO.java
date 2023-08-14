@@ -1,14 +1,12 @@
 package com.team_7.moment_film.domain.comment.dto;
 
 
-import com.team_7.moment_film.domain.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
@@ -17,9 +15,7 @@ import java.util.List;
 @Getter
 public class CommentResponseDTO implements Serializable {
     private Long id;
-    private Long postId;
     private Long userId;
-    private User writer;
     private String username;
     private String content;
     private List<SubCommentResponseDTO> subComments;

@@ -7,13 +7,16 @@ public record PostSliceResponse(
         long id,
         String title,
         String image,
-        String username
+        String username,
+        Long viewCount,
+        int likeCount,
+        int commentCount
 
 
 ) {
 
     public static PostSliceResponse from(Post post) {
-        return new PostSliceResponse(post.getId(), post.getTitle(), post.getImage(), post.getUser().getUsername());
+        return new PostSliceResponse(post.getId(), post.getTitle(), post.getImage(), post.getUser().getUsername(), post.getViewCount(), post.getLikeList().size(),post.getCommentList().size());
     }
 
 }

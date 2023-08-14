@@ -34,12 +34,10 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final S3Service s3Service;
-    private final CommentRepository commentRepository;
-    private final SubCommentRepository subCommentRepository;
 
 
     // 생성
-    @Transactional
+
     public ResponseEntity<ApiResponse> createPost(PostRequestDto requestDto, MultipartFile image, UserDetailsImpl userDetails) {
         String imageUrl = s3Service.upload(image);
         log.info("file path = {}", imageUrl);
@@ -78,13 +76,6 @@ public class PostService {
         if (!post.getUser().getId().equals(user.getId())) {
             throw new IllegalArgumentException("해당 사용자가 아닙니다.");
         } else {
-            // 게시글 삭제 후 댓글과 대댓글들도 함께 삭제
-            List<Comment> comments = post.getCommentList();
-            for (Comment comment : comments) {
-                List<SubComment> subComments = comment.getSubComments();
-                subComments.forEach(subCommentRepository::delete);
-                commentRepository.delete(comment);
-            }
             String imageurl = post.getImage();
             s3Service.delete(imageurl);
             postRepository.delete(post);
@@ -104,6 +95,7 @@ public class PostService {
         PostResponseDto responseDto = PostResponseDto.builder()
                 .id(postId)
                 .userId(post.getUser().getId())
+                .username(post.getUsername())
                 .title(post.getTitle())
                 .contents(post.getContents())
                 .image(post.getImage())

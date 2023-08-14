@@ -28,13 +28,13 @@ public class PostQueryRepository {
     //공통
     private JPAQuery<Post> baseQuery(Long id) {
         return jpaQueryFactory.selectFrom(post)
-                .where(ltPostId(id))
-                .orderBy(post.id.desc());
+                .where(ltPostId(id));
     }
 
     //최신순 (무한스크롤)
     public List<Post> getSliceOfPost(@Nullable Long id, int size) {
         return baseQuery(id)
+                .orderBy(post.id.desc())
                 .limit(size)
                 .fetch();
     }
