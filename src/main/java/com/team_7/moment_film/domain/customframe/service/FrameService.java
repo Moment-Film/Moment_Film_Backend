@@ -26,14 +26,24 @@ public class FrameService {
 
 
     public ResponseEntity<ApiResponse> createFrame(FrameRequestDto requestDto, MultipartFile image, User user) {
+        if(image==null && requestDto.getHue()==null &&
+                requestDto.getSaturation()==null && requestDto.getLightness()==null ){
+            throw new IllegalArgumentException("이미지나 값을 선택해주세요.");
+        }
+
         String imageUrl = s3Service.upload(image);
         Frame frame = new Frame(requestDto, imageUrl, user);
         frameRepository.save(frame);
+
         FrameResponseDto responseDto = FrameResponseDto.builder()
                 .id(frame.getId())
                 .frameName(frame.getFrameName())
+                .hue(frame.getHue())
+                .saturation(frame.getSaturation())
+                .lightness(frame.getLightness())
                 .image(frame.getImage())
                 .build();
+
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.CREATED).data(responseDto).build();
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
@@ -42,6 +52,9 @@ public class FrameService {
         List<FrameResponseDto> frameList = frameRepository.findAll().stream().map(frame -> FrameResponseDto.builder()
                 .id(frame.getId())
                 .frameName(frame.getFrameName())
+                .hue(frame.getHue())
+                .saturation(frame.getSaturation())
+                .lightness(frame.getLightness())
                 .image(frame.getImage())
                 .build()).collect(Collectors.toList());
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(frameList).build();
@@ -54,6 +67,9 @@ public class FrameService {
         FrameResponseDto responseDto = FrameResponseDto.builder()
                 .id(frame.getId())
                 .frameName(frame.getFrameName())
+                .hue(frame.getHue())
+                .saturation(frame.getSaturation())
+                .lightness(frame.getLightness())
                 .image(frame.getImage())
                 .build();
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(responseDto).build();
