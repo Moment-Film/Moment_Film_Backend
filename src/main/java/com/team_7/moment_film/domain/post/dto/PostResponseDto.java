@@ -25,5 +25,8 @@ public class PostResponseDto {
     private String username;
     private Long userId;
     private List<CommentResponseDTO> commentList;
-
+    private Long filterId;
+    private Long frameId;
+    private String filterName;
+    private String frameName;
 }
