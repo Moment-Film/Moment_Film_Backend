@@ -4,11 +4,13 @@ import com.team_7.moment_film.domain.customfilter.dto.FilterRequestDto;
 import com.team_7.moment_film.domain.post.entity.Post;
 import com.team_7.moment_film.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@AllArgsConstructor
 @Table(name = "custom_filter")
 @NoArgsConstructor
 public class Filter {
