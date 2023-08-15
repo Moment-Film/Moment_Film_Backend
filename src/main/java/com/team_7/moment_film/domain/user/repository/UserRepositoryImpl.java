@@ -19,7 +19,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
     @Override
     public List<SearchResponseDto> searchUserByName(String userKeyword){
         List<SearchResponseDto> result = queryFactory
-                .select(Projections.constructor(SearchResponseDto.class,user.username))
+                .select(Projections.constructor(SearchResponseDto.class, user.id, user.username))
                 .from(user)
                 .where(user.username.like("%" + userKeyword + "%"))
                 .fetch();

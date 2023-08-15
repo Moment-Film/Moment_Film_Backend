@@ -21,6 +21,12 @@ public class Frame {
 
     private String image;
 
+    private String hue;
+
+    private String saturation;
+
+    private String lightness;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -31,6 +37,9 @@ public class Frame {
 
     public Frame(FrameRequestDto requestDto, String image, User user){
         this.frameName = requestDto.getFrameName();
+        this.hue = requestDto.getHue();
+        this.saturation = requestDto.getSaturation();
+        this.lightness = requestDto.getLightness();
         this.image = image;
         this.user = user;
     }

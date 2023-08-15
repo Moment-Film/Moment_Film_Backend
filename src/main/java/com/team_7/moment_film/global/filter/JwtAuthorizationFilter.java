@@ -32,7 +32,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String accessToken = req.getHeader("accessToken");
 
         // accessToken 토큰 값이 없을 경우 비로그인 사용자, 다음 필터(Authentication)로 이동
-        if (StringUtils.hasText(accessToken)) {
+        if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer")) {
             accessToken = jwtUtil.substringToken(accessToken);
 
             // 제출한 accessToken(KEY)로 redis 조회 시 해당 KEY 값이 있고, Value가 logout인 경우
@@ -44,6 +44,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 res.getWriter().write("이미 로그아웃된 사용자입니다. 다시 로그인을 해주세요.");
                 return;
             }
+
             // accessToken 검증 실패 시 refreshToken 을 통해 accessToken 재발급 진행
             if (!jwtUtil.validateToken(accessToken)) {
                 log.warn("Token Error, accessToken 검증 실패! refreshToken 으로 accessToken 재발급 시도");
@@ -85,7 +86,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             try {
                 Claims info = jwtUtil.getUserInfoFromToken(accessToken);
                 setAuthentication((String) info.get("email"));
-                log.info("Create Authentication, 인증 객체 생성 및 SecurityContextHolder 저장 성공");
+                log.info("로그인 된 사용자");
             } catch (Exception e) {
                 // 인증 객체를 생성할 수 없는 경우
                 log.error("Failed to create Authentication : " + e.getMessage());

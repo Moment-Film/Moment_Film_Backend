@@ -10,6 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class FilterResponseDto {
     private Long id;
+    private String filterName;
     private String blur;
     private String contrast;
     private String grayscale;

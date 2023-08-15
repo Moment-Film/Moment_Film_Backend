@@ -5,8 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.team_7.moment_film.domain.user.dto.KakaoUserInfoDto;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
-import com.team_7.moment_film.global.dto.CustomResponseEntity;
+import com.team_7.moment_film.global.dto.ApiResponse;
 import com.team_7.moment_film.global.util.JwtUtil;
+import com.team_7.moment_film.global.util.RedisUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.UUID;
 
 @Slf4j(topic = "Kakao Service")
@@ -35,13 +37,14 @@ public class KakaoService {
     private final UserRepository userRepository;
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
+    private final RedisUtil redisUtil;
 
     @Value("${kakao.restapi.key}")
     private String restApiKey;
     @Value("${kakao.redirect.uri}")
     private String redirectUri;
 
-    public CustomResponseEntity<String> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+    public ResponseEntity<ApiResponse> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         // 1. 카카오 서버로 accessToken 요청
         String token = getToken(code);
         log.info("카카오 엑세스 토큰 = " + token);
@@ -72,10 +75,17 @@ public class KakaoService {
         log.info("JWT 발급 : accessToken = " + accessToken);
         log.info("JWT 발급 : refreshToken = " + refreshToken);
 
+        String refreshTokenValue = jwtUtil.substringToken(refreshToken);
+        Date expiration = jwtUtil.getUserInfoFromToken(refreshTokenValue).getExpiration();
+
+        redisUtil.setData(username, refreshTokenValue, expiration);
+        log.info("Redis에 RefreshToken 저장(카카오)");
+
         response.setHeader("accessToken", accessToken);
         response.setHeader("refreshToken", refreshToken);
 
-        return CustomResponseEntity.msgResponse(HttpStatus.OK, "카카오 로그인 성공");
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("카카오 로그인 성공").build();
+        return ResponseEntity.ok(apiResponse);
     }
 
     // 카카오 계정으로 회원가입(신규만)
