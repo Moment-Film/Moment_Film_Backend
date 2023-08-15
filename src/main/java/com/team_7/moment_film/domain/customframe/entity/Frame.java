@@ -4,6 +4,7 @@ import com.team_7.moment_film.domain.customframe.dto.FrameRequestDto;
 import com.team_7.moment_film.domain.post.entity.Post;
 import com.team_7.moment_film.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "custom_frame")
 @NoArgsConstructor
+@AllArgsConstructor
 public class Frame {
     @Id
     @Column(name = "frame_id")
