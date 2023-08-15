@@ -41,7 +41,7 @@ public class PostService {
     // 생성
 
     public ResponseEntity<ApiResponse> createPost(PostRequestDto requestDto, MultipartFile image, UserDetailsImpl userDetails) {
-        String imageUrl = s3Service.upload(image);
+        String imageUrl = s3Service.upload(image,"post/");
         log.info("file path = {}", imageUrl);
         User user = getUserById(userDetails.getUser().getId());
         Frame frame = frameRepository.findById(requestDto.getFrameId()).orElseThrow(
