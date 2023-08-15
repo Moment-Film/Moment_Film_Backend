@@ -1,5 +1,6 @@
 package com.team_7.moment_film.domain.customframe.service;
 
+import com.team_7.moment_film.domain.customframe.dto.FrameMapper;
 import com.team_7.moment_film.domain.customframe.dto.FrameRequestDto;
 import com.team_7.moment_film.domain.customframe.dto.FrameResponseDto;
 import com.team_7.moment_film.domain.customframe.entity.Frame;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,11 +23,11 @@ public class FrameService {
 
     private final FrameRepository frameRepository;
     private final S3Service s3Service;
-
+    private final FrameMapper frameMapper;
 
     public ResponseEntity<ApiResponse> createFrame(FrameRequestDto requestDto, MultipartFile image, User user) {
-        if(image==null && requestDto.getHue()==null &&
-                requestDto.getSaturation()==null && requestDto.getLightness()==null ){
+        if(image==null && requestDto.getHue().isBlank() &&
+                requestDto.getSaturation().isBlank() && requestDto.getLightness().isBlank()){
             throw new IllegalArgumentException("이미지나 값을 선택해주세요.");
         }
 
@@ -35,14 +35,7 @@ public class FrameService {
         Frame frame = new Frame(requestDto, imageUrl, user);
         frameRepository.save(frame);
 
-        FrameResponseDto responseDto = FrameResponseDto.builder()
-                .id(frame.getId())
-                .frameName(frame.getFrameName())
-                .hue(frame.getHue())
-                .saturation(frame.getSaturation())
-                .lightness(frame.getLightness())
-                .image(frame.getImage())
-                .build();
+        FrameResponseDto responseDto = frameMapper.toDto(frame);
 
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.CREATED).data(responseDto).build();
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
@@ -52,7 +45,7 @@ public class FrameService {
         List<FrameResponseDto> frameList = frameRepository.findAllByUserId(user.getId()).stream().map(frame -> FrameResponseDto.builder()
                 .id(frame.getId())
                 .frameName(frame.getFrameName())
-                .build()).collect(Collectors.toList());
+                .build()).toList();
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(frameList).build();
         return ResponseEntity.ok(apiResponse);
     }
@@ -60,14 +53,7 @@ public class FrameService {
     public ResponseEntity<ApiResponse> selectFrame(Long frameId) {
         Frame frame = frameRepository.findById(frameId).orElseThrow(() ->
                 new EntityNotFoundException("존재하지 않는 프레임입니다."));
-        FrameResponseDto responseDto = FrameResponseDto.builder()
-                .id(frame.getId())
-                .frameName(frame.getFrameName())
-                .hue(frame.getHue())
-                .saturation(frame.getSaturation())
-                .lightness(frame.getLightness())
-                .image(frame.getImage())
-                .build();
+        FrameResponseDto responseDto = frameMapper.toDto(frame);
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(responseDto).build();
         return ResponseEntity.ok(apiResponse);
     }

@@ -8,7 +8,6 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.team_7.moment_film.domain.like.entity.QLike;
 import com.team_7.moment_film.domain.post.entity.Post;
-import com.team_7.moment_film.domain.post.entity.TempPost;
 import com.team_7.moment_film.domain.user.entity.QUser;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +19,7 @@ import static com.team_7.moment_film.domain.post.entity.QPost.post;
 
 @Repository
 @RequiredArgsConstructor
-public class
-PostQueryRepository {
+public class PostQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
@@ -62,41 +60,35 @@ PostQueryRepository {
                 .fetch();
     }
 
-    // 내가 작성한 게시글(필요한 필드만)
-    public List<TempPost> getMyPosts(Long id) {
-        List<TempPost> postList = jpaQueryFactory
-                .select(Projections.constructor(TempPost.class, post.id, post.title, post.contents, post.image))
+    // 내가 작성한 게시글
+    public List<Post> getMyPosts(Long id) {
+        List<Post> postList = jpaQueryFactory
+                .select(Projections.constructor(Post.class, post.id, post.title, post.contents, post.image, post.user.id, post.username))
                 .from(post)
                 .where(post.user.id.eq(id))
                 .orderBy(post.createdAt.desc())
                 .fetch();
-        return  postList;
+        return postList;
     }
 
-
-    // 내가 좋아요한 게시글(필요한 필드만)
-    public List<TempPost> getLikedPosts(Long userId) {
+    // 내가 좋아요한 게시글
+    public List<Post> getLikedPosts(Long userId) {
         QUser user = QUser.user;
-        QLike like =QLike.like;
+        QLike like = QLike.like;
         SubQueryExpression<Long> subquery = JPAExpressions
                 .select(like.post.id)
                 .from(user)
                 .leftJoin(like).on(user.id.eq(like.user.id))
                 .where(user.id.eq(userId));
 
-
-        List<TempPost> likedPostList = jpaQueryFactory
-                .select(Projections.constructor(TempPost.class, post.id, post.title, post.contents, post.image, post.user))
+        List<Post> likedPostList = jpaQueryFactory
+                .select(Projections.constructor(Post.class, post.id, post.title, post.contents, post.image, post.user.id, post.username))
                 .from(post)
                 .where(post.id.in(subquery))
                 .fetch();
 
         return likedPostList;
     }
-
-
-
-
 
     public boolean isLastPage(List<Post> posts, int size){
         return posts.size() < size;
