@@ -7,6 +7,7 @@ import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.ApiResponse;
 import com.team_7.moment_film.global.util.JwtUtil;
+import com.team_7.moment_film.global.util.RedisUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.UUID;
 
 @Slf4j(topic = "Kakao Service")
@@ -35,6 +37,7 @@ public class KakaoService {
     private final UserRepository userRepository;
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
+    private final RedisUtil redisUtil;
 
     @Value("${kakao.restapi.key}")
     private String restApiKey;
@@ -71,6 +74,12 @@ public class KakaoService {
 
         log.info("JWT 발급 : accessToken = " + accessToken);
         log.info("JWT 발급 : refreshToken = " + refreshToken);
+
+        String refreshTokenValue = jwtUtil.substringToken(refreshToken);
+        Date expiration = jwtUtil.getUserInfoFromToken(refreshTokenValue).getExpiration();
+
+        redisUtil.setData(username, refreshTokenValue, expiration);
+        log.info("Redis에 RefreshToken 저장(카카오)");
 
         response.setHeader("accessToken", accessToken);
         response.setHeader("refreshToken", refreshToken);
