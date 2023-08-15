@@ -31,25 +31,31 @@ public class PostQueryRepository {
     }
 
     //최신순 (무한스크롤)
-    public List<Post> getSliceOfPost(@Nullable Long id, int size) {
+    public List<Post> getSliceOfPost(@Nullable Long id, int size, int page) {
+        int offset = (page - 1) * size;
         return baseQuery(id)
                 .orderBy(post.id.desc())
+                .offset(offset)
                 .limit(size)
                 .fetch();
     }
 
     //조회수 (무한스크롤)
-    public List<Post> findAllOrderByViewCountDesc(@Nullable Long id, int size) {
+    public List<Post> findAllOrderByViewCountDesc(@Nullable Long id, int size, int page) {
+        int offset = (page - 1) * size;
         return baseQuery(id)
                 .orderBy(post.viewCount.desc())
+                .offset(offset)
                 .limit(size)
                 .fetch();
     }
 
     //좋아요 (무한스크롤)
-    public List<Post> findAllOrderByLikeCountDesc(@Nullable Long id, int size) {
+    public List<Post> findAllOrderByLikeCountDesc(@Nullable Long id, int size, int page) {
+        int offset = (page - 1) * size;
         return baseQuery(id)
                 .orderBy(post.likeList.size().desc())
+                .offset(offset)
                 .limit(size)
                 .fetch();
     }
@@ -80,9 +86,13 @@ public class PostQueryRepository {
                 .from(post)
                 .where(post.id.in(subquery))
                 .fetch();
+
         return likedPostList;
     }
 
+    public boolean isLastPage(List<Post> posts, int size){
+        return posts.size() < size;
+    }
     private BooleanExpression ltPostId(@Nullable Long id) {
         return id == null ? null : post.id.lt(id);
     }
