@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -105,10 +106,11 @@ public class PostService {
     public ResponseEntity<ApiResponse> getPost(Long postId) {
         Post post = postRepository.getPost(postId).orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패!"));
         increaseViewCount(postId);
-        List<Long> likeUserId = new ArrayList<>();
-        for(Like like : post.getLikeList()){
-            likeUserId.add(like.getUser().getId());
-        }
+
+        List<User> likeUser = post.getLikeList().stream().map(Like -> User.builder()
+                .id(Like.getUser().getId())
+                .build()
+            ).collect(Collectors.toList());
 
         PostResponseDto responseDto = PostResponseDto.builder()
                 .id(postId)
@@ -120,7 +122,7 @@ public class PostService {
                 .likeCount(post.getLikeList().size())
                 .viewCount(post.getViewCount())
                 .commentCount(post.getCommentList().size())
-                .likeUserId(likeUserId)
+                .likeUserId(likeUser)
                 .frameId(post.getFrame().getId())
                 .frameName(post.getFrame().getFrameName())
                 .filterId(post.getFilter().getId())
