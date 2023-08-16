@@ -20,9 +20,8 @@ public class Filter {
     private Long id;
     private String filterName;
     private String blur;
-    private String brightness;
     private String contrast;
-    private String saturate;
+    private String grayscale;
     private String sepia;
 
     @ManyToOne
@@ -36,9 +35,8 @@ public class Filter {
     public Filter(FilterRequestDto requestDto, User user){
         this.filterName = requestDto.getFilterName();
         this.blur = requestDto.getBlur();
-        this.brightness = requestDto.getBrightness();
         this.contrast = requestDto.getContrast();
-        this.saturate = requestDto.getSaturate();
+        this.grayscale = requestDto.getGrayscale();
         this.sepia = requestDto.getSepia();
         this.user = user;
     }

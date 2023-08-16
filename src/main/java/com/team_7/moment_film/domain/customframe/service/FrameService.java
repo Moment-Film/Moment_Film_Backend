@@ -30,7 +30,8 @@ public class FrameService {
                 isNullOrBlank(requestDto.getSaturation()) && isNullOrBlank(requestDto.getLightness())){
             throw new IllegalArgumentException("이미지나 값을 선택해주세요.");
         }
-        String imageUrl = s3Service.upload(image, "frame/");
+
+        String imageUrl = s3Service.upload(image);
         Frame frame = new Frame(requestDto, imageUrl, user);
         frameRepository.save(frame);
 

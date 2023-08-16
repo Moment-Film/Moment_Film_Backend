@@ -22,13 +22,12 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
-import java.io.ByteArrayOutputStream;
 
 @Slf4j
 @Service
@@ -46,12 +45,12 @@ public class S3Service {
      * @return 업로드된 이미지의 S3 URL
      * @throws IllegalArgumentException 업로드 실패 시 발생하는 예외
      */
-    public String upload(MultipartFile multipartFile, String dir) {
+    public String upload(MultipartFile multipartFile) {
         if (multipartFile == null || multipartFile.isEmpty()) return null;
 
         try {
             byte[] fileBytes = multipartFile.getBytes();
-            String fileName = dir + generateFileName(multipartFile.getOriginalFilename());
+            String fileName = generateFileName(multipartFile.getOriginalFilename());
             String contentType = multipartFile.getContentType();
             putS3(fileBytes, fileName, contentType);
             String imageUrl = generateUnsignedUrl(fileName);
