@@ -1,4 +1,4 @@
-package com.team_7.moment_film.domain.follow.entity;
+package com.team_7.moment_film.domain.customfilter.entity;
 
 import com.team_7.moment_film.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -12,18 +12,17 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Follow {
+public class FilterBookMark {
     @Id
-    @Column(name = "follow_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "follower_id")
-    private User follower;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "following_id")
-    private User following;
+    @ManyToOne
+    @JoinColumn(name = "filter_id")
+    private Filter filter;
 
 }

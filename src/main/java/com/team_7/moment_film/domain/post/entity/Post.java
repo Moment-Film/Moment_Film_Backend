@@ -3,6 +3,7 @@ package com.team_7.moment_film.domain.post.entity;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.querydsl.core.annotations.QueryProjection;
 import com.team_7.moment_film.domain.comment.entity.Comment;
 import com.team_7.moment_film.domain.customfilter.entity.Filter;
 import com.team_7.moment_film.domain.customframe.entity.Frame;
@@ -56,6 +57,9 @@ public class Post extends TimeStamped {
     @JsonIgnore
     private User user;
 
+    @Transient
+    private Long userId;
+
     @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private List<Comment> commentList = new ArrayList<>();
@@ -71,5 +75,15 @@ public class Post extends TimeStamped {
     // 조회수 증가 메서드
     public void incereaseViewCount(Post post) {
         this.viewCount++;
+    }
+
+    @QueryProjection
+    public Post(Long id, String title, String contents, String image, Long userId, String username) {
+        this.id = id;
+        this.title = title;
+        this.contents = contents;
+        this.image = image;
+        this.userId = userId;
+        this.username = username;
     }
 }
