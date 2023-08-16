@@ -8,6 +8,7 @@ import com.team_7.moment_film.domain.customfilter.entity.Filter;
 import com.team_7.moment_film.domain.customfilter.repository.FilterRepository;
 import com.team_7.moment_film.domain.customframe.entity.Frame;
 import com.team_7.moment_film.domain.customframe.repository.FrameRepository;
+import com.team_7.moment_film.domain.like.entity.Like;
 import com.team_7.moment_film.domain.post.dto.PostRequestDto;
 import com.team_7.moment_film.domain.post.dto.PostResponseDto;
 import com.team_7.moment_film.domain.post.entity.Post;
@@ -21,7 +22,6 @@ import com.team_7.moment_film.global.util.ViewCountUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -43,7 +43,7 @@ public class PostService {
     // 생성
 
     public ResponseEntity<ApiResponse> createPost(PostRequestDto requestDto, MultipartFile image, UserDetailsImpl userDetails) {
-        String imageUrl = s3Service.upload(image);
+        String imageUrl = s3Service.customUpload(image);
         log.info("file path = {}", imageUrl);
         User user = getUserById(userDetails.getUser().getId());
         Frame frame = frameRepository.findById(requestDto.getFrameId()).orElseThrow(
@@ -105,6 +105,11 @@ public class PostService {
     public ResponseEntity<ApiResponse> getPost(Long postId) {
         Post post = postRepository.getPost(postId).orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패!"));
         increaseViewCount(postId);
+        List<Long> likeUserId = new ArrayList<>();
+        for(Like like : post.getLikeList()){
+            likeUserId.add(like.getUser().getId());
+        }
+
         PostResponseDto responseDto = PostResponseDto.builder()
                 .id(postId)
                 .userId(post.getUser().getId())
@@ -115,6 +120,7 @@ public class PostService {
                 .likeCount(post.getLikeList().size())
                 .viewCount(post.getViewCount())
                 .commentCount(post.getCommentList().size())
+                .likeUserId(likeUserId)
                 .frameId(post.getFrame().getId())
                 .frameName(post.getFrame().getFrameName())
                 .filterId(post.getFilter().getId())
