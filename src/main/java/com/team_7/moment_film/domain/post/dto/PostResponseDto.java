@@ -2,7 +2,7 @@ package com.team_7.moment_film.domain.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.team_7.moment_film.domain.comment.dto.CommentResponseDTO;
-import com.team_7.moment_film.domain.like.entity.Like;
+import com.team_7.moment_film.domain.user.entity.User;
 import lombok.*;
 
 import java.util.List;
@@ -24,11 +24,10 @@ public class PostResponseDto {
     private int commentCount;
     private String username;
     private Long userId;
-    private List<CommentResponseDTO> commentList;
-    private Long filterId;
+    private List<User> likeUserId;
     private Long frameId;
     private String filterName;
+    private Long filterId;
     private String frameName;
-    private List<Long> likeUserId;
-    private List<Like> LikeId;
+    private List<CommentResponseDTO> commentList;
 }

@@ -22,7 +22,6 @@ import com.team_7.moment_film.global.util.ViewCountUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -30,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -44,11 +44,6 @@ public class PostService {
     // 생성
 
     public ResponseEntity<ApiResponse> createPost(PostRequestDto requestDto, MultipartFile image, UserDetailsImpl userDetails) {
-
-        String imageUrl = s3Service.customUpload(image);
-
-        log.info("file path = {}", imageUrl);
-        User user = getUserById(userDetails.getUser().getId());
         Frame frame = frameRepository.findById(requestDto.getFrameId()).orElseThrow(
                 ()-> new IllegalArgumentException("존재하지 않는 프레임 입니다.")
         );
@@ -56,6 +51,11 @@ public class PostService {
         Filter filter = filterRepository.findById(requestDto.getFilterId()).orElseThrow(
                 ()-> new IllegalArgumentException("존재하지 않는 필터입니다.")
         );
+
+        String imageUrl = s3Service.customUpload(image);
+        log.info("file path = {}", imageUrl);
+        User user = getUserById(userDetails.getUser().getId());
+
         // 게시글 생성 및 저장
         Post savepost = Post.builder()
                 .title(requestDto.getTitle())
@@ -76,7 +76,7 @@ public class PostService {
                 .contents(savepost.getContents())
                 .image(savepost.getImage())
                 .username(savepost.getUser().getUsername())
-                .filterId(savepost.getFrame().getId())
+                .filterId(savepost.getFilter().getId())
                 .frameId(savepost.getFrame().getId())
                 .createdAt(savepost.getCreatedAt())
                 .build();
@@ -109,11 +109,10 @@ public class PostService {
         Post post = postRepository.getPost(postId).orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패!"));
         increaseViewCount(postId);
 
-        List<Long> likeUserId = new ArrayList<>();
-        for(Like like : post.getLikeList()){
-            likeUserId.add(like.getUser().getId());
-        }
-
+        List<User> likeUser = post.getLikeList().stream().map(Like -> User.builder()
+                .id(Like.getUser().getId())
+                .build()
+            ).collect(Collectors.toList());
 
         PostResponseDto responseDto = PostResponseDto.builder()
                 .id(postId)
@@ -125,7 +124,7 @@ public class PostService {
                 .likeCount(post.getLikeList().size())
                 .viewCount(post.getViewCount())
                 .commentCount(post.getCommentList().size())
-                .likeUserId(likeUserId)
+                .likeUserId(likeUser)
                 .frameId(post.getFrame().getId())
                 .frameName(post.getFrame().getFrameName())
                 .filterId(post.getFilter().getId())
