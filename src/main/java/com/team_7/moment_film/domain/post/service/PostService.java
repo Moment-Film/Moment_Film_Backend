@@ -16,9 +16,12 @@ import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.ApiResponse;
 import com.team_7.moment_film.global.security.UserDetailsImpl;
+import com.team_7.moment_film.global.util.ClientUtil;
+import com.team_7.moment_film.global.util.ViewCountUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -37,7 +40,6 @@ public class PostService {
     private final S3Service s3Service;
     private final FilterRepository filterRepository;
     private final FrameRepository frameRepository;
-
     // 생성
 
     public ResponseEntity<ApiResponse> createPost(PostRequestDto requestDto, MultipartFile image, UserDetailsImpl userDetails) {
@@ -102,8 +104,7 @@ public class PostService {
     //상세조회
     public ResponseEntity<ApiResponse> getPost(Long postId) {
         Post post = postRepository.getPost(postId).orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패!"));
-        post.incereaseViewCount(post);
-        postRepository.save(post);
+        increaseViewCount(postId);
         PostResponseDto responseDto = PostResponseDto.builder()
                 .id(postId)
                 .userId(post.getUser().getId())
@@ -155,6 +156,19 @@ public class PostService {
 
         return allCommentsWithSubComments;
     }
+
+    public void increaseViewCount(Long postId){
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+        String clientIp = ClientUtil.getRemoteIP();
+        log.info("ip확인 4: " + clientIp);
+        if(ViewCountUtil.canIncreaseViewCount(postId,clientIp)){
+            post.incereaseViewCount(post);
+            postRepository.save(post);
+        }
+    }
+
+
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
