@@ -25,8 +25,8 @@ public class FilterService {
     private final FilterMapper filterMapper;
 
     public ResponseEntity<ApiResponse> createFilter(FilterRequestDto requestDto, User user) {
-        if (requestDto.getBlur().isBlank() && requestDto.getContrast().isBlank() &&
-                requestDto.getGrayscale().isBlank() && requestDto.getSepia().isBlank()) {
+        if (requestDto.getBlur().isBlank() && requestDto.getBrightness().isBlank() &&
+                requestDto.getContrast().isBlank() && requestDto.getSaturate().isBlank() && requestDto.getSepia().isBlank()) {
             throw new IllegalArgumentException("필터 값을 선택해주세요.");
         }
         Filter filter = new Filter(requestDto, user);

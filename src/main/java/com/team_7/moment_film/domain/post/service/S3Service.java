@@ -35,12 +35,12 @@ public class S3Service {
      * @return 업로드된 이미지의 S3 URL
      * @throws IllegalArgumentException 업로드 실패 시 발생하는 예외
      */
-    public String upload(MultipartFile multipartFile) {
+    public String upload(MultipartFile multipartFile, String dir) {
         if (multipartFile == null || multipartFile.isEmpty()) return null;
 
         try {
             byte[] fileBytes = multipartFile.getBytes();
-            String fileName = generateFileName(multipartFile.getOriginalFilename());
+            String fileName = dir + generateFileName(multipartFile.getOriginalFilename());
             String contentType = multipartFile.getContentType();
             putS3(fileBytes, fileName, contentType);
             String imageUrl = generateUnsignedUrl(fileName);
