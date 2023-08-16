@@ -25,9 +25,10 @@ public class FilterService {
     private final FilterMapper filterMapper;
 
     public ResponseEntity<ApiResponse> createFilter(FilterRequestDto requestDto, User user) {
-        if (requestDto.getBlur().isBlank() && requestDto.getContrast().isBlank() &&
-                requestDto.getGrayscale().isBlank() && requestDto.getSepia().isBlank()) {
-            throw new IllegalArgumentException("필터 값을 선택해주세요.");
+        if ( isNullOrBlank(requestDto.getBlur()) && isNullOrBlank(requestDto.getBrightness()) &&
+                isNullOrBlank(requestDto.getContrast()) && isNullOrBlank(requestDto.getSaturate()) &&
+                isNullOrBlank(requestDto.getSepia()) ) {
+            throw new IllegalArgumentException("필터 값을 최소 하나 이상 선택해주세요.");
         }
         Filter filter = new Filter(requestDto, user);
         filterRepository.save(filter);
@@ -63,6 +64,10 @@ public class FilterService {
         filterRepository.delete(filter);
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("필터 삭제 완료").build();
         return ResponseEntity.ok(apiResponse);
+    }
+
+    private boolean isNullOrBlank(String value) {
+        return value == null || value.isBlank();
     }
 
 }
