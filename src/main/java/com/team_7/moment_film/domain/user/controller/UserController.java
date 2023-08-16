@@ -54,7 +54,7 @@ public class UserController {
     }
 
     // 구글 로그인 API
-    @GetMapping("/google/callback")
+    @PostMapping("/google/callback")
     public ResponseEntity<ApiResponse> googleLogine(@RequestParam String code, HttpServletResponse response) {
         log.info("구글 인가 코드 = "+ code);
         return googleService.googleLogin(code, response);
