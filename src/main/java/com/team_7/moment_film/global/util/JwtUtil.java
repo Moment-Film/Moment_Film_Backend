@@ -36,7 +36,7 @@ public class JwtUtil {
     }
 
     // JWT(accessToken) 생성 메서드
-    public String createAccessToken(Long id, String username, String email) {
+    public String createAccessToken(Long id, String username, String email, String provider) {
         Date date = new Date();
 
         return BEARER_PREFIX +
@@ -44,6 +44,7 @@ public class JwtUtil {
                         .setSubject(String.valueOf(id)) // 토큰 식별자 : UserId
                         .claim("username", username)
                         .claim("email", email)
+                        .claim("provider", provider)
                         .setExpiration(new Date(date.getTime() + ACCESS_TOKEN_EXPIRATION))
                         .setIssuedAt(date)
                         .signWith(key, SignatureAlgorithm.HS256)
@@ -51,7 +52,7 @@ public class JwtUtil {
     }
 
     // JWT(refreshToken) 생성 메서드
-    public String createRefreshToken(Long id, String username, String email) {
+    public String createRefreshToken(Long id, String username, String email, String provider) {
         Date date = new Date();
 
         return BEARER_PREFIX +
@@ -59,6 +60,7 @@ public class JwtUtil {
                         .setSubject(String.valueOf(id)) // 토큰 식별자 : UserId
                         .claim("username", username)
                         .claim("email", email)
+                        .claim("provider", provider)
                         .setExpiration(new Date(date.getTime() + REFRESH_TOKEN_EXPIRATION))
                         .setIssuedAt(date)
                         .signWith(key, SignatureAlgorithm.HS256)

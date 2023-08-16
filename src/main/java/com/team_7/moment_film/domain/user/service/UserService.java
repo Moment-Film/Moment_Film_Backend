@@ -56,7 +56,7 @@ public class UserService {
                 .username(username)
                 .password(password)
                 .phone(phone)
-                .isKakao(false)
+                .provider("momentFilm")
                 .build();
 
         userRepository.save(user);
@@ -188,7 +188,7 @@ public class UserService {
                 .username(requestDto.getUsername() != null ? requestDto.getUsername() : user.getUsername())
                 .phone(requestDto.getPhone() != null ? requestDto.getPhone() : user.getPhone())
                 .password(user.getPassword())
-                .isKakao(user.isKakao())
+                .provider(user.getProvider())
                 .build();
 
         userRepository.save(updateUser);
@@ -213,7 +213,7 @@ public class UserService {
                 .username(user.getUsername())
                 .phone(user.getPhone())
                 .password(newPassword)
-                .isKakao(user.isKakao())
+                .provider(user.getProvider())
                 .build();
 
         userRepository.save(updateUser);
@@ -223,9 +223,16 @@ public class UserService {
 
     // 회원탈퇴
     public ResponseEntity<ApiResponse> withdrawal(User user, String accessToken) {
+        String username = user.getUsername();
+        if (user.getProvider().equals("google")) {
+            username += "(google)";
+        } else if (user.getProvider().equals("kakao")) {
+            username += "(kakao)";
+        }
+
         // redis에 저장된 refreshToken 삭제
-        if (redisUtil.checkData(user.getUsername())) {
-            redisUtil.deleteData(user.getUsername());
+        if (redisUtil.checkData(username)) {
+            redisUtil.deleteData(username);
         }
 
         // 사용자가 제출한 accessToken 블랙리스트에 추가 및 TTL 설정(남은 시간)
