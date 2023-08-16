@@ -4,11 +4,13 @@ import com.team_7.moment_film.domain.customfilter.dto.FilterRequestDto;
 import com.team_7.moment_film.domain.post.entity.Post;
 import com.team_7.moment_film.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@AllArgsConstructor
 @Table(name = "custom_filter")
 @NoArgsConstructor
 public class Filter {
@@ -18,8 +20,9 @@ public class Filter {
     private Long id;
     private String filterName;
     private String blur;
+    private String brightness;
     private String contrast;
-    private String grayscale;
+    private String saturate;
     private String sepia;
 
     @ManyToOne
@@ -33,8 +36,9 @@ public class Filter {
     public Filter(FilterRequestDto requestDto, User user){
         this.filterName = requestDto.getFilterName();
         this.blur = requestDto.getBlur();
+        this.brightness = requestDto.getBrightness();
         this.contrast = requestDto.getContrast();
-        this.grayscale = requestDto.getGrayscale();
+        this.saturate = requestDto.getSaturate();
         this.sepia = requestDto.getSepia();
         this.user = user;
     }

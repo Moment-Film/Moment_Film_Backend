@@ -8,6 +8,7 @@ import com.team_7.moment_film.domain.customfilter.entity.Filter;
 import com.team_7.moment_film.domain.customfilter.repository.FilterRepository;
 import com.team_7.moment_film.domain.customframe.entity.Frame;
 import com.team_7.moment_film.domain.customframe.repository.FrameRepository;
+import com.team_7.moment_film.domain.like.entity.Like;
 import com.team_7.moment_film.domain.post.dto.PostRequestDto;
 import com.team_7.moment_film.domain.post.dto.PostResponseDto;
 import com.team_7.moment_film.domain.post.entity.Post;
@@ -16,9 +17,12 @@ import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.ApiResponse;
 import com.team_7.moment_film.global.security.UserDetailsImpl;
+import com.team_7.moment_film.global.util.ClientUtil;
+import com.team_7.moment_film.global.util.ViewCountUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -37,11 +41,12 @@ public class PostService {
     private final S3Service s3Service;
     private final FilterRepository filterRepository;
     private final FrameRepository frameRepository;
-
     // 생성
 
     public ResponseEntity<ApiResponse> createPost(PostRequestDto requestDto, MultipartFile image, UserDetailsImpl userDetails) {
-        String imageUrl = s3Service.upload(image);
+
+        String imageUrl = s3Service.customUpload(image);
+
         log.info("file path = {}", imageUrl);
         User user = getUserById(userDetails.getUser().getId());
         Frame frame = frameRepository.findById(requestDto.getFrameId()).orElseThrow(
@@ -102,8 +107,14 @@ public class PostService {
     //상세조회
     public ResponseEntity<ApiResponse> getPost(Long postId) {
         Post post = postRepository.getPost(postId).orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패!"));
-        post.incereaseViewCount(post);
-        postRepository.save(post);
+        increaseViewCount(postId);
+
+        List<Long> likeUserId = new ArrayList<>();
+        for(Like like : post.getLikeList()){
+            likeUserId.add(like.getUser().getId());
+        }
+
+
         PostResponseDto responseDto = PostResponseDto.builder()
                 .id(postId)
                 .userId(post.getUser().getId())
@@ -114,6 +125,7 @@ public class PostService {
                 .likeCount(post.getLikeList().size())
                 .viewCount(post.getViewCount())
                 .commentCount(post.getCommentList().size())
+                .likeUserId(likeUserId)
                 .frameId(post.getFrame().getId())
                 .frameName(post.getFrame().getFrameName())
                 .filterId(post.getFilter().getId())
@@ -155,6 +167,19 @@ public class PostService {
 
         return allCommentsWithSubComments;
     }
+
+    public void increaseViewCount(Long postId){
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+        String clientIp = ClientUtil.getRemoteIP();
+        log.info("ip확인 4: " + clientIp);
+        if(ViewCountUtil.canIncreaseViewCount(postId,clientIp)){
+            post.incereaseViewCount(post);
+            postRepository.save(post);
+        }
+    }
+
+
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
