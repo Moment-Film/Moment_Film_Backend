@@ -3,6 +3,7 @@ package com.team_7.moment_film.domain.user.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.team_7.moment_film.domain.user.dto.SignupRequestDto;
 import com.team_7.moment_film.domain.user.dto.UpdateRequestDto;
+import com.team_7.moment_film.domain.user.service.GoogleService;
 import com.team_7.moment_film.domain.user.service.KakaoService;
 import com.team_7.moment_film.domain.user.service.MailService;
 import com.team_7.moment_film.domain.user.service.UserService;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
     private final KakaoService kakaoService;
+    private final GoogleService googleService;
     private final MailService mailService;
 
     // 회원가입 API
@@ -50,6 +52,14 @@ public class UserController {
         log.info("카카오 인가 코드 = " + code);
         return kakaoService.kakaoLogin(code, response);
     }
+
+    // 구글 로그인 API
+    @PostMapping("/google/callback")
+    public ResponseEntity<ApiResponse> googleLogine(@RequestParam String code, HttpServletResponse response) {
+        log.info("구글 인가 코드 = "+ code);
+        return googleService.googleLogin(code, response);
+    }
+
 
     // 인기 많은 사용자 조회 API (팔로워 순)
     @GetMapping("/popular")

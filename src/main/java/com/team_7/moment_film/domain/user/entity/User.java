@@ -18,20 +18,20 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String username;
 
     @Column(nullable = false)
     private String password;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String email;
 
     @Column(unique = true)
     private String phone;
 
     @Column
-    private boolean isKakao;
+    private String provider;
 
     @OneToMany(mappedBy = "user")
     private List<Post> postList;
