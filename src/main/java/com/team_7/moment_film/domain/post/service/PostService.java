@@ -22,6 +22,7 @@ import com.team_7.moment_film.global.util.ViewCountUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,9 @@ public class PostService {
     // 생성
 
     public ResponseEntity<ApiResponse> createPost(PostRequestDto requestDto, MultipartFile image, UserDetailsImpl userDetails) {
+
         String imageUrl = s3Service.customUpload(image);
+
         log.info("file path = {}", imageUrl);
         User user = getUserById(userDetails.getUser().getId());
         Frame frame = frameRepository.findById(requestDto.getFrameId()).orElseThrow(
@@ -105,10 +108,12 @@ public class PostService {
     public ResponseEntity<ApiResponse> getPost(Long postId) {
         Post post = postRepository.getPost(postId).orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패!"));
         increaseViewCount(postId);
+
         List<Long> likeUserId = new ArrayList<>();
         for(Like like : post.getLikeList()){
             likeUserId.add(like.getUser().getId());
         }
+
 
         PostResponseDto responseDto = PostResponseDto.builder()
                 .id(postId)
