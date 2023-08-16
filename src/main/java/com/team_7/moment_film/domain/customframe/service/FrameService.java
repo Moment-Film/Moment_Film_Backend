@@ -26,8 +26,8 @@ public class FrameService {
     private final FrameMapper frameMapper;
 
     public ResponseEntity<ApiResponse> createFrame(FrameRequestDto requestDto, MultipartFile image, User user) {
-        if(image==null && requestDto.getHue().isBlank() &&
-                requestDto.getSaturation().isBlank() && requestDto.getLightness().isBlank()){
+        if(image==null && isNullOrBlank(requestDto.getHue()) &&
+                isNullOrBlank(requestDto.getSaturation()) && isNullOrBlank(requestDto.getLightness())){
             throw new IllegalArgumentException("이미지나 값을 선택해주세요.");
         }
 
@@ -67,5 +67,9 @@ public class FrameService {
         frameRepository.delete(frame);
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("프레임 삭제 완료").build();
         return ResponseEntity.ok(apiResponse);
+    }
+
+    private boolean isNullOrBlank(String value){
+        return value == null || value.isBlank();
     }
 }

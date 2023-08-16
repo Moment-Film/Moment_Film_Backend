@@ -44,9 +44,6 @@ public class PostService {
     // 생성
 
     public ResponseEntity<ApiResponse> createPost(PostRequestDto requestDto, MultipartFile image, UserDetailsImpl userDetails) {
-        String imageUrl = s3Service.customUpload(image);
-        log.info("file path = {}", imageUrl);
-        User user = getUserById(userDetails.getUser().getId());
         Frame frame = frameRepository.findById(requestDto.getFrameId()).orElseThrow(
                 ()-> new IllegalArgumentException("존재하지 않는 프레임 입니다.")
         );
@@ -54,6 +51,11 @@ public class PostService {
         Filter filter = filterRepository.findById(requestDto.getFilterId()).orElseThrow(
                 ()-> new IllegalArgumentException("존재하지 않는 필터입니다.")
         );
+
+        String imageUrl = s3Service.customUpload(image);
+        log.info("file path = {}", imageUrl);
+        User user = getUserById(userDetails.getUser().getId());
+
         // 게시글 생성 및 저장
         Post savepost = Post.builder()
                 .title(requestDto.getTitle())
@@ -74,7 +76,7 @@ public class PostService {
                 .contents(savepost.getContents())
                 .image(savepost.getImage())
                 .username(savepost.getUser().getUsername())
-                .filterId(savepost.getFrame().getId())
+                .filterId(savepost.getFilter().getId())
                 .frameId(savepost.getFrame().getId())
                 .createdAt(savepost.getCreatedAt())
                 .build();
