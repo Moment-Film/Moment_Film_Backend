@@ -36,6 +36,14 @@ public class JwtLogoutFilter extends OncePerRequestFilter {
             }
 
             String username = jwtUtil.getUserInfoFromToken(refreshToken).get("username").toString();
+            String provider = jwtUtil.getUserInfoFromToken(refreshToken).get("provider").toString();
+
+            if (provider.equals("google")) {
+                username += "(google)";
+            } else if (provider.equals("kakao")) {
+                username += "(kakao)";
+            }
+
             if (redisUtil.getData(username) == null) {
                 // redis에 저장된 refreshToken이 없는 경우 -> 만료된 사용자
                 log.error("로그아웃 실패, 이미 만료된 사용자입니다.");
