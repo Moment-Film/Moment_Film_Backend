@@ -1,23 +1,34 @@
 package com.team_7.moment_film.domain.post.service;
+
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.team_7.moment_film.domain.post.exception.UploadException;
+import com.team_7.moment_film.global.file.CustomMultipartFile;
 import com.team_7.moment_film.global.statuscode.ErrorCodeEnum;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import marvin.image.MarvinImage;
+import org.marvinproject.image.transform.scale.Scale;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.io.ByteArrayOutputStream;
 
 @Slf4j
 @Service
@@ -50,6 +61,33 @@ public class S3Service {
             throw new UploadException(ErrorCodeEnum.UPLOAD_FAIL, e);
         }
     }
+
+
+    public String customUpload(MultipartFile multipartFile){
+        if (multipartFile == null || multipartFile.isEmpty()) return null;
+
+        try {
+            String fileName = generateFileName(multipartFile.getOriginalFilename());
+            String contentType = multipartFile.getContentType();
+
+            MultipartFile resizedImage = resizer(fileName,contentType,multipartFile,400);
+
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(resizedImage.getBytes().length);
+            metadata.setContentType(resizedImage.getContentType());
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(resizedImage.getBytes());
+            amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, metadata));
+            log.info("파일 생성: " + fileName);
+
+            String imageUrl = generateUnsignedUrl(fileName);
+            log.info("이미지 업로드 완료: " + imageUrl);
+            return imageUrl;
+        } catch (IOException e) {
+            throw new UploadException(ErrorCodeEnum.UPLOAD_FAIL, e);
+        }
+    }
+
+
 
 
     /**
@@ -148,5 +186,41 @@ public class S3Service {
     private String generateUnsignedUrl(String objectKey) {
         String baseUrl = "https://" + bucket + ".s3.amazonaws.com/";
         return baseUrl + objectKey;
+    }
+
+
+
+
+    @Transactional
+    public MultipartFile resizer(String fileName, String contentType, MultipartFile originalImage, int width) {
+
+        try {
+            BufferedImage image = ImageIO.read(originalImage.getInputStream());// MultipartFile -> BufferedImage Convert
+
+            int originWidth = image.getWidth();
+            int originHeight = image.getHeight();
+
+            // origin 이미지가 300보다 작으면 패스
+            if(originWidth < width)
+                return originalImage;
+
+            MarvinImage imageMarvin = new MarvinImage(image);
+
+            Scale scale = new Scale();
+            scale.load();
+            scale.setAttribute("newWidth", width);
+            scale.setAttribute("newHeight", width * originHeight / originWidth);//비율유지를 위해 높이 유지
+            scale.process(imageMarvin.clone(), imageMarvin, null, null, false);
+
+            BufferedImage imageNoAlpha = imageMarvin.getBufferedImageNoAlpha();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(imageNoAlpha, contentType, baos);
+            baos.flush();
+
+            return new CustomMultipartFile(fileName,contentType,originalImage.getContentType(), baos.toByteArray());
+
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일을 줄이는데 실패했습니다.");
+        }
     }
 }

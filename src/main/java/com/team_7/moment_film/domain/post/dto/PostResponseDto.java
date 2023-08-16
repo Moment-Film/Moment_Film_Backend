@@ -29,5 +29,6 @@ public class PostResponseDto {
     private Long frameId;
     private String filterName;
     private String frameName;
+    private List<Long> likeUserId;
     private List<Like> LikeId;
 }
