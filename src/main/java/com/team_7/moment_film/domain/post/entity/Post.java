@@ -44,11 +44,11 @@ public class Post extends TimeStamped {
     @Column(nullable = false)
     private String username;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "frame_id")
     private Frame frame;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "filter_id")
     private Filter filter;
 
