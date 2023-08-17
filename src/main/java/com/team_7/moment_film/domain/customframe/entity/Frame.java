@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Table(name = "custom_frame")
@@ -33,9 +35,8 @@ public class Frame {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne
-    @JoinColumn(name = "post_id")
-    private Post post;
+    @OneToMany(mappedBy = "frame")
+    private List<Post> postList;
 
     public Frame(FrameRequestDto requestDto, String image, User user){
         this.frameName = requestDto.getFrameName();
