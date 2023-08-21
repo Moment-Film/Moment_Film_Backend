@@ -51,7 +51,7 @@ public class PostService {
                 ()-> new IllegalArgumentException("존재하지 않는 필터입니다.")
         );
 
-        String imageUrl = s3Service.customUpload(image);
+        String imageUrl = s3Service.upload(image, "post/");
         log.info("file path = {}", imageUrl);
         User user = getUserById(userDetails.getUser().getId());
 
