@@ -8,8 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import static jakarta.persistence.FetchType.LAZY;
-
 
 @NoArgsConstructor
 @Builder
@@ -29,8 +27,7 @@ public class SubComment extends TimeStamped {
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "users_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User writer;
-
 }

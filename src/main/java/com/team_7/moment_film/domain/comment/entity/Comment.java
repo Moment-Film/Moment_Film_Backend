@@ -15,12 +15,11 @@ import static jakarta.persistence.FetchType.LAZY;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(name = "comments")
+@Table(name = "comment")
 public class Comment extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "comment_id")
     private Long id;
 
     @Column(nullable = false)
@@ -33,10 +32,9 @@ public class Comment extends TimeStamped {
     private Post post;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "users_id")
+    @JoinColumn(name = "user_id")
     private User writer;
 
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE, fetch = LAZY)
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubComment> subComments;
-
 }
