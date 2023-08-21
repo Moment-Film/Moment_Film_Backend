@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.List;
 
@@ -29,12 +31,13 @@ public class Filter {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private User user;
 
     @OneToMany(mappedBy = "filter")
     private List<Post> postList;
 
-    public Filter(FilterRequestDto requestDto, User user){
+    public Filter(FilterRequestDto requestDto, User user) {
         this.filterName = requestDto.getFilterName();
         this.blur = requestDto.getBlur();
         this.brightness = requestDto.getBrightness();
