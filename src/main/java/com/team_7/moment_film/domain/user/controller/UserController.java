@@ -18,6 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 @Slf4j(topic = "User Controller")
 @RequiredArgsConstructor
 @RestController
@@ -30,7 +33,7 @@ public class UserController {
 
     // 회원가입 API
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse> signup(@Valid @RequestBody SignupRequestDto signupRequestDto) {
+    public ResponseEntity<ApiResponse> signup(@Valid @RequestBody SignupRequestDto signupRequestDto) throws GeneralSecurityException, IOException {
         return userService.signup(signupRequestDto);
     }
 
@@ -56,7 +59,7 @@ public class UserController {
     // 구글 로그인 API
     @PostMapping("/google/callback")
     public ResponseEntity<ApiResponse> googleLogine(@RequestParam String code, HttpServletResponse response) {
-        log.info("구글 인가 코드 = "+ code);
+        log.info("구글 인가 코드 = " + code);
         return googleService.googleLogin(code, response);
     }
 

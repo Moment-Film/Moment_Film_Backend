@@ -3,10 +3,14 @@ package com.team_7.moment_film.domain.user.service;
 import com.team_7.moment_film.domain.follow.entity.Follow;
 import com.team_7.moment_film.domain.post.entity.Post;
 import com.team_7.moment_film.domain.post.repository.PostQueryRepository;
-import com.team_7.moment_film.domain.user.dto.*;
+import com.team_7.moment_film.domain.user.dto.ProfileResponseDto;
+import com.team_7.moment_film.domain.user.dto.SignupRequestDto;
+import com.team_7.moment_film.domain.user.dto.UpdateRequestDto;
+import com.team_7.moment_film.domain.user.dto.UserInfoDto;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.ApiResponse;
+import com.team_7.moment_film.global.util.EncryptUtil;
 import com.team_7.moment_film.global.util.JwtUtil;
 import com.team_7.moment_film.global.util.RedisUtil;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,7 +20,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
 
@@ -29,13 +36,19 @@ public class UserService {
     private final PostQueryRepository postQueryRepository;
     private final RedisUtil redisUtil;
     private final JwtUtil jwtUtil;
+    private final EncryptUtil encryptUtil;
 
     // 회원가입
-    public ResponseEntity<ApiResponse> signup(SignupRequestDto signupRequestDto) {
+    public ResponseEntity<ApiResponse> signup(SignupRequestDto signupRequestDto) throws GeneralSecurityException, IOException {
         String email = signupRequestDto.getEmail();
         String username = signupRequestDto.getUsername();
         String phone = signupRequestDto.getPhone();
         String password = passwordEncoder.encode(signupRequestDto.getPassword());
+
+        log.info("phone 최초 평문 데이터 = " + phone);
+        String encryptPhone = encryptUtil.encrypt(phone);
+        log.info("암호화 및 인코딩 후 데이터 = " + encryptPhone);
+
 
         if (checkEmail(email)) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
@@ -51,7 +64,7 @@ public class UserService {
                 .email(email)
                 .username(username)
                 .password(password)
-                .phone(phone)
+                .phone(encryptPhone)
                 .provider("momentFilm")
                 .build();
 
@@ -191,6 +204,7 @@ public class UserService {
     }
 
     // 회원탈퇴
+    @Transactional
     public ResponseEntity<ApiResponse> withdrawal(User user, String accessToken) {
         String username = user.getUsername();
         if (user.getProvider().equals("google")) {
