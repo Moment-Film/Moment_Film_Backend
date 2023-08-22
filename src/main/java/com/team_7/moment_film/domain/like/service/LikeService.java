@@ -1,6 +1,7 @@
 package com.team_7.moment_film.domain.like.service;
 
 
+import com.team_7.moment_film.domain.alarm.service.NotificationService;
 import com.team_7.moment_film.domain.like.entity.Like;
 import com.team_7.moment_film.domain.like.repository.LikeRepository;
 import com.team_7.moment_film.domain.post.entity.Post;
@@ -24,6 +25,7 @@ public class LikeService {
 
     private final LikeRepository likeRepository;
     private final PostService postService;
+    private final NotificationService notificationService;
 
     @Transactional
     public ResponseEntity<ApiResponse> likePost(Long postId, UserDetailsImpl userDetails) {
@@ -36,6 +38,7 @@ public class LikeService {
             ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("좋아요 취소!").build();
             return ResponseEntity.ok(apiResponse);
         } else {
+            notificationService.notifyLike(postId);
             Like like = Like.builder()
                     .post(post)
                     .user(user)
