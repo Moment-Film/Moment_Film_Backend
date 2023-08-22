@@ -1,13 +1,7 @@
 package com.team_7.moment_film.domain.user.entity;
 
-import com.team_7.moment_film.domain.customfilter.entity.FilterBookMark;
-import com.team_7.moment_film.domain.customframe.entity.FrameBookMark;
-import com.team_7.moment_film.domain.follow.entity.Follow;
-import com.team_7.moment_film.domain.post.entity.Post;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.List;
 
 @Builder
 @Getter
@@ -31,23 +25,6 @@ public class User {
     @Column(unique = true)
     private String phone;
 
-    @Column
+    @Column(nullable = false)
     private String provider;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Post> postList;
-
-    @Column
-    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Follow> followerList;
-
-    @Column
-    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Follow> followingList;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FilterBookMark> filterBookMarkList;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FrameBookMark> frameBookMarkList;
 }

@@ -5,10 +5,10 @@ import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.global.config.TimeStamped;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.List;
-
-import static jakarta.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
@@ -27,12 +27,13 @@ public class Comment extends TimeStamped {
     @Lob
     private String content;
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User writer;
 
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
