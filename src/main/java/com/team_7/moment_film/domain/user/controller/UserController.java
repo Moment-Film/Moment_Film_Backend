@@ -73,14 +73,14 @@ public class UserController {
 
     // 개인 정보 조회 API
     @GetMapping("/info")
-    public ResponseEntity<ApiResponse> getInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ApiResponse> getInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) throws GeneralSecurityException, IOException {
         return userService.getInfo(userDetails.getUser());
     }
 
     // 개인 정보 수정 API
     @PutMapping("/info")
     public ResponseEntity<ApiResponse> updateInfo(@Valid @RequestBody UpdateRequestDto requestDto,
-                                                  @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                                  @AuthenticationPrincipal UserDetailsImpl userDetails) throws GeneralSecurityException, IOException {
         return userService.updateInfo(requestDto, userDetails.getUser());
     }
 
