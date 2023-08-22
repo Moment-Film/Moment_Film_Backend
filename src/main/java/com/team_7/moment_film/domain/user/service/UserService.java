@@ -1,6 +1,7 @@
 package com.team_7.moment_film.domain.user.service;
 
 import com.team_7.moment_film.domain.follow.entity.Follow;
+import com.team_7.moment_film.domain.follow.repository.FollowRepository;
 import com.team_7.moment_film.domain.post.entity.Post;
 import com.team_7.moment_film.domain.post.repository.PostQueryRepository;
 import com.team_7.moment_film.domain.user.dto.ProfileResponseDto;
@@ -20,7 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -34,6 +34,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final PostQueryRepository postQueryRepository;
+    private final FollowRepository followRepository;
     private final RedisUtil redisUtil;
     private final JwtUtil jwtUtil;
     private final EncryptUtil encryptUtil;
@@ -102,14 +103,14 @@ public class UserService {
                 .build()).toList();
 
         // 조회한 유저의 팔로잉 리스트
-        List<Follow> followingList = user.getFollowerList();
+        List<Follow> followingList = followRepository.findAllByFollowerId(user.getId());
         List<User> followings = followingList.stream().map(follow -> User.builder()
                 .id(follow.getFollowing().getId())
                 .username(follow.getFollowing().getUsername())
                 .build()).toList();
 
         // 조회한 유저의 팔로워 리스트
-        List<Follow> followerList = user.getFollowingList();
+        List<Follow> followerList = followRepository.findAllByFollowingId(user.getId());
         List<User> followers = followerList.stream().map(follow -> User.builder()
                 .id(follow.getFollower().getId())
                 .username(follow.getFollower().getUsername())
@@ -204,7 +205,7 @@ public class UserService {
     }
 
     // 회원탈퇴
-    @Transactional
+//    @Transactional
     public ResponseEntity<ApiResponse> withdrawal(User user, String accessToken) {
         String username = user.getUsername();
         if (user.getProvider().equals("google")) {
