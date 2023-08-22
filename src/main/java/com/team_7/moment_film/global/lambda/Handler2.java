@@ -47,16 +47,16 @@ public class Handler2 implements RequestHandler<S3Event, String> {
             String dstBucket = srcBucket + "-resized";
             String dstKey = "resized-" + srcKey;
 
+
+
             // Infer the image type.
             Matcher matcher = Pattern.compile(REGEX).matcher(srcKey);
             if (!matcher.matches()) {
-                logger.info("Unable to infer image type for key " + srcKey);
-                return "";
+                throw new IllegalArgumentException("올바른 사진이 아닙니다.");
             }
             String imageType = matcher.group(1);
             if (!(JPG_TYPE.equals(imageType)) && !(PNG_TYPE.equals(imageType))) {
-                logger.info("Skipping non-image " + srcKey);
-                return "";
+                throw new IllegalArgumentException("올바른 확장자가 아닙니다.!");
             }
 
             // Download the image from S3 into a stream
