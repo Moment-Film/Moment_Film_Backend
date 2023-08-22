@@ -147,19 +147,21 @@ public class UserService {
     }
 
     // 개인 정보 조회
-    public ResponseEntity<ApiResponse> getInfo(User user) {
+    public ResponseEntity<ApiResponse> getInfo(User user) throws GeneralSecurityException, IOException {
+        // 휴대폰 번호 복호화 후 반환
+        String phone = encryptUtil.decrypt(user.getPhone());
 
         UserInfoDto userInfoDto = UserInfoDto.builder()
                 .email(user.getEmail())
                 .username(user.getUsername())
-                .phone(user.getPhone())
+                .phone(phone)
                 .build();
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(userInfoDto).build();
         return ResponseEntity.ok(apiResponse);
     }
 
     // 개인 정보 수정
-    public ResponseEntity<ApiResponse> updateInfo(UpdateRequestDto requestDto, User user) {
+    public ResponseEntity<ApiResponse> updateInfo(UpdateRequestDto requestDto, User user) throws GeneralSecurityException, IOException {
         // username, phone 정보만 수정 가능
         if (requestDto.getUsername() == null && requestDto.getPhone() == null) {
             throw new IllegalArgumentException("이름과 휴대폰 번호만 수정 가능합니다.");
@@ -169,7 +171,7 @@ public class UserService {
                 .id(user.getId())
                 .email(user.getEmail())
                 .username(requestDto.getUsername() != null ? requestDto.getUsername() : user.getUsername())
-                .phone(requestDto.getPhone() != null ? requestDto.getPhone() : user.getPhone())
+                .phone(requestDto.getPhone() != null ? encryptUtil.encrypt(requestDto.getPhone()) : user.getPhone())
                 .password(user.getPassword())
                 .provider(user.getProvider())
                 .build();
