@@ -58,14 +58,22 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     Long userId = Long.valueOf(userInfo.getSubject());
                     String email = userInfo.get("email").toString();
                     String username = userInfo.get("username").toString();
+                    String originUsername = userInfo.get("username").toString();
+                    String provider = userInfo.get("provider").toString();
 
-                    String redisRefreshToken = redisUtil.getData(username);
+                    if (provider.equals("google")) {
+                        username += "(google)";
+                    } else if (provider.equals("kakao")) {
+                        username += "(kakao)";
+                    }
+
+                    String redisRefreshToken = redisUtil.getData(username); // 소셜 계정 구분하기!
                     log.info("redis 에서 기존에 저장된 refreshToken 불러오기 성공");
 
                     // redis 에서 가져온 refreshToken 이 유효하고, 제출한 refreshToken 과 일치한 경우 새 accessToken 재발급
                     if (StringUtils.hasText(redisRefreshToken) && refreshToken.equals(redisRefreshToken)) {
                         log.info("refreshToken 검증 완료");
-                        String accessTokenWithBearer = jwtUtil.createAccessToken(userId, username, email);
+                        String accessTokenWithBearer = jwtUtil.createAccessToken(userId, originUsername, email, provider);
                         accessToken = jwtUtil.substringToken(accessTokenWithBearer);
                         log.info("accessToken 재발급 성공");
 
@@ -85,7 +93,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             try {
                 Claims info = jwtUtil.getUserInfoFromToken(accessToken);
-                setAuthentication((String) info.get("email"));
+                setAuthentication(info.getSubject());
                 log.info("로그인 된 사용자");
             } catch (Exception e) {
                 // 인증 객체를 생성할 수 없는 경우
@@ -98,17 +106,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     }
 
     // SecurityContextHolder 에 SecurityContext 및 Authentication 세팅
-    public void setAuthentication(String email) {
+    public void setAuthentication(String userId) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
-        Authentication authentication = createAuthentication(email);
+        Authentication authentication = createAuthentication(userId);
         context.setAuthentication(authentication);
 
         SecurityContextHolder.setContext(context);
     }
 
     // Authentication(인증 객체) 생성하는 메서드
-    private Authentication createAuthentication(String email) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+    private Authentication createAuthentication(String userId) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
         return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
     }
 }

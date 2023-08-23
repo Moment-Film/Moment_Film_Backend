@@ -1,4 +1,4 @@
-package com.team_7.moment_film.domain.follow.entity;
+package com.team_7.moment_film.domain.customframe.entity;
 
 import com.team_7.moment_film.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -14,19 +14,18 @@ import org.hibernate.annotations.OnDeleteAction;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Follow {
+public class FrameBookMark {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "follower_id")
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private User follower;
+    private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "following_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private User following;
+    @ManyToOne
+    @JoinColumn(name = "frame_id")
+    private Frame frame;
 
 }

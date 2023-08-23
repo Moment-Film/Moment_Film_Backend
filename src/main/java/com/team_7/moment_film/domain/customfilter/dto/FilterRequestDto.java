@@ -9,8 +9,9 @@ public class FilterRequestDto {
     private String filterName;
 
     private String blur;
+    private String brightness;
     private String contrast;
-    private String grayscale;
+    private String saturate;
     private String sepia;
 
 }

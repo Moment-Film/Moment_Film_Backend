@@ -3,6 +3,7 @@ package com.team_7.moment_film.domain.user.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.team_7.moment_film.domain.user.dto.SignupRequestDto;
 import com.team_7.moment_film.domain.user.dto.UpdateRequestDto;
+import com.team_7.moment_film.domain.user.service.GoogleService;
 import com.team_7.moment_film.domain.user.service.KakaoService;
 import com.team_7.moment_film.domain.user.service.MailService;
 import com.team_7.moment_film.domain.user.service.UserService;
@@ -17,6 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 @Slf4j(topic = "User Controller")
 @RequiredArgsConstructor
 @RestController
@@ -24,11 +28,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
     private final KakaoService kakaoService;
+    private final GoogleService googleService;
     private final MailService mailService;
 
     // 회원가입 API
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse> signup(@Valid @RequestBody SignupRequestDto signupRequestDto) {
+    public ResponseEntity<ApiResponse> signup(@Valid @RequestBody SignupRequestDto signupRequestDto) throws GeneralSecurityException, IOException {
         return userService.signup(signupRequestDto);
     }
 
@@ -51,6 +56,14 @@ public class UserController {
         return kakaoService.kakaoLogin(code, response);
     }
 
+    // 구글 로그인 API
+    @PostMapping("/google/callback")
+    public ResponseEntity<ApiResponse> googleLogine(@RequestParam String code, HttpServletResponse response) {
+        log.info("구글 인가 코드 = " + code);
+        return googleService.googleLogin(code, response);
+    }
+
+
     // 인기 많은 사용자 조회 API (팔로워 순)
     @GetMapping("/popular")
     public ResponseEntity<ApiResponse> getPopularUser() {
@@ -60,14 +73,14 @@ public class UserController {
 
     // 개인 정보 조회 API
     @GetMapping("/info")
-    public ResponseEntity<ApiResponse> getInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ApiResponse> getInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) throws GeneralSecurityException, IOException {
         return userService.getInfo(userDetails.getUser());
     }
 
     // 개인 정보 수정 API
     @PutMapping("/info")
     public ResponseEntity<ApiResponse> updateInfo(@Valid @RequestBody UpdateRequestDto requestDto,
-                                                  @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                                  @AuthenticationPrincipal UserDetailsImpl userDetails) throws GeneralSecurityException, IOException {
         return userService.updateInfo(requestDto, userDetails.getUser());
     }
 

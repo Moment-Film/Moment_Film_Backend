@@ -60,9 +60,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         Long userId = ((UserDetailsImpl) authentication.getPrincipal()).getId();
         String username = ((UserDetailsImpl) authentication.getPrincipal()).getUsername();
         String email = ((UserDetailsImpl) authentication.getPrincipal()).getUser().getEmail();
+        String provider = ((UserDetailsImpl) authentication.getPrincipal()).getUser().getProvider();
 
-        String accessToken = jwtUtil.createAccessToken(userId, username, email);
-        String refreshToken = jwtUtil.createRefreshToken(userId, username, email);
+        String accessToken = jwtUtil.createAccessToken(userId, username, email, provider);
+        String refreshToken = jwtUtil.createRefreshToken(userId, username, email, provider);
         log.info("로그인 성공 및 JWT 생성");
 
 

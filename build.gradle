@@ -19,54 +19,69 @@ configurations {
 
 repositories {
 	mavenCentral()
+	dependencies {
+		//AWS Lambda
+		implementation 'com.amazonaws:aws-lambda-java-core:1.2.2'
+		implementation 'com.amazonaws:aws-lambda-java-events:3.11.1'
+		runtimeOnly 'com.amazonaws:aws-lambda-java-log4j2:1.5.1'
+		implementation 'com.amazonaws:aws-java-sdk-s3'
+		implementation platform('software.amazon.awssdk:bom:2.17.230')
+		implementation 'software.amazon.awssdk:s3'
+
+		//kms
+		implementation 'com.amazonaws:aws-java-sdk-kms:1.12.429'
+		// Use ConfigurationProperties
+		annotationProcessor ('org.springframework.boot:spring-boot-configuration-processor')
+		//S3
+		implementation ('org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE')
+		// mail 전송
+		implementation 'org.springframework.boot:spring-boot-starter-mail'
+		// Redis
+		implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+		// java 8이상의 날짜 시간
+		implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+		// Lombok
+		annotationProcessor 'org.projectlombok:lombok'
+		compileOnly 'org.projectlombok:lombok'
+		//Mapper
+		implementation 'org.mapstruct:mapstruct:1.5.3.Final'
+		annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
+		// https://mvnrepository.com/artifact/tk.mybatis/mapper
+		implementation group: 'tk.mybatis', name: 'mapper', version: '4.1.5'
+		//aws
+		implementation 'com.amazonaws:aws-java-sdk-s3:1.12.112'
+		implementation 'javax.xml.bind:jaxb-api:2.3.1'
+		// openapi(swagger포함)
+		implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+		// JWT
+		compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+		runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+		runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+		// Simple JPA
+		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+		// OAuth
+		implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+		// Security
+		implementation 'org.springframework.boot:spring-boot-starter-security'
+		testImplementation 'org.springframework.security:spring-security-test'
+		// spring-boot-starter
+		implementation 'org.springframework.boot:spring-boot-starter-web'
+		testImplementation 'org.springframework.boot:spring-boot-starter-test'
+		// validation
+		implementation 'org.springframework.boot:spring-boot-starter-validation'
+		// MySQL DRIVER
+		runtimeOnly 'com.mysql:mysql-connector-j'
+		// Mockito
+		testImplementation 'org.mockito:mockito-all:1.9.5'
+		//QueryDsl
+		implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+		annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+		annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+		annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+	}
 }
 
-dependencies {
-	// mail 전송
-	implementation 'org.springframework.boot:spring-boot-starter-mail'
-	// Redis
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	// java 8이상의 날짜 시간
-	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-	//Mapper
-	implementation 'org.mapstruct:mapstruct:1.5.3.Final'
-	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
-	// https://mvnrepository.com/artifact/tk.mybatis/mapper
-	implementation group: 'tk.mybatis', name: 'mapper', version: '4.1.5'
-	//aws
-	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.112'
-	implementation 'javax.xml.bind:jaxb-api:2.3.1'
-	// openapi(swagger포함)
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
-	// JWT
-	compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
-	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
-	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
-	// Simple JPA
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	// OAuth
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-	// Security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	testImplementation 'org.springframework.security:spring-security-test'
-	// spring-boot-starter
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	// validation
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	// Lombok
-	annotationProcessor 'org.projectlombok:lombok'
-	compileOnly 'org.projectlombok:lombok'
-	// MySQL DRIVER
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	// Mockito
-	testImplementation 'org.mockito:mockito-all:1.9.5'
-	//QueryDsl
-	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
-	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
-	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
-}
+
 
 tasks.named('test') {
 	useJUnitPlatform()
@@ -78,3 +93,17 @@ clean {
 tasks.withType(JavaCompile) {
 	options.generatedSourceOutputDirectory = file(querydslSrcDir)
 }
+
+task packageJar(type: Zip) {
+	into('lib') {
+		from(jar)
+		from(configurations.runtimeClasspath)
+	}
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+build.dependsOn packageJar

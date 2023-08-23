@@ -1,7 +1,8 @@
 package com.team_7.moment_film.domain.user.service;
 
 import com.team_7.moment_film.domain.follow.entity.Follow;
-import com.team_7.moment_film.domain.post.entity.TempPost;
+import com.team_7.moment_film.domain.follow.repository.FollowRepository;
+import com.team_7.moment_film.domain.post.entity.Post;
 import com.team_7.moment_film.domain.post.repository.PostQueryRepository;
 import com.team_7.moment_film.domain.user.dto.ProfileResponseDto;
 import com.team_7.moment_film.domain.user.dto.SignupRequestDto;
@@ -10,6 +11,7 @@ import com.team_7.moment_film.domain.user.dto.UserInfoDto;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.ApiResponse;
+import com.team_7.moment_film.global.util.EncryptUtil;
 import com.team_7.moment_film.global.util.JwtUtil;
 import com.team_7.moment_film.global.util.RedisUtil;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,10 +21,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j(topic = "User Service")
 @Service
@@ -31,15 +35,22 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final PostQueryRepository postQueryRepository;
+    private final FollowRepository followRepository;
     private final RedisUtil redisUtil;
     private final JwtUtil jwtUtil;
+    private final EncryptUtil encryptUtil;
 
     // 회원가입
-    public ResponseEntity<ApiResponse> signup(SignupRequestDto signupRequestDto) {
+    public ResponseEntity<ApiResponse> signup(SignupRequestDto signupRequestDto) throws GeneralSecurityException, IOException {
         String email = signupRequestDto.getEmail();
         String username = signupRequestDto.getUsername();
         String phone = signupRequestDto.getPhone();
         String password = passwordEncoder.encode(signupRequestDto.getPassword());
+
+        log.info("phone 최초 평문 데이터 = " + phone);
+        String encryptPhone = encryptUtil.encrypt(phone);
+        log.info("암호화 및 인코딩 후 데이터 = " + encryptPhone);
+
 
         if (checkEmail(email)) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
@@ -55,8 +66,8 @@ public class UserService {
                 .email(email)
                 .username(username)
                 .password(password)
-                .phone(phone)
-                .isKakao(false)
+                .phone(encryptPhone)
+                .provider("momentFilm")
                 .build();
 
         userRepository.save(user);
@@ -70,80 +81,53 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다."));
 
-//         내가 작성한 게시글 리스트 (1번 방법 : userId로 PostRepository에서 게시글 리스트 조회)
-//        List<Post> postList = postRepository.findByUserId(user.getId());
-//        List<Post> myPostList = postList.stream().map(post -> Post.builder()
-//                .id(post.getId())
-//                .title(post.getTitle())
-//                .image(post.getImage())
-//                .contents(post.getContents())
-//                .build()).toList();
+        // 내가 작성한 게시글 리스트
+        List<Post> myPosts = postQueryRepository.getMyPosts(userId);
+        myPosts.stream().map(post -> Post.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .contents(post.getContents())
+                .image(post.getImage())
+                .userId(post.getUserId())
+                .username(post.getUsername())
+                .build()).toList();
 
-//        내가 작성한 게시글 리스트 (2번 방법 : User Entity에서 양방향 참조로 연관된 PostList를 Getter로 조회) ✨
-//        List<Post> postList = user1.getPostList().stream().map(post -> Post.builder()
-//                .id(post.getId())
-//                .title(post.getTitle())
-//                .contents(post.getContents())
-//                .image(post.getImage())
-//                .build())
-//                .toList();
-
-        // 내가 작성한 게시글 리스트 테스트 (임시 Entity: Post Entity에서 일부 필드만 가져왔을 때 연관된 댓글/대댓글 필드도 다가져와짐)
-        List<TempPost> postList = postQueryRepository.getMyPosts(userId);
-        postList.stream().map(tempPost -> TempPost.builder()
-                        .id(tempPost.getId())
-                        .title(tempPost.getTitle())
-                        .contents(tempPost.getContents())
-                        .image(tempPost.getImage())
-                        .build())
-                .collect(Collectors.toList());
-
-//         좋아요한 게시글 리스트 (원본)
-//        List<Like> likeList = likeRepository.findByUserId(user.getId());
-//        List<Post> likePosts = likeList.stream().map(like -> Post.builder()
-//                .id(like.getPost().getId())
-//                .image(like.getPost().getImage())
-//                .username(like.getUser().getUsername())
-//                .build()).toList();
-
-        // 내가 좋아효한 게시글 리스트 (임시 Entity: Post Entity에서 일부 필드만 가져왔을 때 연관된 댓글/대댓글 필드도 다가져와짐)
-        List<TempPost> likedPostList = postQueryRepository.getLikedPosts(userId);
-        likedPostList.stream().map(tempPost -> TempPost.builder()
-                        .id(tempPost.getId())
-                        .title(tempPost.getTitle())
-                        .contents(tempPost.getContents())
-                        .image(tempPost.getImage())
-                        .userId(tempPost.getUserId())
-                        .username(tempPost.getUsername())
-                        .build())
-                .collect(Collectors.toList());
-
+        // 내가 좋아요한 게시글 리스트
+        List<Post> likedPosts = postQueryRepository.getLikedPosts(userId);
+        likedPosts.stream().map(post -> Post.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .contents(post.getContents())
+                .image(post.getImage())
+                .userId(post.getUserId())
+                .username(post.getUsername())
+                .build()).toList();
 
         // 조회한 유저의 팔로잉 리스트
-        List<Follow> followingList = user.getFollowerList();
+        List<Follow> followingList = followRepository.findAllByFollowerId(user.getId());
         List<User> followings = followingList.stream().map(follow -> User.builder()
                 .id(follow.getFollowing().getId())
                 .username(follow.getFollowing().getUsername())
                 .build()).toList();
 
-
         // 조회한 유저의 팔로워 리스트
-        List<Follow> followerList = user.getFollowingList();
+        List<Follow> followerList = followRepository.findAllByFollowingId(user.getId());
         List<User> followers = followerList.stream().map(follow -> User.builder()
                 .id(follow.getFollower().getId())
                 .username(follow.getFollower().getUsername())
                 .build()).toList();
 
-        // 프로필 정보가 담긴 DTO 빌드
+        // 프로필 정보가 담긴 DTO
         ProfileResponseDto responseDto = ProfileResponseDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .followerList(followers)
                 .followingList(followings)
-                .postList(postList)
-                .postListCnt(postList.size())
-                .likePosts(likedPostList)
+                .postList(myPosts)
+                .postListCnt(myPosts.size())
+                .likePosts(likedPosts)
                 .build();
+
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(responseDto).build();
         return ResponseEntity.ok(apiResponse);
     }
@@ -164,19 +148,21 @@ public class UserService {
     }
 
     // 개인 정보 조회
-    public ResponseEntity<ApiResponse> getInfo(User user) {
+    public ResponseEntity<ApiResponse> getInfo(User user) throws GeneralSecurityException, IOException {
+        // 휴대폰 번호 복호화 후 반환
+        String phone = encryptUtil.decrypt(user.getPhone());
 
         UserInfoDto userInfoDto = UserInfoDto.builder()
                 .email(user.getEmail())
                 .username(user.getUsername())
-                .phone(user.getPhone())
+                .phone(phone)
                 .build();
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(userInfoDto).build();
         return ResponseEntity.ok(apiResponse);
     }
 
     // 개인 정보 수정
-    public ResponseEntity<ApiResponse> updateInfo(UpdateRequestDto requestDto, User user) {
+    public ResponseEntity<ApiResponse> updateInfo(UpdateRequestDto requestDto, User user) throws GeneralSecurityException, IOException {
         // username, phone 정보만 수정 가능
         if (requestDto.getUsername() == null && requestDto.getPhone() == null) {
             throw new IllegalArgumentException("이름과 휴대폰 번호만 수정 가능합니다.");
@@ -186,9 +172,9 @@ public class UserService {
                 .id(user.getId())
                 .email(user.getEmail())
                 .username(requestDto.getUsername() != null ? requestDto.getUsername() : user.getUsername())
-                .phone(requestDto.getPhone() != null ? requestDto.getPhone() : user.getPhone())
+                .phone(requestDto.getPhone() != null ? encryptUtil.encrypt(requestDto.getPhone()) : user.getPhone())
                 .password(user.getPassword())
-                .isKakao(user.isKakao())
+                .provider(user.getProvider())
                 .build();
 
         userRepository.save(updateUser);
@@ -213,7 +199,7 @@ public class UserService {
                 .username(user.getUsername())
                 .phone(user.getPhone())
                 .password(newPassword)
-                .isKakao(user.isKakao())
+                .provider(user.getProvider())
                 .build();
 
         userRepository.save(updateUser);
@@ -222,10 +208,18 @@ public class UserService {
     }
 
     // 회원탈퇴
+    @Transactional
     public ResponseEntity<ApiResponse> withdrawal(User user, String accessToken) {
+        String username = user.getUsername();
+        if (user.getProvider().equals("google")) {
+            username += "(google)";
+        } else if (user.getProvider().equals("kakao")) {
+            username += "(kakao)";
+        }
+
         // redis에 저장된 refreshToken 삭제
-        if (redisUtil.checkData(user.getUsername())) {
-            redisUtil.deleteData(user.getUsername());
+        if (redisUtil.checkData(username)) {
+            redisUtil.deleteData(username);
         }
 
         // 사용자가 제출한 accessToken 블랙리스트에 추가 및 TTL 설정(남은 시간)

@@ -1,5 +1,6 @@
 package com.team_7.moment_film.domain.customfilter.service;
 
+import com.team_7.moment_film.domain.customfilter.dto.FilterMapper;
 import com.team_7.moment_film.domain.customfilter.dto.FilterRequestDto;
 import com.team_7.moment_film.domain.customfilter.dto.FilterResponseDto;
 import com.team_7.moment_film.domain.customfilter.entity.Filter;
@@ -14,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,23 +22,18 @@ import java.util.stream.Collectors;
 public class FilterService {
 
     private final FilterRepository filterRepository;
+    private final FilterMapper filterMapper;
 
     public ResponseEntity<ApiResponse> createFilter(FilterRequestDto requestDto, User user) {
-        if (requestDto.getBlur() == null && requestDto.getContrast() == null &&
-                requestDto.getGrayscale() == null && requestDto.getSepia() == null) {
-            throw new IllegalArgumentException("필터 값을 선택해주세요.");
+        if ( isNullOrBlank(requestDto.getBlur()) && isNullOrBlank(requestDto.getBrightness()) &&
+                isNullOrBlank(requestDto.getContrast()) && isNullOrBlank(requestDto.getSaturate()) &&
+                isNullOrBlank(requestDto.getSepia()) ) {
+            throw new IllegalArgumentException("필터 값을 최소 하나 이상 선택해주세요.");
         }
-
         Filter filter = new Filter(requestDto, user);
         filterRepository.save(filter);
-        FilterResponseDto responseDto = FilterResponseDto.builder()
-                .id(filter.getId())
-                .filterName(filter.getFilterName())
-                .blur(filter.getBlur())
-                .contrast(filter.getContrast())
-                .grayscale(filter.getGrayscale())
-                .sepia(filter.getSepia())
-                .build();
+        FilterResponseDto responseDto = filterMapper.toDto(filter);
+
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.CREATED).data(responseDto).build();
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
@@ -47,7 +42,7 @@ public class FilterService {
         List<FilterResponseDto> filterList = filterRepository.findAllByUserId(user.getId()).stream().map(filter -> FilterResponseDto.builder()
                 .id(filter.getId())
                 .filterName(filter.getFilterName())
-                .build()).collect(Collectors.toList());
+                .build()).toList();
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(filterList).build();
         return ResponseEntity.ok(apiResponse);
     }
@@ -55,14 +50,7 @@ public class FilterService {
     public ResponseEntity<ApiResponse> selectFilter(Long filterId) {
         Filter filter = filterRepository.findById(filterId).orElseThrow(() ->
                 new EntityNotFoundException("존재하지 않는 필터입니다."));
-        FilterResponseDto responseDto = FilterResponseDto.builder()
-                .id(filter.getId())
-                .filterName(filter.getFilterName())
-                .blur(filter.getBlur())
-                .contrast(filter.getContrast())
-                .grayscale(filter.getGrayscale())
-                .sepia(filter.getSepia())
-                .build();
+        FilterResponseDto responseDto = filterMapper.toDto(filter);
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(responseDto).build();
         return ResponseEntity.ok(apiResponse);
     }
@@ -78,5 +66,8 @@ public class FilterService {
         return ResponseEntity.ok(apiResponse);
     }
 
+    private boolean isNullOrBlank(String value) {
+        return value == null || value.isBlank();
+    }
 
 }

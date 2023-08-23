@@ -87,6 +87,7 @@ public class SecurityConfig {
                                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                                 .requestMatchers("/api/user/signup").permitAll() // check
                                 .requestMatchers("/api/user/kakao/callback").permitAll() // check
+                                .requestMatchers("/api/user/google/callback").permitAll()
                                 .requestMatchers("/api/user/popular").permitAll() // check
                                 .requestMatchers("/api/user/search").permitAll() // check
                                 .requestMatchers(GET, "/api/user/profile/*").permitAll() // check
@@ -94,8 +95,6 @@ public class SecurityConfig {
                                 .requestMatchers(GET, "/api/post/like").permitAll() // check
                                 .requestMatchers(GET, "/api/post/view").permitAll() // check
                                 .requestMatchers(GET, "/api/post/{postId}").permitAll() // check
-//                        .requestMatchers(GET, "/api/post/*").permitAll() // 로그인 필요
-//                        .requestMatchers("/upload").permitAll() // 로그인 필요
                                 .requestMatchers("/swagger-ui/*").permitAll()
                                 .requestMatchers("/v3/api-docs").permitAll()
                                 .requestMatchers("/v3/api-docs/*").permitAll()
