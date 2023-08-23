@@ -1,4 +1,5 @@
 package com.team_7.moment_film.domain.post.service;
+
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -35,12 +36,12 @@ public class S3Service {
      * @return 업로드된 이미지의 S3 URL
      * @throws IllegalArgumentException 업로드 실패 시 발생하는 예외
      */
-    public String upload(MultipartFile multipartFile) {
+    public String upload(MultipartFile multipartFile,String dir) {
         if (multipartFile == null || multipartFile.isEmpty()) return null;
 
         try {
             byte[] fileBytes = multipartFile.getBytes();
-            String fileName = generateFileName(multipartFile.getOriginalFilename());
+            String fileName = dir + generateFileName(multipartFile.getOriginalFilename());
             String contentType = multipartFile.getContentType();
             putS3(fileBytes, fileName, contentType);
             String imageUrl = generateUnsignedUrl(fileName);
@@ -149,4 +150,5 @@ public class S3Service {
         String baseUrl = "https://" + bucket + ".s3.amazonaws.com/";
         return baseUrl + objectKey;
     }
+
 }

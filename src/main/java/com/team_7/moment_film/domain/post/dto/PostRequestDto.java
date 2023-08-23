@@ -11,4 +11,6 @@ import lombok.NoArgsConstructor;
 public class PostRequestDto {
     private String title;
     private String contents;
+    private Long filterId;
+    private Long frameId;
 }

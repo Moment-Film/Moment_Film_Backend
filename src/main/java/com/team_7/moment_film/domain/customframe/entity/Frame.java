@@ -4,13 +4,19 @@ import com.team_7.moment_film.domain.customframe.dto.FrameRequestDto;
 import com.team_7.moment_film.domain.post.entity.Post;
 import com.team_7.moment_film.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+import java.util.List;
 
 @Entity
 @Getter
 @Table(name = "custom_frame")
 @NoArgsConstructor
+@AllArgsConstructor
 public class Frame {
     @Id
     @Column(name = "frame_id")
@@ -29,11 +35,11 @@ public class Frame {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private User user;
 
-    @OneToOne
-    @JoinColumn(name = "post_id")
-    private Post post;
+    @OneToMany(mappedBy = "frame")
+    private List<Post> postList;
 
     public Frame(FrameRequestDto requestDto, String image, User user){
         this.frameName = requestDto.getFrameName();

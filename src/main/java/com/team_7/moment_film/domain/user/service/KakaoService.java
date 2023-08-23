@@ -7,7 +7,7 @@ import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.ApiResponse;
 import com.team_7.moment_film.global.util.JwtUtil;
-import jakarta.persistence.EntityNotFoundException;
+import com.team_7.moment_film.global.util.RedisUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.UUID;
 
 @Slf4j(topic = "Kakao Service")
@@ -35,6 +36,7 @@ public class KakaoService {
     private final UserRepository userRepository;
     private final RestTemplate restTemplate;
     private final JwtUtil jwtUtil;
+    private final RedisUtil redisUtil;
 
     @Value("${kakao.restapi.key}")
     private String restApiKey;
@@ -46,31 +48,43 @@ public class KakaoService {
         String token = getToken(code);
         log.info("카카오 엑세스 토큰 = " + token);
 
+        if (token == null) {
+            throw new NullPointerException("access_token 요청에 실패했습니다.");
+        }
+
         // 2. 카카오 서버로 유저의 데이터 요청
         KakaoUserInfoDto kakaoUserInfo = getUserInfo(token);
+        String email = kakaoUserInfo.getEmail();
         log.info("카카오 유저 이메일 = " + kakaoUserInfo.getEmail());
         log.info("카카오 유저 이름 = " + kakaoUserInfo.getUsername());
         log.info("카카오 유저 id = " + kakaoUserInfo.getId());
 
+        // email 값으로 User 객체 조회
+        User checkUser = userRepository.findByEmailAndProvider(email, "kakao").orElse(null);
 
-        // 3. email 로 회원가입 여부 판단
-        if (!userRepository.existsByEmail(kakaoUserInfo.getEmail())) {
-            // 3-1. 받아온 유저의 데이터로 회원가입
-            User kakaoUser = signupKakaoUser(kakaoUserInfo);
+        // 회원가입 진행 (가입된 계정이 없는 경우)
+        if (checkUser == null) {
+            log.info("회원가입 시도");
+            signupKakaoUser(kakaoUserInfo);
         }
 
-        String email = kakaoUserInfo.getEmail();
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
-
+        // 로그인 진행
+        User user = userRepository.findByEmailAndProvider(email, "kakao").orElse(null);
         Long id = user.getId();
         String username = user.getUsername();
 
         // 4. 로그인(JWT 발급)
-        String accessToken = jwtUtil.createAccessToken(id, username, email);
-        String refreshToken = jwtUtil.createRefreshToken(id, username, email);
+        String accessToken = jwtUtil.createAccessToken(id, username, email, user.getProvider());
+        String refreshToken = jwtUtil.createRefreshToken(id, username, email, user.getProvider());
 
         log.info("JWT 발급 : accessToken = " + accessToken);
         log.info("JWT 발급 : refreshToken = " + refreshToken);
+
+        String refreshTokenValue = jwtUtil.substringToken(refreshToken);
+        Date expiration = jwtUtil.getUserInfoFromToken(refreshTokenValue).getExpiration();
+
+        redisUtil.setData(username + "(kakao)", refreshTokenValue, expiration);
+        log.info("Redis에 RefreshToken 저장(카카오)");
 
         response.setHeader("accessToken", accessToken);
         response.setHeader("refreshToken", refreshToken);
@@ -85,17 +99,12 @@ public class KakaoService {
         String password = UUID.randomUUID().toString();
         String pwEncode = passwordEncoder.encode(password);
 
-        if (userRepository.existsByUsername(kakaoUserInfo.getUsername())) {
-            log.error("유저네임 중복 발생!", kakaoUserInfo.getUsername());
-            throw new IllegalArgumentException("이미 존재하는 username 입니다.");
-        }
-
         User newUser = User.builder()
                 .email(kakaoUserInfo.getEmail())
                 .username(kakaoUserInfo.getUsername())
                 .password(pwEncode)
                 .phone(null) // 카카오 비즈앱 전환 시 가져올 수 있음.
-                .isKakao(true)
+                .provider("kakao")
                 .build();
 
         userRepository.save(newUser);
@@ -178,7 +187,9 @@ public class KakaoService {
 
         // 응답 객체(JSON 객체)
         ResponseEntity<JsonNode> response = restTemplate.exchange(requestEntity, JsonNode.class);
-
-        return response.getBody().get("access_token").toString();
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return response.getBody().get("access_token").toString();
+        }
+        return null;
     }
 }

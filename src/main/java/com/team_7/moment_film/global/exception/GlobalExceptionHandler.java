@@ -6,6 +6,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -158,5 +159,15 @@ public class GlobalExceptionHandler {
                 .msg(ex.getMessage())
                 .build();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
+    }
+
+    // db에 중복된 값이 존재할 때 exception
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<ApiResponse> ExceptionHandler(DuplicateKeyException ex) {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .status(HttpStatus.CONFLICT)
+                .msg(ex.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiResponse);
     }
 }
