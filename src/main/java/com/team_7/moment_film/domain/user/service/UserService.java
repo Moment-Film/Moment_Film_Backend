@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -207,7 +208,7 @@ public class UserService {
     }
 
     // 회원탈퇴
-//    @Transactional
+    @Transactional
     public ResponseEntity<ApiResponse> withdrawal(User user, String accessToken) {
         String username = user.getUsername();
         if (user.getProvider().equals("google")) {
