@@ -27,4 +27,11 @@ public class User {
 
     @Column(nullable = false)
     private String provider;
+
+    @Column
+    private String image;
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }
