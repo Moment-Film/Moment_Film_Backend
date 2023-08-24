@@ -22,6 +22,7 @@ public class FrameBookMarkService {
     private final FrameBookMarkRepository bookMarkRepository;
     private final FrameRepository filterRepository;
 
+    // 프레임 북마크 추가/취소
     @Transactional
     public ResponseEntity<ApiResponse> bookMarkFrame(Long frameId, User user) {
         Frame frame = filterRepository.findById(frameId).orElseThrow(() ->
@@ -44,6 +45,7 @@ public class FrameBookMarkService {
         }
     }
 
+    // 북마크한 프레임 리스트 조회
     public ResponseEntity<ApiResponse> getBookMarkFrame(User user) {
 
         List<FrameResponseDto> bookMarkList = bookMarkRepository.findAllByUserId(user.getId())

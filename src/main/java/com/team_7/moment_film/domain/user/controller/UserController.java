@@ -94,8 +94,8 @@ public class UserController {
     // 비밀번호 재설정 API
     @PutMapping("/password-reset")
     public ResponseEntity<ApiResponse> resetPassword(@Valid @RequestBody UpdatePasswordDto requestDto,
-                                                      @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                      @RequestParam String code) {
+                                                     @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                     @RequestParam String code) {
         return userService.resetPassword(requestDto, userDetails.getUser(), code);
     }
 

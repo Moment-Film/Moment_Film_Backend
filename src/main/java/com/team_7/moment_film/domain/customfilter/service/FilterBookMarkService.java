@@ -23,6 +23,7 @@ public class FilterBookMarkService {
     private final FilterBookMarkRepository bookMarkRepository;
     private final FilterRepository filterRepository;
 
+    // 필터 북마크 추가/취소
     @Transactional
     public ResponseEntity<ApiResponse> bookMarkFilter(Long filterId, User user) {
         Filter filter = filterRepository.findById(filterId).orElseThrow(() ->
@@ -45,6 +46,7 @@ public class FilterBookMarkService {
         }
     }
 
+    // 북마크한 필터 리스트 조회
     public ResponseEntity<ApiResponse> getBookMarkFilter(User user) {
 
         List<FilterResponseDto> bookMarkList = bookMarkRepository.findAllByUserId(user.getId())
