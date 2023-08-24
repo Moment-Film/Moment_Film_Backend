@@ -27,4 +27,7 @@ public class User {
 
     @Column(nullable = false)
     private String provider;
+
+    @Column(nullable = false)
+    private Long point;
 }

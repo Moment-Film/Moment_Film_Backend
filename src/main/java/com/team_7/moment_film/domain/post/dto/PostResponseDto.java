@@ -19,6 +19,7 @@ public class PostResponseDto {
     private String contents;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private String createdAt;
+    private Long point;
     private int likeCount;
     private Long viewCount;
     private int commentCount;

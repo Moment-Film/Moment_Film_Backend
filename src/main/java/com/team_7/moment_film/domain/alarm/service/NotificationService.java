@@ -49,12 +49,13 @@ public class NotificationService {
         Post post = postRepository.findById(postId).orElseThrow(
                 ()-> new IllegalArgumentException("게시글을 찾을 수 없습니다.")
         );
-
+        //게시글 id나 (누른 유저 이름, id)
         Long userId = post.getUser().getId();
+        String username = post.getUser().getUsername();
         if(NotificationController.sseEmitters.containsKey(userId)){
             SseEmitter sseEmitter = NotificationController.sseEmitters.get(userId);
             try{
-                sseEmitter.send(SseEmitter.event().name("addLike").data("게시물에 좋아요를 눌렀습니다."));
+                sseEmitter.send(SseEmitter.event().name("addLike").data(username+"게시물에 좋아요를 눌렀습니다."));
             }catch (Exception e){
                 NotificationController.sseEmitters.remove(userId);
             }

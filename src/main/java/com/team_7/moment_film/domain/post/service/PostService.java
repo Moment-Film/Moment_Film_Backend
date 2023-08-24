@@ -77,6 +77,7 @@ public class PostService {
                 .username(savepost.getUser().getUsername())
                 .filterId(savepost.getFilter().getId())
                 .frameId(savepost.getFrame().getId())
+                .point(savepost.getUser().getPoint() + 15)
                 .createdAt(savepost.getCreatedAt())
                 .build();
 
