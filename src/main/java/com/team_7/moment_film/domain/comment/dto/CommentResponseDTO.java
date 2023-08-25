@@ -1,6 +1,7 @@
 package com.team_7.moment_film.domain.comment.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +20,8 @@ public class CommentResponseDTO implements Serializable {
     private String username;
     private String content;
     private List<SubCommentResponseDTO> subComments;
-
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+    private String createdAt;
 
     public void initializeSubComments(List<SubCommentResponseDTO> subComments) {
         this.subComments = subComments;
