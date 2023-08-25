@@ -1,9 +1,7 @@
 package com.team_7.moment_film.domain.post.service;
 
 import com.team_7.moment_film.domain.comment.dto.CommentResponseDTO;
-import com.team_7.moment_film.domain.subcomment.dto.SubCommentResponseDTO;
 import com.team_7.moment_film.domain.comment.entity.Comment;
-import com.team_7.moment_film.domain.subcomment.entity.SubComment;
 import com.team_7.moment_film.domain.customfilter.entity.Filter;
 import com.team_7.moment_film.domain.customfilter.repository.FilterRepository;
 import com.team_7.moment_film.domain.customframe.entity.Frame;
@@ -16,6 +14,8 @@ import com.team_7.moment_film.domain.post.dto.PostRequestDto;
 import com.team_7.moment_film.domain.post.dto.PostResponseDto;
 import com.team_7.moment_film.domain.post.entity.Post;
 import com.team_7.moment_film.domain.post.repository.PostRepository;
+import com.team_7.moment_film.domain.subcomment.dto.SubCommentResponseDTO;
+import com.team_7.moment_film.domain.subcomment.entity.SubComment;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.ApiResponse;
@@ -23,7 +23,6 @@ import com.team_7.moment_film.global.security.UserDetailsImpl;
 import com.team_7.moment_film.global.util.ClientUtil;
 import com.team_7.moment_film.global.util.ViewCountUtil;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.Transient;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -115,7 +115,7 @@ public class PostService {
 
 
     //상세조회
-    @Transient
+    @Transactional
     public ResponseEntity<ApiResponse> getPost(Long postId, HttpServletRequest request) {
         Post post = postRepository.getPost(postId).orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패!"));
         increaseViewCount(postId);
