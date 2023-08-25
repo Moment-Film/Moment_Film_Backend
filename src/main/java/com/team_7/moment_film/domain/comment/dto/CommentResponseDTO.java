@@ -2,6 +2,7 @@ package com.team_7.moment_film.domain.comment.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.team_7.moment_film.domain.subcomment.dto.SubCommentResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
