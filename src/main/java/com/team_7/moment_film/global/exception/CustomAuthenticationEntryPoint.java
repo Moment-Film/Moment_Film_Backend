@@ -48,6 +48,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                 "/api/user/info", // 사용자 개인정보 조회
                 "/api/user/password-reset", // 비밀번호 변경
                 "/api/user/email", // 비밀번호 인증 코드 메일 전송
+                "/api/user/point", // 포인트 적립/차감
                 "/api/post", // 게시글 조회
                 "/api/post/like", // 게시글 좋아요순 조회
                 "/api/post/view", // 게시글 조회순 조회

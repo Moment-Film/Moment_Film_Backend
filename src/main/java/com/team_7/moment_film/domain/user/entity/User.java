@@ -27,4 +27,18 @@ public class User {
 
     @Column(nullable = false)
     private String provider;
+
+    @Column(nullable = false)
+    private Long point;
+
+    @Column
+    private String image;
+
+    public void setPoint(Long point) {
+        this.point = point;
+    }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }
