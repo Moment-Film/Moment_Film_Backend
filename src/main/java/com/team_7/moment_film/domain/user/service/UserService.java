@@ -4,10 +4,8 @@ import com.team_7.moment_film.domain.follow.entity.Follow;
 import com.team_7.moment_film.domain.follow.repository.FollowRepository;
 import com.team_7.moment_film.domain.post.entity.Post;
 import com.team_7.moment_film.domain.post.repository.PostQueryRepository;
-import com.team_7.moment_film.domain.user.dto.ProfileResponseDto;
-import com.team_7.moment_film.domain.user.dto.SignupRequestDto;
-import com.team_7.moment_film.domain.user.dto.UpdateRequestDto;
-import com.team_7.moment_film.domain.user.dto.UserInfoDto;
+import com.team_7.moment_film.domain.post.service.S3Service;
+import com.team_7.moment_film.domain.user.dto.*;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.point.PointCategory;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
@@ -23,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -39,6 +38,7 @@ public class UserService {
     private final RedisUtil redisUtil;
     private final JwtUtil jwtUtil;
     private final EncryptUtil encryptUtil;
+    private final S3Service s3Service;
 
     // 회원가입
     public ResponseEntity<ApiResponse> signup(SignupRequestDto signupRequestDto) throws GeneralSecurityException, IOException {
@@ -122,6 +122,7 @@ public class UserService {
         ProfileResponseDto responseDto = ProfileResponseDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
+                .image(user.getImage())
                 .followerList(followers)
                 .followingList(followings)
                 .postList(myPosts)
@@ -154,8 +155,9 @@ public class UserService {
         String phone = encryptUtil.decrypt(user.getPhone());
 
         UserInfoDto userInfoDto = UserInfoDto.builder()
-                .email(user.getEmail())
                 .username(user.getUsername())
+                .image(user.getImage())
+                .email(user.getEmail())
                 .phone(phone)
                 .build();
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(userInfoDto).build();
@@ -163,19 +165,25 @@ public class UserService {
     }
 
     // 개인 정보 수정
-    public ResponseEntity<ApiResponse> updateInfo(UpdateRequestDto requestDto, User user) throws GeneralSecurityException, IOException {
-        // username, phone 정보만 수정 가능
-        if (requestDto.getUsername() == null && requestDto.getPhone() == null) {
-            throw new IllegalArgumentException("이름과 휴대폰 번호만 수정 가능합니다.");
+    @Transactional
+    public ResponseEntity<ApiResponse> updateInfo(UpdateUserInfoDto infoDto, MultipartFile image, User user) throws GeneralSecurityException, IOException {
+        if (infoDto == null && image == null) {
+            throw new IllegalArgumentException("변경 내용이 없습니다.");
         }
+
+        String username = infoDto != null && infoDto.getUsername() != null ? infoDto.getUsername() : user.getUsername();
+        String phone = infoDto != null && infoDto.getPhone() != null ? encryptUtil.encrypt(infoDto.getPhone()) : user.getPhone();
+        String imageUrl = image != null ? s3Service.upload(image, "profile/") : user.getImage();
 
         User updateUser = User.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .username(requestDto.getUsername() != null ? requestDto.getUsername() : user.getUsername())
-                .phone(requestDto.getPhone() != null ? encryptUtil.encrypt(requestDto.getPhone()) : user.getPhone())
+                .username(username)
+                .phone(phone)
                 .password(user.getPassword())
                 .provider(user.getProvider())
+                .point(user.getPoint())
+                .image(imageUrl)
                 .build();
 
         userRepository.save(updateUser);
@@ -184,7 +192,8 @@ public class UserService {
     }
 
     // 비밀번호 변경
-    public ResponseEntity<ApiResponse> resetPassword(UpdateRequestDto requestDto, User user, String code) {
+    @Transactional
+    public ResponseEntity<ApiResponse> resetPassword(UpdatePasswordDto requestDto, User user, String code) {
         if (!checkCode(user, code)) {
             throw new IllegalArgumentException("코드가 일치하지 않습니다.");
         }
@@ -194,16 +203,9 @@ public class UserService {
 
         String newPassword = passwordEncoder.encode(requestDto.getPassword());
 
-        User updateUser = User.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .username(user.getUsername())
-                .phone(user.getPhone())
-                .password(newPassword)
-                .provider(user.getProvider())
-                .build();
+        user.updatePassword(newPassword);
+        userRepository.save(user);
 
-        userRepository.save(updateUser);
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("비밀번호 변경 완료").build();
         return ResponseEntity.ok(apiResponse);
     }
