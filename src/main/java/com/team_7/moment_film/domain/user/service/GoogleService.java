@@ -106,6 +106,7 @@ public class GoogleService {
                 .username(username)
                 .phone(null)
                 .provider("google")
+                .point(1000L)
                 .build();
 
         userRepository.save(newUser);

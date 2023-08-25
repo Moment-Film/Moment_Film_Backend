@@ -27,4 +27,11 @@ public class User {
 
     @Column(nullable = false)
     private String provider;
+
+    @Column(nullable = false)
+    private Long point;
+
+    public void setPoint(Long point) {
+        this.point = point;
+    }
 }

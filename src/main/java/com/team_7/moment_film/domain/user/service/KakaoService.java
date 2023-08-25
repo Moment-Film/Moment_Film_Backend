@@ -105,6 +105,7 @@ public class KakaoService {
                 .password(pwEncode)
                 .phone(null) // 카카오 비즈앱 전환 시 가져올 수 있음.
                 .provider("kakao")
+                .point(1000L)
                 .build();
 
         userRepository.save(newUser);
