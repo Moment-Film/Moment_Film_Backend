@@ -9,6 +9,7 @@ import com.team_7.moment_film.domain.user.dto.SignupRequestDto;
 import com.team_7.moment_film.domain.user.dto.UpdateRequestDto;
 import com.team_7.moment_film.domain.user.dto.UserInfoDto;
 import com.team_7.moment_film.domain.user.entity.User;
+import com.team_7.moment_film.domain.user.point.PointCategory;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.ApiResponse;
 import com.team_7.moment_film.global.util.EncryptUtil;
@@ -25,8 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Slf4j(topic = "User Service")
 @Service
@@ -68,6 +68,7 @@ public class UserService {
                 .password(password)
                 .phone(encryptPhone)
                 .provider("momentFilm")
+                .point(1000L)
                 .build();
 
         userRepository.save(user);
@@ -233,6 +234,40 @@ public class UserService {
         return ResponseEntity.ok(apiResponse);
     }
 
+    // 포인트 적립/차감 API
+    @Transactional
+    public ResponseEntity<ApiResponse> updatePoint(User user, String category) {
+        Long currentPoint = user.getPoint();
+        Long point = getPoint(category);
+        log.info("적립/차감 전 point = " +point);
+        String msg;
+
+        if (category.equals("upload") || category.equals("like") || category.equals("share")) {
+            user.setPoint(currentPoint += point);
+            msg = "포인트가 적립되었습니다";
+        } else {
+            if (currentPoint < point) {
+                throw new IllegalArgumentException("잔여 포인트가 부족합니다.");
+            }
+            user.setPoint(currentPoint -= point);
+            msg = "포인트가 차감되었습니다.";
+        }
+        log.info("적립/차감 후 point = "+ user.getPoint());
+        userRepository.save(user);
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg(msg).build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // 카테고리별 포인트 적립/차감액 조회 메서드
+    private Long getPoint(String category) {
+        Map<String,Long> categoryList = PointCategory.getCategoryList();
+
+        if (!categoryList.containsKey(category)) {
+            throw new IllegalArgumentException("category 값이 올바르지 않습니다.");
+        }
+        return categoryList.get(category);
+    }
+
     // 메일로 전송한 인증코드 일치 확인 메서드
     public Boolean checkCode(User user, String code) {
         String authCode = redisUtil.getData(user.getEmail());
@@ -254,4 +289,5 @@ public class UserService {
     private boolean checkPhone(String phone) {
         return userRepository.existsByPhone(phone);
     }
+
 }

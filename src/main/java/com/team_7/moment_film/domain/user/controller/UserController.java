@@ -105,4 +105,12 @@ public class UserController {
         String accessToken = request.getHeader("accessToken");
         return userService.withdrawal(userDetails.getUser(), accessToken);
     }
+
+    // 포인트 적립 API
+    @PutMapping("/point")
+    public ResponseEntity<ApiResponse> updatePoint(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                   @RequestParam String category) {
+        log.info("category = " + category);
+        return userService.updatePoint(userDetails.getUser(), category);
+    }
 }
