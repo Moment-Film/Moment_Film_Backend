@@ -12,6 +12,7 @@ import java.util.List;
 public class ProfileResponseDto {
     private Long id;
     private String username;
+    private String image;
     private List<User> followerList;
     private List<User> followingList;
     private List<Post> postList;
