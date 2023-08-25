@@ -1,4 +1,4 @@
-package com.team_7.moment_film.domain.comment.dto;
+package com.team_7.moment_film.domain.subcomment.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
