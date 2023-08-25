@@ -32,6 +32,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -115,7 +116,7 @@ public class PostService {
 
 
     //상세조회
-    @Transient
+    @Transactional
     public ResponseEntity<ApiResponse> getPost(Long postId, HttpServletRequest request) {
         Post post = postRepository.getPost(postId).orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패!"));
         increaseViewCount(postId);
@@ -125,8 +126,8 @@ public class PostService {
                 .build()
             ).collect(Collectors.toList());
 
-        Boolean isLiked = null;
-        Boolean isFollowed = null;
+        boolean isLiked = false;
+        boolean isFollowed = false;
 
         // 사용자가 로그인한 경우에만 좋아요 및 팔로우 정보 확인
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
