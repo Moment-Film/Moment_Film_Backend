@@ -1,4 +1,4 @@
-package com.team_7.moment_film.domain.comment.dto;
+package com.team_7.moment_film.domain.subcomment.dto;
 
 import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;

@@ -1,24 +1,19 @@
-package com.team_7.moment_film.domain.comment.service;
+package com.team_7.moment_film.domain.subcomment.service;
 
 
-import com.team_7.moment_film.domain.comment.dto.SubCommentRequestDTO;
-import com.team_7.moment_film.domain.comment.dto.SubCommentResponseDTO;
+import com.team_7.moment_film.domain.subcomment.dto.SubCommentRequestDTO;
+import com.team_7.moment_film.domain.subcomment.dto.SubCommentResponseDTO;
 import com.team_7.moment_film.domain.comment.entity.Comment;
-import com.team_7.moment_film.domain.comment.entity.SubComment;
+import com.team_7.moment_film.domain.subcomment.entity.SubComment;
 import com.team_7.moment_film.domain.comment.repository.CommentRepository;
-import com.team_7.moment_film.domain.comment.repository.SubCommentRepository;
-import com.team_7.moment_film.domain.post.entity.Post;
+import com.team_7.moment_film.domain.subcomment.repository.SubCommentRepository;
 import com.team_7.moment_film.domain.user.entity.User;
-import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.ApiResponse;
 import com.team_7.moment_film.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -44,6 +39,7 @@ public class SubCommentService {
                 .id(subComment.getId())
                 .commentId(comment.getId())
                 .content(subComment.getContent())
+                .createdAt(subComment.getCreatedAt())
                 .build();
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.CREATED).data(responseDTO).build();
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);

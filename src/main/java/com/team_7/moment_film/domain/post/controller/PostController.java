@@ -7,6 +7,7 @@ import com.team_7.moment_film.domain.post.service.PostQueryService;
 import com.team_7.moment_film.domain.post.service.PostService;
 import com.team_7.moment_film.global.dto.ApiResponse;
 import com.team_7.moment_film.global.security.UserDetailsImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +60,9 @@ public class PostController {
 
     //상세보기, @AuthenticationPrincipal UserDetailsImpl userDetails
     @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponse> getPost(@PathVariable(value = "postId") Long postId) {
-        return postService.getPost(postId);
+    public ResponseEntity<ApiResponse> getPost(@PathVariable(value = "postId") Long postId, HttpServletRequest request) {
+
+        return postService.getPost(postId,request);
     }
 }
+

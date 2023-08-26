@@ -1,11 +1,9 @@
 package com.team_7.moment_film.domain.user.dto;
 
 import jakarta.validation.constraints.Pattern;
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
 public class UpdateUserInfoDto {
     @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,10}$", message = "username은 2자 이상 10자 미만으로 입력해주세요.")
     private String username; // 한글, 영문 대/소문자, 숫자 구분 없이 2~10자리의 유저네임

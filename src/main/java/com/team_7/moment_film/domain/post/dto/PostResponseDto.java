@@ -25,6 +25,8 @@ public class PostResponseDto {
     private String username;
     private Long userId;
     private List<User> likeUserId;
+    private boolean followerCheck;
+    private boolean likeCheck;
     private Long frameId;
     private String filterName;
     private Long filterId;

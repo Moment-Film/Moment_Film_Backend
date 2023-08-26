@@ -1,17 +1,21 @@
 package com.team_7.moment_film.domain.post.service;
 
 import com.team_7.moment_film.domain.comment.dto.CommentResponseDTO;
-import com.team_7.moment_film.domain.comment.dto.SubCommentResponseDTO;
 import com.team_7.moment_film.domain.comment.entity.Comment;
-import com.team_7.moment_film.domain.comment.entity.SubComment;
 import com.team_7.moment_film.domain.customfilter.entity.Filter;
 import com.team_7.moment_film.domain.customfilter.repository.FilterRepository;
 import com.team_7.moment_film.domain.customframe.entity.Frame;
 import com.team_7.moment_film.domain.customframe.repository.FrameRepository;
+import com.team_7.moment_film.domain.follow.entity.Follow;
+import com.team_7.moment_film.domain.follow.repository.FollowRepository;
+import com.team_7.moment_film.domain.like.entity.Like;
+import com.team_7.moment_film.domain.like.repository.LikeRepository;
 import com.team_7.moment_film.domain.post.dto.PostRequestDto;
 import com.team_7.moment_film.domain.post.dto.PostResponseDto;
 import com.team_7.moment_film.domain.post.entity.Post;
 import com.team_7.moment_film.domain.post.repository.PostRepository;
+import com.team_7.moment_film.domain.subcomment.dto.SubCommentResponseDTO;
+import com.team_7.moment_film.domain.subcomment.entity.SubComment;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.ApiResponse;
@@ -19,15 +23,20 @@ import com.team_7.moment_film.global.security.UserDetailsImpl;
 import com.team_7.moment_film.global.util.ClientUtil;
 import com.team_7.moment_film.global.util.ViewCountUtil;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -40,6 +49,8 @@ public class PostService {
     private final S3Service s3Service;
     private final FilterRepository filterRepository;
     private final FrameRepository frameRepository;
+    private final LikeRepository likeRepository;
+    private final FollowRepository followRepository;
     // 생성
 
     public ResponseEntity<ApiResponse> createPost(PostRequestDto requestDto, MultipartFile image, UserDetailsImpl userDetails) {
@@ -104,7 +115,8 @@ public class PostService {
 
 
     //상세조회
-    public ResponseEntity<ApiResponse> getPost(Long postId) {
+    @Transactional
+    public ResponseEntity<ApiResponse> getPost(Long postId, HttpServletRequest request) {
         Post post = postRepository.getPost(postId).orElseThrow(() -> new IllegalArgumentException("게시글 찾기 실패!"));
         increaseViewCount(postId);
 
@@ -112,6 +124,21 @@ public class PostService {
                 .id(Like.getUser().getId())
                 .build()
             ).collect(Collectors.toList());
+
+        boolean isLiked = false;
+        boolean isFollowed = false;
+
+        // 사용자가 로그인한 경우에만 좋아요 및 팔로우 정보 확인
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetailsImpl) {
+                UserDetailsImpl userDetails = (UserDetailsImpl) principal;
+                isLiked = likeCheck(userDetails.getUser().getId());
+                isFollowed = followerCheck(userDetails.getUser().getId());
+            }
+        }
+
 
         PostResponseDto responseDto = PostResponseDto.builder()
                 .id(postId)
@@ -128,11 +155,14 @@ public class PostService {
                 .frameName(post.getFrame().getFrameName())
                 .filterId(post.getFilter().getId())
                 .filterName(post.getFilter().getFilterName())
+                .likeCheck(isLiked)
+                .followerCheck(isFollowed)
                 .commentList(getAllCommentsWithSubComments(post))
                 .createdAt(post.getCreatedAt())
                 .build();
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(responseDto).build();
         return ResponseEntity.ok(apiResponse);
+
     }
 
     // 댓글 대댓글 리스트 반환 메서드.
@@ -170,7 +200,7 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
         String clientIp = ClientUtil.getRemoteIP();
-        log.info("ip확인 4: " + clientIp);
+        PostService.log.info("ip확인 4: " + clientIp);
         if(ViewCountUtil.canIncreaseViewCount(postId,clientIp)){
             post.incereaseViewCount(post);
             postRepository.save(post);
@@ -178,6 +208,25 @@ public class PostService {
     }
 
 
+    public boolean likeCheck(Long userId) {
+        Optional<Like> like = likeRepository.findByUserId(userId);
+
+        if(like.isPresent()){
+            return true;
+        }
+            return false;
+    }
+
+
+
+    public boolean followerCheck(Long userId){
+        Optional<Follow> follow = followRepository.findByFollowerId(userId);
+
+        if(follow.isPresent()){
+            return true;
+        }
+        return false;
+    }
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
