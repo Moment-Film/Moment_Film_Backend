@@ -16,6 +16,8 @@ import com.team_7.moment_film.global.util.RedisUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -141,15 +143,17 @@ public class UserService {
     }
 
     // 사용자 검색
-    public ResponseEntity<ApiResponse> searchUser(String userKeyword) {
+    public ResponseEntity<ApiResponse> searchUser(String userKeyword, Pageable pageable) {
         if (userKeyword.isBlank()) {
             throw new IllegalArgumentException("검색어를 입력해주세요.");
         }
-        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(userRepository.searchUserByName(userKeyword)).build();
+        // page size 파라미터로 수정못하도록 고정
+        Pageable defaultPageable = PageRequest.of(pageable.getPageNumber(),6);
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(userRepository.searchUserByName(userKeyword, defaultPageable)).build();
         return ResponseEntity.ok(apiResponse);
     }
 
-    // 팔로워 많은 순으로 사용자 조회
+    // 팔로워 순으로 사용자 조회
     public ResponseEntity<ApiResponse> getPopularUser() {
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(userRepository.getPopularUser()).build();
         return ResponseEntity.ok(apiResponse);
