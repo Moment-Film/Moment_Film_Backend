@@ -46,7 +46,7 @@ public class S3Service {
             String contentType = multipartFile.getContentType();
             putS3(fileBytes, fileName, contentType);
             String imageUrl = generateUnsignedUrl(fileName);
-            String resizedImageUrl = getResizedImageUrl(fileName);
+            String resizedImageUrl = generateResizedImageUrl(fileName);
             log.info("이미지 업로드 완료: " + imageUrl);
             if (dir.equals("post/")) {
                 return resizedImageUrl;
@@ -156,7 +156,7 @@ public class S3Service {
         return baseUrl + objectKey;
     }
 
-    public String getResizedImageUrl(String objectKey) {
+    private String generateResizedImageUrl(String objectKey) {
         String resizedUrl = "https://" + bucket + "-resized.s3.amazonaws.com/resized-";
         return resizedUrl + objectKey;
     }
