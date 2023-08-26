@@ -125,8 +125,8 @@ public class PostService {
                 .build()
             ).collect(Collectors.toList());
 
-        Boolean isLiked = null;
-        Boolean isFollowed = null;
+        boolean isLiked = false;
+        boolean isFollowed = false;
 
         // 사용자가 로그인한 경우에만 좋아요 및 팔로우 정보 확인
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
