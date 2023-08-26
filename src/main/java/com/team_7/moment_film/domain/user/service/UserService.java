@@ -25,7 +25,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j(topic = "User Service")
 @Service
@@ -50,7 +54,8 @@ public class UserService {
         log.info("phone 최초 평문 데이터 = " + phone);
         String encryptPhone = encryptUtil.encrypt(phone);
         log.info("암호화 및 인코딩 후 데이터 = " + encryptPhone);
-
+        String phoneHash = sha256Hashing(phone);
+        log.info("phone Hashing 후 데이터 = "+ phoneHash);
 
         if (checkEmail(email)) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
@@ -58,7 +63,7 @@ public class UserService {
         if (checkUsername(username)) {
             throw new IllegalArgumentException("이미 존재하는 username 입니다.");
         }
-        if (checkPhone(phone)) {
+        if (checkPhone(phoneHash)) {
             throw new IllegalArgumentException("이미 존재하는 휴대폰 번호입니다.");
         }
 
@@ -67,6 +72,7 @@ public class UserService {
                 .username(username)
                 .password(password)
                 .phone(encryptPhone)
+                .phoneHash(phoneHash)
                 .provider("momentFilm")
                 .point(1000L)
                 .build();
@@ -288,8 +294,32 @@ public class UserService {
     }
 
     // 휴대폰 번호 중복 검사 메서드
-    private boolean checkPhone(String phone) {
-        return userRepository.existsByPhone(phone);
+    private boolean checkPhone(String phoneHash) {
+        // phone 데이터를 해싱한 값으로 repository 에서 동일한 해싱 값을 가진 데이터가 있는지 확인
+        return userRepository.existsByPhoneHash(phoneHash);
     }
 
+    // SHA-256 Hashing 메서드 (복호화 불가)
+    private String sha256Hashing(String phone) throws NoSuchAlgorithmException {
+        try {
+            // MessageDigest 객체를 SHA-256 알고리즘으로 초기화
+            MessageDigest sha256Digest = MessageDigest.getInstance("SHA-256");
+            // 평문 데이터를 바이트 배열로 변환
+            byte[] phoneBytes = phone.getBytes();
+            // 위에서 변환한 바이트 배열을 sha256Digest 객체에 전달하여 Hash 값을 계산 후 바이트 배열로 반환
+            byte[] hashBytes = sha256Digest.digest(phoneBytes);
+
+            StringBuilder hexHashString = new StringBuilder();
+
+            // 계산된 Hash 값을 16진수 문자열로 변환하여 StringBuilder에 저장
+            for (byte b : hashBytes) {
+                String hexHash = String.format("%02x", b); // 하나의 byte 마다 2자리 16진수 문자로 변환
+                hexHashString.append(hexHash);
+            }
+
+            return hexHashString.toString();
+        } catch (NoSuchAlgorithmException exception) {
+            throw new RuntimeException("SHA-256 알고리즘을 사용할 수 없습니다.");
+        }
+    }
 }

@@ -25,6 +25,9 @@ public class User {
     @Column(unique = true)
     private String phone;
 
+    @Column
+    private String phoneHash;
+
     @Column(nullable = false)
     private String provider;
 
