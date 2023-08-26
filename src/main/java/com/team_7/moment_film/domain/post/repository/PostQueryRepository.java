@@ -37,7 +37,9 @@ public class PostQueryRepository {
                 .orderBy(post.id.desc())
                 .offset(offset)
                 .limit(size)
+                .distinct()
                 .fetch();
+
     }
 
     //조회수 (무한스크롤)
@@ -47,6 +49,7 @@ public class PostQueryRepository {
                 .orderBy(post.viewCount.desc())
                 .offset(offset)
                 .limit(size)
+                .distinct()
                 .fetch();
     }
 
@@ -57,6 +60,7 @@ public class PostQueryRepository {
                 .orderBy(post.likeList.size().desc())
                 .offset(offset)
                 .limit(size)
+                .distinct()
                 .fetch();
     }
 
