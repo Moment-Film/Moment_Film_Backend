@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -61,8 +62,8 @@ public class UserController {
 
     // 사용자 검색 API
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse> searchUser(@RequestParam String userKeyword) {
-        return userService.searchUser(userKeyword);
+    public ResponseEntity<ApiResponse> searchUser(@RequestParam String userKeyword, Pageable pageable) {
+        return userService.searchUser(userKeyword, pageable);
     }
 
     // 인기 많은 사용자 조회 API (팔로워 순)

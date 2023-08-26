@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.UUID;
 
 @Slf4j
@@ -36,7 +37,7 @@ public class S3Service {
      * @return 업로드된 이미지의 S3 URL
      * @throws IllegalArgumentException 업로드 실패 시 발생하는 예외
      */
-    public String upload(MultipartFile multipartFile,String dir) {
+    public String upload(MultipartFile multipartFile, String dir) {
         if (multipartFile == null || multipartFile.isEmpty()) return null;
 
         try {
@@ -45,7 +46,11 @@ public class S3Service {
             String contentType = multipartFile.getContentType();
             putS3(fileBytes, fileName, contentType);
             String imageUrl = generateUnsignedUrl(fileName);
+            String resizedImageUrl = generateResizedImageUrl(fileName);
             log.info("이미지 업로드 완료: " + imageUrl);
+            if (dir.equals("post/")) {
+                return resizedImageUrl;
+            }
             return imageUrl;
         } catch (IOException e) {
             throw new UploadException(ErrorCodeEnum.UPLOAD_FAIL, e);
@@ -149,6 +154,22 @@ public class S3Service {
     private String generateUnsignedUrl(String objectKey) {
         String baseUrl = "https://" + bucket + ".s3.amazonaws.com/";
         return baseUrl + objectKey;
+    }
+
+    private String generateResizedImageUrl(String objectKey) {
+        String resizedUrl = "https://" + bucket + "-resized.s3.amazonaws.com/resized-";
+        return resizedUrl + objectKey;
+    }
+
+    public String generateOriginalImageUrl(String resizedImageUrl) {
+        // 리사이징 이미지 url 파싱
+        String[] parts = resizedImageUrl.split("/");
+        String bucketName = parts[2];
+        String objectKey = String.join("/", Arrays.copyOfRange(parts, 4, parts.length));
+
+        String originalBucketName = bucketName.replace("-resized", "");
+
+        return "https://" + originalBucketName + "/post/" + objectKey;
     }
 
 }
