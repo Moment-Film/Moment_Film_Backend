@@ -39,7 +39,7 @@ public class SubCommentService {
                 .id(subComment.getId())
                 .commentId(comment.getId())
                 .content(subComment.getContent())
-                .createdAt(subComment.getCreatedAt())
+                .createdAt(subComment.getCreatedAtFormatted())
                 .build();
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.CREATED).data(responseDTO).build();
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
