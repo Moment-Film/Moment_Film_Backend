@@ -6,9 +6,7 @@ import com.team_7.moment_film.domain.customfilter.entity.Filter;
 import com.team_7.moment_film.domain.customfilter.repository.FilterRepository;
 import com.team_7.moment_film.domain.customframe.entity.Frame;
 import com.team_7.moment_film.domain.customframe.repository.FrameRepository;
-import com.team_7.moment_film.domain.follow.entity.Follow;
 import com.team_7.moment_film.domain.follow.repository.FollowRepository;
-import com.team_7.moment_film.domain.like.entity.Like;
 import com.team_7.moment_film.domain.like.repository.LikeRepository;
 import com.team_7.moment_film.domain.post.dto.PostRequestDto;
 import com.team_7.moment_film.domain.post.dto.PostResponseDto;
@@ -36,7 +34,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -88,7 +85,7 @@ public class PostService {
                 .username(savepost.getUser().getUsername())
                 .filterId(savepost.getFilter().getId())
                 .frameId(savepost.getFrame().getId())
-                .createdAt(savepost.getCreatedAt())
+                .createdAt(savepost.getCreatedAtFormatted())
                 .build();
 
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.CREATED).data(responseDto).build();
@@ -134,8 +131,8 @@ public class PostService {
             Object principal = authentication.getPrincipal();
             if (principal instanceof UserDetailsImpl) {
                 UserDetailsImpl userDetails = (UserDetailsImpl) principal;
-                isLiked = likeCheck(userDetails.getUser().getId());
-                isFollowed = followerCheck(userDetails.getUser().getId());
+                isLiked = likeCheck(userDetails.getUser().getId(),post.getId());
+                isFollowed = followerCheck(userDetails.getUser().getId(),post.getUser().getId());
             }
         }
 
@@ -158,7 +155,7 @@ public class PostService {
                 .likeCheck(isLiked)
                 .followerCheck(isFollowed)
                 .commentList(getAllCommentsWithSubComments(post))
-                .createdAt(post.getCreatedAt())
+                .createdAt(post.getCreatedAtFormatted())
                 .build();
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(responseDto).build();
         return ResponseEntity.ok(apiResponse);
@@ -177,6 +174,7 @@ public class PostService {
                     .content(comment.getContent())
                     .username(comment.getWriter().getUsername())
                     .userId(comment.getWriter().getId())
+                    .createdAt(comment.getCreatedAtFormatted())
                     .build();
             List<SubCommentResponseDTO> newSubComments = new ArrayList<>();
             for (SubComment subComment : comment.getSubComments()) {
@@ -185,6 +183,7 @@ public class PostService {
                         .content(subComment.getContent())
                         .username(subComment.getWriter().getUsername())
                         .UserId(subComment.getWriter().getId())
+                        .createdAt(subComment.getCreatedAtFormatted())
                         .build();
                 newSubComments.add(newSubComment);
             }
@@ -208,24 +207,19 @@ public class PostService {
     }
 
 
-    public boolean likeCheck(Long userId) {
-        Optional<Like> like = likeRepository.findByUserId(userId);
+    public boolean likeCheck(Long userId,Long postId) {
+        boolean like = likeRepository.existsByUserIdAndPostId(userId,postId);
 
-        if(like.isPresent()){
-            return true;
-        }
-            return false;
+        return like;
     }
 
 
 
-    public boolean followerCheck(Long userId){
-        Optional<Follow> follow = followRepository.findByFollowerId(userId);
+    public boolean followerCheck(Long followerId, Long followingId){
+        boolean follow = followRepository.existsByFollowerIdAndFollowingId(followerId,followingId);
 
-        if(follow.isPresent()){
-            return true;
-        }
-        return false;
+
+        return follow;
     }
 
     private User getUserById(Long userId) {
