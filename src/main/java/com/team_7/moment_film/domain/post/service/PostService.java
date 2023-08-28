@@ -134,7 +134,7 @@ public class PostService {
             Object principal = authentication.getPrincipal();
             if (principal instanceof UserDetailsImpl) {
                 UserDetailsImpl userDetails = (UserDetailsImpl) principal;
-                isLiked = likeCheck(userDetails.getUser().getId());
+                isLiked = likeCheck(userDetails.getUser().getId(),postId);
                 isFollowed = followerCheck(userDetails.getUser().getId());
             }
         }
@@ -208,13 +208,10 @@ public class PostService {
     }
 
 
-    public boolean likeCheck(Long userId) {
-        Optional<Like> like = likeRepository.findByUserId(userId);
+    public boolean likeCheck(Long userId,Long postId) {
+        Optional<Like> like = likeRepository.findByUserIdAndPostId(userId,postId);
 
-        if(like.isPresent()){
-            return true;
-        }
-            return false;
+        return like.isPresent();
     }
 
 
@@ -222,10 +219,7 @@ public class PostService {
     public boolean followerCheck(Long userId){
         Optional<Follow> follow = followRepository.findByFollowerId(userId);
 
-        if(follow.isPresent()){
-            return true;
-        }
-        return false;
+        return follow.isPresent();
     }
 
     private User getUserById(Long userId) {
