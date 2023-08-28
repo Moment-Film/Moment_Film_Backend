@@ -88,7 +88,7 @@ public class PostService {
                 .username(savepost.getUser().getUsername())
                 .filterId(savepost.getFilter().getId())
                 .frameId(savepost.getFrame().getId())
-                .createdAt(savepost.getCreatedAt())
+                .createdAt(savepost.getCreatedAtFormatted())
                 .build();
 
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.CREATED).data(responseDto).build();
@@ -158,7 +158,7 @@ public class PostService {
                 .likeCheck(isLiked)
                 .followerCheck(isFollowed)
                 .commentList(getAllCommentsWithSubComments(post))
-                .createdAt(post.getCreatedAt())
+                .createdAt(post.getCreatedAtFormatted())
                 .build();
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(responseDto).build();
         return ResponseEntity.ok(apiResponse);
@@ -177,6 +177,7 @@ public class PostService {
                     .content(comment.getContent())
                     .username(comment.getWriter().getUsername())
                     .userId(comment.getWriter().getId())
+                    .createdAt(comment.getCreatedAtFormatted())
                     .build();
             List<SubCommentResponseDTO> newSubComments = new ArrayList<>();
             for (SubComment subComment : comment.getSubComments()) {
@@ -185,6 +186,7 @@ public class PostService {
                         .content(subComment.getContent())
                         .username(subComment.getWriter().getUsername())
                         .UserId(subComment.getWriter().getId())
+                        .createdAt(subComment.getCreatedAtFormatted())
                         .build();
                 newSubComments.add(newSubComment);
             }
