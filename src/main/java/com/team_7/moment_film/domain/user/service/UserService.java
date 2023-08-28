@@ -181,15 +181,35 @@ public class UserService {
             throw new IllegalArgumentException("변경 내용이 없습니다.");
         }
 
-        String username = infoDto != null && infoDto.getUsername() != null ? infoDto.getUsername() : user.getUsername();
-        String phone = infoDto != null && infoDto.getPhone() != null ? encryptUtil.encrypt(infoDto.getPhone()) : user.getPhone();
         String imageUrl = image != null ? s3Service.upload(image, "profile/") : user.getImage();
+
+        String username = user.getUsername();
+        String encryptPhone = user.getPhone();
+        String phoneHash = user.getPhoneHash();
+
+        if (infoDto != null) {
+            if (infoDto.getUsername() != null) {
+                if (!infoDto.getUsername().equals(username) && checkUsername(infoDto.getUsername())) {
+                    throw new IllegalArgumentException("이미 존재하는 username 입니다.");
+                }
+                username = infoDto.getUsername();
+            }
+            if (infoDto.getPhone() != null) {
+                String phone = infoDto.getPhone();
+                phoneHash = sha256Hashing(phone);
+                if (!infoDto.getPhone().equals(encryptUtil.decrypt(encryptPhone)) && checkPhone(phoneHash)) {
+                    throw new IllegalArgumentException("이미 존재하는 휴대폰 번호입니다.");
+                }
+                encryptPhone = encryptUtil.encrypt(phone);
+            }
+        }
 
         User updateUser = User.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .username(username)
-                .phone(phone)
+                .phone(encryptPhone)
+                .phoneHash(phoneHash)
                 .password(user.getPassword())
                 .provider(user.getProvider())
                 .point(user.getPoint())
@@ -282,7 +302,8 @@ public class UserService {
 
     // 메일로 전송한 인증코드 일치 확인 메서드
     public Boolean checkCode(User user, String code) {
-        String authCode = redisUtil.getData(user.getEmail());
+        String key = user.getEmail() + "(" + user.getProvider() + ")";
+        String authCode = redisUtil.getData(key);
         log.info("code=" + authCode);
         return authCode.equals(code);
     }

@@ -11,16 +11,16 @@ public class SearchResponseDto {
     private Long id;
     private String username;
     private String profileImage;
-    private Long postListCnt;
+    private Long postCnt;
     private Long follower;
     private Long following;
     private List<PostSearchDto> postList = new ArrayList<>();
 
-    public SearchResponseDto(Long id, String username, String profileImage, Long postListCnt, Long follower, Long following){
+    public SearchResponseDto(Long id, String username, String profileImage, Long postCnt, Long follower, Long following){
         this.id = id;
         this.username = username;
         this.profileImage = profileImage;
-        this.postListCnt = postListCnt;
+        this.postCnt = postCnt;
         this.follower = follower;
         this.following = following;
     }
