@@ -25,22 +25,24 @@ public class FrameService {
     private final S3Service s3Service;
     private final FrameMapper frameMapper;
 
+    // 프레임 생성
     public ResponseEntity<ApiResponse> createFrame(FrameRequestDto requestDto, MultipartFile image, User user) {
         if(image==null && isNullOrBlank(requestDto.getHue()) &&
                 isNullOrBlank(requestDto.getSaturation()) && isNullOrBlank(requestDto.getLightness())){
             throw new IllegalArgumentException("이미지나 값을 선택해주세요.");
         }
-
+        // s3에 이미지 업로드
         String imageUrl = s3Service.upload(image, "frame/");
+
         Frame frame = new Frame(requestDto, imageUrl, user);
         frameRepository.save(frame);
-
         FrameResponseDto responseDto = frameMapper.toDto(frame);
 
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.CREATED).data(responseDto).build();
         return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
     }
 
+    // 직접 만든 프레임 리스트 모두 조회
     public ResponseEntity<ApiResponse> getAllMyFrame(User user) {
         List<FrameResponseDto> frameList = frameRepository.findAllByUserId(user.getId()).stream().map(frame -> FrameResponseDto.builder()
                 .id(frame.getId())
@@ -50,6 +52,7 @@ public class FrameService {
         return ResponseEntity.ok(apiResponse);
     }
 
+    // 프레임 선택
     public ResponseEntity<ApiResponse> selectFrame(Long frameId) {
         Frame frame = frameRepository.findById(frameId).orElseThrow(() ->
                 new EntityNotFoundException("존재하지 않는 프레임입니다."));
@@ -58,6 +61,7 @@ public class FrameService {
         return ResponseEntity.ok(apiResponse);
     }
 
+    // 프레임 삭제
     public ResponseEntity<ApiResponse> deleteFrame(Long frameId, User user) {
         Frame frame = frameRepository.findById(frameId).orElseThrow(() ->
                 new EntityNotFoundException("존재하지 않는 프레임입니다."));
@@ -69,6 +73,7 @@ public class FrameService {
         return ResponseEntity.ok(apiResponse);
     }
 
+    // 프레임 값 하나 이상 선택했는지 확인
     private boolean isNullOrBlank(String value){
         return value == null || value.isBlank();
     }

@@ -1,9 +1,9 @@
-package com.team_7.moment_film.domain.customframe.service;
+package com.team_7.moment_film.domain.bookmark.service;
 
 import com.team_7.moment_film.domain.customframe.dto.FrameResponseDto;
 import com.team_7.moment_film.domain.customframe.entity.Frame;
-import com.team_7.moment_film.domain.customframe.entity.FrameBookMark;
-import com.team_7.moment_film.domain.customframe.repository.FrameBookMarkRepository;
+import com.team_7.moment_film.domain.bookmark.entity.FrameBookmark;
+import com.team_7.moment_film.domain.bookmark.repository.FrameBookmarkRepository;
 import com.team_7.moment_film.domain.customframe.repository.FrameRepository;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.global.dto.ApiResponse;
@@ -18,10 +18,12 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class FrameBookMarkService {
-    private final FrameBookMarkRepository bookMarkRepository;
+public class FrameBookmarkService {
+
+    private final FrameBookmarkRepository bookMarkRepository;
     private final FrameRepository filterRepository;
 
+    // 프레임 북마크 추가/취소
     @Transactional
     public ResponseEntity<ApiResponse> bookMarkFrame(Long frameId, User user) {
         Frame frame = filterRepository.findById(frameId).orElseThrow(() ->
@@ -30,7 +32,7 @@ public class FrameBookMarkService {
 
         // 북마크 없으면 추가
         if(!bookmarked){
-            FrameBookMark bookMark = FrameBookMark.builder().user(user).frame(frame).build();
+            FrameBookmark bookMark = FrameBookmark.builder().user(user).frame(frame).build();
             bookMarkRepository.save(bookMark);
 
             ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("북마크 완료").build();
@@ -44,6 +46,7 @@ public class FrameBookMarkService {
         }
     }
 
+    // 북마크한 프레임 리스트 조회
     public ResponseEntity<ApiResponse> getBookMarkFrame(User user) {
 
         List<FrameResponseDto> bookMarkList = bookMarkRepository.findAllByUserId(user.getId())
