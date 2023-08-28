@@ -6,9 +6,7 @@ import com.team_7.moment_film.domain.customfilter.entity.Filter;
 import com.team_7.moment_film.domain.customfilter.repository.FilterRepository;
 import com.team_7.moment_film.domain.customframe.entity.Frame;
 import com.team_7.moment_film.domain.customframe.repository.FrameRepository;
-import com.team_7.moment_film.domain.follow.entity.Follow;
 import com.team_7.moment_film.domain.follow.repository.FollowRepository;
-import com.team_7.moment_film.domain.like.entity.Like;
 import com.team_7.moment_film.domain.like.repository.LikeRepository;
 import com.team_7.moment_film.domain.post.dto.PostRequestDto;
 import com.team_7.moment_film.domain.post.dto.PostResponseDto;
@@ -36,7 +34,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -134,8 +131,8 @@ public class PostService {
             Object principal = authentication.getPrincipal();
             if (principal instanceof UserDetailsImpl) {
                 UserDetailsImpl userDetails = (UserDetailsImpl) principal;
-                isLiked = likeCheck(userDetails.getUser().getId(),postId);
-                isFollowed = followerCheck(userDetails.getUser().getId());
+                isLiked = likeCheck(userDetails.getUser().getId(),post.getId());
+                isFollowed = followerCheck(userDetails.getUser().getId(),post.getUser().getId());
             }
         }
 
@@ -211,17 +208,18 @@ public class PostService {
 
 
     public boolean likeCheck(Long userId,Long postId) {
-        Optional<Like> like = likeRepository.findByUserIdAndPostId(userId,postId);
+        boolean like = likeRepository.existsByUserIdAndPostId(userId,postId);
 
-        return like.isPresent();
+        return like;
     }
 
 
 
-    public boolean followerCheck(Long userId){
-        Optional<Follow> follow = followRepository.findByFollowerId(userId);
+    public boolean followerCheck(Long followerId, Long followingId){
+        boolean follow = followRepository.existsByFollowerIdAndFollowingId(followerId,followingId);
 
-        return follow.isPresent();
+
+        return follow;
     }
 
     private User getUserById(Long userId) {
