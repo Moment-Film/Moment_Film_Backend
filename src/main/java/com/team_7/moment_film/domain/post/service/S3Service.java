@@ -156,20 +156,31 @@ public class S3Service {
         return baseUrl + objectKey;
     }
 
+    /**
+     * 리사이징된 이미지 URL을 생성합니다.
+     *
+     * @param objectKey S3 객체 키
+     * @return 리사이징 이미지 URL
+     */
     private String generateResizedImageUrl(String objectKey) {
         String resizedUrl = "https://" + bucket + "-resized.s3.amazonaws.com/resized-";
         return resizedUrl + objectKey;
     }
 
+    /**
+     * 리사이징 이미지 URL로 원본 이미지 URL을 생성합니다.
+     *
+     * @param resizedImageUrl 리사이징 이미지 URL
+     * @return 원본 이미지 URL
+     */
     public String generateOriginalImageUrl(String resizedImageUrl) {
-        // 리사이징 이미지 url 파싱
         String[] parts = resizedImageUrl.split("/");
-        String bucketName = parts[2];
-        String objectKey = String.join("/", Arrays.copyOfRange(parts, 4, parts.length));
+        String uri = parts[2];
+        String objectKey = parts[4];
 
-        String originalBucketName = bucketName.replace("-resized", "");
+        String originalUri = uri.replace("-resized", "");
 
-        return "https://" + originalBucketName + "/post/" + objectKey;
+        return "https://" + originalUri + "/post/" + objectKey;
     }
 
 }
