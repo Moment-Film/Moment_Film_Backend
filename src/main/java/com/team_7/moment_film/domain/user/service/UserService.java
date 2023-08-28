@@ -302,7 +302,8 @@ public class UserService {
 
     // 메일로 전송한 인증코드 일치 확인 메서드
     public Boolean checkCode(User user, String code) {
-        String authCode = redisUtil.getData(user.getEmail());
+        String key = user.getEmail() + "(" + user.getProvider() + ")";
+        String authCode = redisUtil.getData(key);
         log.info("code=" + authCode);
         return authCode.equals(code);
     }
