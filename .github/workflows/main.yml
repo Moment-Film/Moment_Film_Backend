@@ -45,8 +45,8 @@ jobs:
     - name: Docker build & push to docker repo
       run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/moment_film .
-          docker push ${{ secrets.DOCKER_REPO }}/moment_film
+          docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/moment_film-spring .
+          docker push ${{ secrets.DOCKER_REPO }}/moment_film-spring
    
    # appleboy/ssh-action@master 액션을 사용하여 서버에 ssh 접속 후 script 실행
     - name: Deploy to server
@@ -59,6 +59,6 @@ jobs:
        port: 22
        script: |
          sudo docker rm -f $(docker ps -qa)
-         sudo docker pull ${{ secrets.DOCKER_REPO }}/moment_film
+         sudo docker pull ${{ secrets.DOCKER_REPO }}/moment_film-spring
          docker-compose up -d
          docker image prune -f
