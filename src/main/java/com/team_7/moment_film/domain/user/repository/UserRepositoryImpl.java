@@ -50,7 +50,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
         // 최근 작성한 게시물 리스트
         for (SearchResponseDto dto : result) {
             List<PostSearchDto> postList = queryFactory
-                    .select(Projections.fields(PostSearchDto.class, post.id, post.image))
+                    .select(Projections.constructor(PostSearchDto.class, post.id, post.image))
                     .from(post)
                     .where(post.user.id.eq(dto.getId()))
                     .orderBy(post.createdAt.desc())
@@ -67,9 +67,15 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
     @Override
     public List<PopularUserResponseDto> getPopularUser(){
         List<PopularUserResponseDto> result = queryFactory
-                .select(Projections.constructor(PopularUserResponseDto.class, user.id, user.username, follow.follower.count().as("follower")))
+                .select(Projections.constructor(PopularUserResponseDto.class,
+                        user.id,
+                        user.username,
+                        user.image,
+                        follow.follower.count(),
+                        post.count()))
                 .from(user)
                 .leftJoin(follow).on(user.id.eq(follow.following.id))
+                .leftJoin(post).on(user.id.eq(post.user.id))
                 .groupBy(user.id)
                 .orderBy(follow.follower.count().desc())
                 .limit(10)
