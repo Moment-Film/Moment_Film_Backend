@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.UUID;
 
 @Slf4j
@@ -56,7 +55,6 @@ public class S3Service {
             throw new UploadException(ErrorCodeEnum.UPLOAD_FAIL, e);
         }
     }
-
 
     /**
      * 이미지를 S3에 업로드합니다.
