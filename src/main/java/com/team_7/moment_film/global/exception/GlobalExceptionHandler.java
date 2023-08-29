@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -169,5 +171,25 @@ public class GlobalExceptionHandler {
                 .msg(ex.getMessage())
                 .build();
         return ResponseEntity.status(HttpStatus.CONFLICT).body(apiResponse);
+    }
+
+    // 잘못된 HTTP Method로 요청했을 때 exception
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiResponse> ExceptionHandler(HttpRequestMethodNotSupportedException ex) {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .status(HttpStatus.METHOD_NOT_ALLOWED)
+                .msg("지원하지 않는 HTTP Method 입니다.")
+                .build();
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(apiResponse);
+    }
+
+    // 클라이언트 요청의 Content-Type 또는 Accept 헤더와 일치하는 응답형식이 없을 때 exception
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ApiResponse> ExceptionHandler(HttpMediaTypeNotSupportedException ex) {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                .msg("지원하지 않는 Media Type 입니다.")
+                .build();
+        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(apiResponse);
     }
 }

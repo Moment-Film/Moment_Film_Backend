@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -38,10 +39,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             // 제출한 accessToken(KEY)로 redis 조회 시 해당 KEY 값이 있고, Value가 logout인 경우
             // 해당 경우는 이미 로그아웃 했고, 이 토큰이 만료될 때 까지 사용할 수 없도록 예외처리
             if (redisUtil.checkData(accessToken) && redisUtil.getData(accessToken).equals("logout")) {
-                res.setCharacterEncoding("UTF-8");
-                res.setContentType("application/json");
-                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                res.getWriter().write("이미 로그아웃된 사용자입니다. 다시 로그인을 해주세요.");
+                responseHandler(res, HttpStatus.UNAUTHORIZED, "이미 로그아웃된 사용자입니다. 다시 로그인을 해주세요.");
                 return;
             }
 
@@ -83,10 +81,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 } else {
                     // accessToken 검증 실패 후 제출한 refreshToken 의 형식이 올바르지 않거나, redis 의 refreshToken 이 만료되었을 경우
                     log.error("올바르지 않은 refreshToken 형식이거나, refreshToken이 만료되었습니다. 다시 로그인을 해주세요.");
-                    res.setCharacterEncoding("UTF-8");
-                    res.setContentType("application/json");
-                    res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    res.getWriter().write("올바르지 않은 refreshToken 형식이거나, refreshToken이 만료되었습니다. 다시 로그인을 해주세요.");
+                    responseHandler(res, HttpStatus.UNAUTHORIZED, "올바르지 않은 refreshToken 형식이거나, refreshToken이 만료되었습니다. 다시 로그인을 해주세요.");
                     return;
                 }
             }
@@ -118,5 +113,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private Authentication createAuthentication(String userId) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
         return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+    }
+
+    private void responseHandler(HttpServletResponse response, HttpStatus status, String msg) throws IOException {
+        response.setStatus(status.value());
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(msg);
     }
 }
