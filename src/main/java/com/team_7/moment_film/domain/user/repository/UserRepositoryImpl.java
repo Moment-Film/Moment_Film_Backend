@@ -59,7 +59,14 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
 
             dto.setPostList(postList);
         }
-        Long total = (long) result.size();
+
+        // 총 데이터 수 구하기
+        Long total= queryFactory
+                .select(user.count())
+                .from(user)
+                .where(user.username.like("%" + userKeyword + "%"))
+                .fetchOne();
+
         return new PageCustom<>(result, pageable, total);
     }
 
