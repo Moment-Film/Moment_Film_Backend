@@ -65,7 +65,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
                 .select(user.count())
                 .from(user)
                 .where(user.username.like("%" + userKeyword + "%"))
-                .fetchFirst();
+                .fetchOne();
 
         return new PageCustom<>(result, pageable, total);
     }
