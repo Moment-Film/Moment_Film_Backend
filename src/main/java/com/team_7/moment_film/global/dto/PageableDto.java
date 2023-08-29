@@ -8,12 +8,14 @@ public class PageableDto {
     private int pageSize; // 페이지 당 데이터 수
     private int pageNumber; // 페이지 번호
     private int numberOfElements; // 현재 페이지 데이터 수
+    private long totalElements; // 총 데이터 수
 
     public PageableDto(Page page){
         this.first = page.isFirst();
         this.pageSize = page.getSize();
         this.pageNumber = page.getNumber();
         this.numberOfElements = page.getNumberOfElements();
+        this.totalElements = page.getTotalElements();
     }
 
 }
