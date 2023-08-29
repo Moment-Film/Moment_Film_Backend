@@ -1,5 +1,6 @@
-package com.team_7.moment_film.domain.customframe.entity;
+package com.team_7.moment_film.domain.bookmark.entity;
 
+import com.team_7.moment_film.domain.customfilter.entity.Filter;
 import com.team_7.moment_film.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FrameBookMark {
+public class FilterBookmark {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,7 +26,7 @@ public class FrameBookMark {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "frame_id")
-    private Frame frame;
+    @JoinColumn(name = "filter_id")
+    private Filter filter;
 
 }

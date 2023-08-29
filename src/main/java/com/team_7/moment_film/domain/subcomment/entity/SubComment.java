@@ -1,5 +1,6 @@
-package com.team_7.moment_film.domain.comment.entity;
+package com.team_7.moment_film.domain.subcomment.entity;
 
+import com.team_7.moment_film.domain.comment.entity.Comment;
 import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.global.config.TimeStamped;
 import jakarta.persistence.*;

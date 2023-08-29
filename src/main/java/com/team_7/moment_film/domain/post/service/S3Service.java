@@ -36,7 +36,7 @@ public class S3Service {
      * @return 업로드된 이미지의 S3 URL
      * @throws IllegalArgumentException 업로드 실패 시 발생하는 예외
      */
-    public String upload(MultipartFile multipartFile,String dir) {
+    public String upload(MultipartFile multipartFile, String dir) {
         if (multipartFile == null || multipartFile.isEmpty()) return null;
 
         try {
@@ -45,13 +45,16 @@ public class S3Service {
             String contentType = multipartFile.getContentType();
             putS3(fileBytes, fileName, contentType);
             String imageUrl = generateUnsignedUrl(fileName);
+            String resizedImageUrl = generateResizedImageUrl(fileName);
             log.info("이미지 업로드 완료: " + imageUrl);
+            if (dir.equals("post/")) {
+                return resizedImageUrl;
+            }
             return imageUrl;
         } catch (IOException e) {
             throw new UploadException(ErrorCodeEnum.UPLOAD_FAIL, e);
         }
     }
-
 
     /**
      * 이미지를 S3에 업로드합니다.
@@ -149,6 +152,33 @@ public class S3Service {
     private String generateUnsignedUrl(String objectKey) {
         String baseUrl = "https://" + bucket + ".s3.amazonaws.com/";
         return baseUrl + objectKey;
+    }
+
+    /**
+     * 리사이징된 이미지 URL을 생성합니다.
+     *
+     * @param objectKey S3 객체 키
+     * @return 리사이징 이미지 URL
+     */
+    private String generateResizedImageUrl(String objectKey) {
+        String resizedUrl = "https://" + bucket + "-resized.s3.amazonaws.com/resized-";
+        return resizedUrl + objectKey;
+    }
+
+    /**
+     * 리사이징 이미지 URL로 원본 이미지 URL을 생성합니다.
+     *
+     * @param resizedImageUrl 리사이징 이미지 URL
+     * @return 원본 이미지 URL
+     */
+    public String generateOriginalImageUrl(String resizedImageUrl) {
+        String[] parts = resizedImageUrl.split("/");
+        String uri = parts[2];
+        String objectKey = parts[4];
+
+        String originalUri = uri.replace("-resized", "");
+
+        return "https://" + originalUri + "/post/" + objectKey;
     }
 
 }

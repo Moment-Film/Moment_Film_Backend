@@ -1,7 +1,6 @@
 package com.team_7.moment_film.domain.customframe.controller;
 
 import com.team_7.moment_film.domain.customframe.dto.FrameRequestDto;
-import com.team_7.moment_film.domain.customframe.service.FrameBookMarkService;
 import com.team_7.moment_film.domain.customframe.service.FrameService;
 import com.team_7.moment_film.global.dto.ApiResponse;
 import com.team_7.moment_film.global.security.UserDetailsImpl;
@@ -19,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class FrameController {
 
     private final FrameService frameService;
-    private final FrameBookMarkService bookMarkService;
 
     // 프레임 커스텀(등록) 기능
     @PostMapping("")
@@ -45,18 +43,6 @@ public class FrameController {
     @DeleteMapping("/{frameId}")
     public ResponseEntity<ApiResponse> deleteFrame(@PathVariable Long frameId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return frameService.deleteFrame(frameId, userDetails.getUser());
-    }
-
-    // 북마크 추가/취소 기능
-    @PostMapping("/{frameId}/bookmark")
-    public ResponseEntity<ApiResponse> BookMarkFilter(@PathVariable Long frameId, @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return bookMarkService.bookMarkFrame(frameId, userDetails.getUser());
-    }
-
-    // 북마크한 프레임 조회 기능
-    @GetMapping("/bookmark")
-    public ResponseEntity<ApiResponse> GetBookMarkFilter(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        return bookMarkService.getBookMarkFrame(userDetails.getUser());
     }
 
 }

@@ -47,6 +47,7 @@ public class CommentService {
                     .userId(comment.getWriter().getId())
                     .username(comment.getWriter().getUsername())
                     .content(comment.getContent())
+                    .createdAt(comment.getCreatedAtFormatted())
                     .build();
             ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.CREATED).data(responseDTO).build();
             return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);

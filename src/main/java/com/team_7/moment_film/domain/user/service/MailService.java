@@ -30,9 +30,11 @@ public class MailService {
         String authCode = UUID.randomUUID().toString().substring(0, 6);
         SimpleMailMessage message = createMessage(user, authCode);
 
+        String key = user.getEmail() + "(" + user.getProvider() + ")";
+
         // redis에 3분간 인증코드 저장
         Date date = new Date();
-        redisUtil.setData(user.getEmail(), authCode, new Date(date.getTime() + 180 * 1000L));
+        redisUtil.setData(key, authCode, new Date(date.getTime() + 180 * 1000L));
 
         try {
             mailSender.send(message);
