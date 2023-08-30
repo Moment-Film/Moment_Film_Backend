@@ -150,6 +150,7 @@ public class PostService {
                 .viewCount(post.getViewCount())
                 .commentCount(post.getCommentList().size())
                 .likeUserId(likeUser)
+                .userImage(post.getUser().getImage())
                 .frameId(post.getFrame().getId())
                 .frameName(post.getFrame().getFrameName())
                 .filterId(post.getFilter().getId())
@@ -176,6 +177,7 @@ public class PostService {
                     .content(comment.getContent())
                     .username(comment.getWriter().getUsername())
                     .userId(comment.getWriter().getId())
+                    .userImage(comment.getWriter().getImage())
                     .createdAt(comment.getCreatedAtFormatted())
                     .build();
             List<SubCommentResponseDTO> newSubComments = new ArrayList<>();
@@ -185,6 +187,7 @@ public class PostService {
                         .content(subComment.getContent())
                         .username(subComment.getWriter().getUsername())
                         .UserId(subComment.getWriter().getId())
+                        .userImage(subComment.getWriter().getImage())
                         .createdAt(subComment.getCreatedAtFormatted())
                         .build();
                 newSubComments.add(newSubComment);

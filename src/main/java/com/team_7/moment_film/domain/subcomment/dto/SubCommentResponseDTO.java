@@ -15,6 +15,7 @@ public class SubCommentResponseDTO {
     private Long id;
     private Long UserId;
     private Long commentId;
+    private String userImage;
     private String content;
     private String username;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")

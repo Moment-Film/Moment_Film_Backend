@@ -19,6 +19,7 @@ public class CommentResponseDTO implements Serializable {
     private Long id;
     private Long userId;
     private String username;
+    private String userImage;
     private String content;
     private List<SubCommentResponseDTO> subComments;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
