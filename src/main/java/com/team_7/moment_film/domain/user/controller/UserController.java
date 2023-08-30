@@ -119,6 +119,6 @@ public class UserController {
     // CI/CD TEST
     @GetMapping("/dockerTest")
     public String dockerTest() {
-        return "배포 성공";
+        return "배포 성공!";
     }
 }
