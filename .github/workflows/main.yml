@@ -1,6 +1,6 @@
 name: CD with Gradle
 
-# main branch에 push, pr 되었을 때 실행
+# main branch에 push, pr 되었을 때 실행 
 on:
   push:
     branches: [ "main" ]
