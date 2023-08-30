@@ -33,6 +33,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static com.team_7.moment_film.global.dto.S3Prefix.PROFILE;
+
 @Slf4j(topic = "User Service")
 @Service
 @RequiredArgsConstructor
@@ -181,7 +183,7 @@ public class UserService {
             throw new IllegalArgumentException("변경 내용이 없습니다.");
         }
 
-        String imageUrl = image != null ? s3Service.upload(image, "profile/") : user.getImage();
+        String imageUrl = image != null ? s3Service.upload(image, PROFILE) : user.getImage();
 
         String username = user.getUsername();
         String encryptPhone = user.getPhone();

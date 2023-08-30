@@ -34,7 +34,8 @@ public class MailService {
 
         // redis에 3분간 인증코드 저장
         Date date = new Date();
-        redisUtil.setData(key, authCode, new Date(date.getTime() + 180 * 1000L));
+        long CODE_EXPIRATION = 3 * 60 * 1000L;
+        redisUtil.setData(key, authCode, new Date(date.getTime() + CODE_EXPIRATION));
 
         try {
             mailSender.send(message);
