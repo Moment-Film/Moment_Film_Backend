@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.team_7.moment_film.global.dto.S3Prefix.POST;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -59,7 +61,7 @@ public class PostService {
                 ()-> new IllegalArgumentException("존재하지 않는 필터입니다.")
         );
 
-        String imageUrl = s3Service.upload(image, "post/");
+        String imageUrl = s3Service.upload(image, POST);
         log.info("file path = {}", imageUrl);
         User user = getUserById(userDetails.getUser().getId());
 
