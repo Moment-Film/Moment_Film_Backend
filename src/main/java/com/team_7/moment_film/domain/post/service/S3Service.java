@@ -21,7 +21,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-import static com.team_7.moment_film.global.dto.S3Prefix.FRAME;
+import static com.team_7.moment_film.global.dto.S3Prefix.POST;
 
 @Slf4j
 @Service
@@ -50,7 +50,7 @@ public class S3Service {
             String imageUrl = generateUnsignedUrl(fileName);
             String resizedImageUrl = generateResizedImageUrl(fileName);
             log.info("이미지 업로드 완료: " + imageUrl);
-            if (S3Prefix.equals(FRAME)) {
+            if (S3Prefix.equals(POST)) {
                 return resizedImageUrl;
             }
             return imageUrl;
