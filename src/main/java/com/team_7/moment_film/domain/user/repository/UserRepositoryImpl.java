@@ -79,10 +79,13 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
                         user.username,
                         user.image,
                         follow.follower.count(),
-                        post.count()))
+                        JPAExpressions
+                                .select(post.count())
+                                .from(post)
+                                .where(post.user.id.eq(user.id))
+                ))
                 .from(user)
                 .leftJoin(follow).on(user.id.eq(follow.following.id))
-                .leftJoin(post).on(user.id.eq(post.user.id))
                 .groupBy(user.id)
                 .orderBy(follow.follower.count().desc())
                 .limit(10)

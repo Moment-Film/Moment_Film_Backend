@@ -99,6 +99,10 @@ tasks.withType(JavaCompile) {
 	options.generatedSourceOutputDirectory = file(querydslSrcDir)
 }
 
+jar {
+	enabled = false
+}
+
 task packageJar(type: Zip) {
 	into('lib') {
 		from(jar)

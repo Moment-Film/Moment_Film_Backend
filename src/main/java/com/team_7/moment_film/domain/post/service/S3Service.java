@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.team_7.moment_film.domain.post.exception.UploadException;
+import com.team_7.moment_film.global.dto.S3Prefix;
 import com.team_7.moment_film.global.statuscode.ErrorCodeEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,8 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+
+import static com.team_7.moment_film.global.dto.S3Prefix.POST;
 
 @Slf4j
 @Service
@@ -36,18 +39,18 @@ public class S3Service {
      * @return 업로드된 이미지의 S3 URL
      * @throws IllegalArgumentException 업로드 실패 시 발생하는 예외
      */
-    public String upload(MultipartFile multipartFile, String dir) {
+    public String upload(MultipartFile multipartFile, S3Prefix S3Prefix) {
         if (multipartFile == null || multipartFile.isEmpty()) return null;
 
         try {
             byte[] fileBytes = multipartFile.getBytes();
-            String fileName = dir + generateFileName(multipartFile.getOriginalFilename());
+            String fileName = S3Prefix.getDirectory() + generateFileName(multipartFile.getOriginalFilename());
             String contentType = multipartFile.getContentType();
             putS3(fileBytes, fileName, contentType);
             String imageUrl = generateUnsignedUrl(fileName);
             String resizedImageUrl = generateResizedImageUrl(fileName);
             log.info("이미지 업로드 완료: " + imageUrl);
-            if (dir.equals("post/")) {
+            if (S3Prefix.equals(POST)) {
                 return resizedImageUrl;
             }
             return imageUrl;

@@ -115,4 +115,10 @@ public class UserController {
         log.info("category = " + category);
         return userService.updatePoint(userDetails.getUser(), category);
     }
+
+    // CI/CD TEST
+    @GetMapping("/dockerTest")
+    public String dockerTest() {
+        return "배포 성공";
+    }
 }

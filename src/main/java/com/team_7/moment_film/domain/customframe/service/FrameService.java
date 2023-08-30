@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static com.team_7.moment_film.global.dto.S3Prefix.FRAME;
+
 @Service
 @RequiredArgsConstructor
 public class FrameService {
@@ -32,7 +34,7 @@ public class FrameService {
             throw new IllegalArgumentException("이미지나 값을 선택해주세요.");
         }
         // s3에 이미지 업로드
-        String imageUrl = s3Service.upload(image, "frame/");
+        String imageUrl = s3Service.upload(image, FRAME);
 
         Frame frame = new Frame(requestDto, imageUrl, user);
         frameRepository.save(frame);
