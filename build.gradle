@@ -72,12 +72,17 @@ repositories {
 		// MySQL DRIVER
 		runtimeOnly 'com.mysql:mysql-connector-j'
 		// Mockito
-		testImplementation 'org.mockito:mockito-all:1.9.5'
+		testImplementation 'org.mockito:mockito-core:5.3.1'
 		//QueryDsl
 		implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
 		annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
 		annotationProcessor "jakarta.annotation:jakarta.annotation-api"
 		annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+		//junit5
+		testImplementation("org.junit.platform:junit-platform-launcher:1.5.2")
+		testImplementation("org.junit.jupiter:junit-jupiter:5.5.2")
+
 	}
 }
 
@@ -94,6 +99,10 @@ tasks.withType(JavaCompile) {
 	options.generatedSourceOutputDirectory = file(querydslSrcDir)
 }
 
+jar {
+	enabled = false
+}
+
 task packageJar(type: Zip) {
 	into('lib') {
 		from(jar)
@@ -107,3 +116,83 @@ java {
 }
 
 build.dependsOn packageJar
+
+apply plugin: 'jacoco'
+
+jacoco {
+//	toolVersion = jacocoVersion
+//	applyTo run
+}
+
+task codeCoverage {
+	description('Code-Coverage task with jacoco plugin')
+	dependsOn test, jacocoTestReport
+}
+
+test {
+	finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+	dependsOn test
+}
+
+jacocoTestReport {
+	reports {
+		html.required = true
+		html.outputLocation = file("$project.buildDir/reports/jacoco/html")
+		xml.required = true
+		xml.outputLocation = file("$project.buildDir/reports/jacoco/coverage.xml")
+	}
+
+	onlyIf = { true }
+
+	def filter = ['**/META-INF/*.*',
+	]     //Has been comment out for security concern
+	def javaClass = fileTree(dir: "$project.buildDir/classes/java/main", excludes: filter)
+//	def kotlinClass = fileTree(dir: "$project.buildDir/classes/kotlin/main", excludes: filter)
+	def source = fileTree(dir: "$project.projectDir/src/main/java", excludes: filter)
+
+	sourceDirectories.from = files([source])
+//	classDirectories.from = files([javaClass, kotlinClass])
+	executionData.from = fileTree(dir: project.buildDir, includes: ['jacoco/test.exec', 'jacoco/unitTest.exec'])
+}
+	jacocoTestCoverageVerification {
+		violationRules {
+			rule {
+				enabled = true // 활성화
+				element = 'CLASS' // 클래스 단위로 커버리지 체크
+				// includes = []
+
+				// 라인 커버리지 제한을 80%로 설정
+				limit {
+					counter = 'LINE'
+					value = 'COVEREDRATIO'
+					minimum = 0.80
+				}
+
+				// 브랜치 커버리지 제한을 80%로 설정
+				limit {
+					counter = 'BRANCH'
+					value = 'COVEREDRATIO'
+					minimum = 0.80
+				}
+
+				// 빈 줄을 제외한 코드의 라인수를 최대 200라인으로 제한합니다.
+				limit {
+					counter = 'LINE'
+					value = 'TOTALCOUNT'
+					maximum = 200
+				}
+
+
+				//excludes = []
+			}
+
+		}
+}
+
+dependencies {
+	testImplementation 'org.projectlombok:lombok:1.18.26'
+	testImplementation 'org.projectlombok:lombok:1.18.26'
+}
