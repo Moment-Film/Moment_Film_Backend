@@ -25,15 +25,6 @@ import java.util.regex.Pattern;
 
 public class Handler2 implements RequestHandler<S3Event, String> {
     private static final Logger logger = LoggerFactory.getLogger(Handler2.class);
-
-//    private static final float POST_MAX_WIDTH = 300;
-//
-//    private static final float POST_MAX_HEIGHT = 446;
-//
-//    private static final float PROFILE_MAX_WIDTH = 50;
-//
-//    private static final float PROFILE_MAX_HEIGHT = 50;
-
     private final String REGEX = ".*\\.([^\\.]*)";
     private final String JPG_TYPE = "jpg";
     private final String JPG_MIME = "image/jpeg";
