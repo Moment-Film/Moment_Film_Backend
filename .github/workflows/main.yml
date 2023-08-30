@@ -8,8 +8,8 @@ on:
     branches: [ "main" ]
 
 # Github Actions에서 사용하는 VM이 읽을 수 있도록 허용
-permissions:
-  contents: read
+# permissions:
+#   contents: read
 
 # 수행할 동작들을 정의
 jobs:
