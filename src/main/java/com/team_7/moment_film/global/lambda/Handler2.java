@@ -26,8 +26,13 @@ import java.util.regex.Pattern;
 public class Handler2 implements RequestHandler<S3Event, String> {
     private static final Logger logger = LoggerFactory.getLogger(Handler2.class);
 
-    private static final float MAX_WIDTH = 300;
-    private static final float MAX_HEIGHT = 446;
+//    private static final float POST_MAX_WIDTH = 300;
+//
+//    private static final float POST_MAX_HEIGHT = 446;
+//
+//    private static final float PROFILE_MAX_WIDTH = 50;
+//
+//    private static final float PROFILE_MAX_HEIGHT = 50;
 
     private final String REGEX = ".*\\.([^\\.]*)";
     private final String JPG_TYPE = "jpg";
@@ -45,8 +50,6 @@ public class Handler2 implements RequestHandler<S3Event, String> {
             String srcKey = record.getS3().getObject().getUrlDecodedKey();
 
             String dstBucket = srcBucket + "-resized";
-            String dstKey = "resized-" + srcKey;
-
 
 
             // Infer the image type.
@@ -63,19 +66,39 @@ public class Handler2 implements RequestHandler<S3Event, String> {
             S3Client s3Client = S3Client.builder().build();
             InputStream s3Object = getObject(s3Client, srcBucket, srcKey);
 
-            // Read the source image and resize it
-            BufferedImage srcImage = ImageIO.read(s3Object);
-            BufferedImage newImage = resizeImage(srcImage);
+            if (srcKey.startsWith("post/")) {
+                String dstKey = "resized-" + srcKey;
+                // Read the source image and resize it
+                BufferedImage srcImage = ImageIO.read(s3Object);
+                BufferedImage newImage = resizeImage(srcImage, 300, 446);
 
-            // Re-encode image to target format
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ImageIO.write(newImage, imageType, outputStream);
+                // Re-encode image to target format
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                ImageIO.write(newImage, imageType, outputStream);
 
-            // Upload new image to S3
-            putObject(s3Client, outputStream, dstBucket, dstKey, imageType);
+                // Upload new image to S3
+                putObject(s3Client, outputStream, dstBucket, dstKey, imageType);
 
-            logger.info("Successfully resized " + srcBucket + "/"
-                    + srcKey + " and uploaded to " + dstBucket + "/" + dstKey);
+                logger.info("Successfully resized " + srcBucket + "/"
+                        + srcKey + " and uploaded to " + dstBucket + "/" + dstKey);
+            }
+
+            if(srcKey.startsWith("profile/")){
+                String dstKey = "resized-" + srcKey;
+                // Read the source image and resize it
+                BufferedImage srcImage = ImageIO.read(s3Object);
+                BufferedImage newImage = resizeImage(srcImage, 50, 50);
+
+                // Re-encode image to target format
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                ImageIO.write(newImage, imageType, outputStream);
+
+                // Upload new image to S3
+                putObject(s3Client, outputStream, dstBucket, dstKey, imageType);
+
+                logger.info("Successfully resized " + srcBucket + "/"
+                        + srcKey + " and uploaded to " + dstBucket + "/" + dstKey);
+            }
             return "Ok";
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -131,12 +154,12 @@ public class Handler2 implements RequestHandler<S3Event, String> {
      * @param srcImage BufferedImage to resize.
      * @return New BufferedImage that is scaled down to thumbnail size.
      */
-    private BufferedImage resizeImage(BufferedImage srcImage) {
+    private BufferedImage resizeImage(BufferedImage srcImage, float maxWidth, float maxHeight) {
         int srcHeight = srcImage.getHeight();
         int srcWidth = srcImage.getWidth();
         // Infer scaling factor to avoid stretching image unnaturally
         float scalingFactor = Math.min(
-                MAX_WIDTH / srcWidth, MAX_HEIGHT / srcHeight);
+                maxWidth / srcWidth, maxHeight / srcHeight);
         int width = (int) (scalingFactor * srcWidth);
         int height = (int) (scalingFactor * srcHeight);
 
