@@ -70,7 +70,7 @@ class PostServiceTest {
 
         // 예상 동작 검증
         verify(postRepository, times(1)).save(any());
-        verify(s3Service, times(1)).generateOriginalImageUrl(any());
+        verify(s3Service, times(1)).generateOriginalImageUrl(any(), any());
 
 
     }

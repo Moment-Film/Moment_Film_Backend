@@ -17,7 +17,7 @@ public record PostSliceResponse(
 ) {
 
     public static PostSliceResponse from(Post post) {
-        return new PostSliceResponse(post.getId(), post.getTitle(), post.getImage(), post.getUser().getUsername(),post.getUser().getImage() ,post.getViewCount(), post.getLikeList().size(),post.getCommentList().size());
+        return new PostSliceResponse(post.getId(), post.getTitle(), post.getImage(), post.getUser().getUsername(),post.getUser().getResizedImage() ,post.getViewCount(), post.getLikeList().size(),post.getCommentList().size());
     }
 
 }
