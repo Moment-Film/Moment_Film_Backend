@@ -1,17 +1,14 @@
 name: CD with Gradle
 
-# main branch에 push, pr 되었을 때 실행 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
-# Github Actions에서 사용하는 VM이 읽을 수 있도록 허용
 permissions:
   contents: read
 
-# 수행할 동작들을 정의
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -31,15 +28,18 @@ jobs:
           cd ./src/main/resources
           touch ./application.properties
           echo "${{ secrets.PROPERTIES }}" > ./application.properties
+          
     - name: Build with Gradle
       run: |
           chmod -x ./gradlew 
           ./gradlew clean build -x test
+          
     - name: Docker build & push to docker repo
       run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/moment_film-spring .
           docker push ${{ secrets.DOCKER_REPO }}/moment_film-spring
+          
     - name: Deploy to server
       uses: appleboy/ssh-action@master
       with:
