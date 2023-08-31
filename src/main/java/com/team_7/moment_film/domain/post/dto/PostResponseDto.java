@@ -23,6 +23,7 @@ public class PostResponseDto {
     private Long viewCount;
     private int commentCount;
     private String username;
+    private String userImage;
     private Long userId;
     private List<User> likeUserId;
     private boolean followerCheck;
