@@ -21,6 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j(topic = "Google Service")
@@ -130,9 +131,11 @@ public class GoogleService {
 
         ResponseEntity<GoogleUserInfoDto> response = restTemplate.exchange(uri, HttpMethod.GET, request, GoogleUserInfoDto.class);
         if (response.getStatusCode() == HttpStatus.OK) {
+            log.info("사용자 정보 " + response.getBody());
+            log.info("status : "+ response.getStatusCode());
             return response;
         }
-        log.info("사용자 정보 " + response.getBody());
+        log.error("status : " + response.getStatusCode());
         return null;
     }
 
