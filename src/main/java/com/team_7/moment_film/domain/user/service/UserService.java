@@ -178,7 +178,7 @@ public class UserService {
         return ResponseEntity.ok(apiResponse);
     }
 
-    // 개인 정보 수정
+    // 개인 정보 수정!!!
     @Transactional
     public ResponseEntity<ApiResponse> updateInfo(UpdateUserInfoDto infoDto, MultipartFile image, User user) throws GeneralSecurityException, IOException {
         if (infoDto == null && image == null) {
