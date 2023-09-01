@@ -37,6 +37,9 @@ public class User {
     @Column
     private String image;
 
+    @Column
+    private String resizedImage;
+
     public void setPoint(Long point) {
         this.point = point;
     }
