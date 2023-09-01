@@ -103,7 +103,7 @@ public class PostService {
         if (!post.getUser().getId().equals(user.getId())) {
             throw new IllegalArgumentException("해당 사용자가 아닙니다.");
         } else {
-            String imageurl = post.getImage();
+            String imageurl = s3Service.generateOriginalImageUrl(post.getImage(),POST);
             s3Service.delete(imageurl);
             postRepository.delete(post);
 
