@@ -199,11 +199,10 @@ public class UserService {
             if (!checkCode(user, code)) {
                 throw new IllegalArgumentException("코드가 일치하지 않습니다.");
             }
-            if (infoDto != null && infoDto.getPassword() != null) {
-                password = passwordEncoder.encode(infoDto.getPassword());
-            }else {
+            if (infoDto.getPassword() == null) {
                 throw new IllegalArgumentException("새로운 비밀번호를 입력해주세요.");
             }
+            password = passwordEncoder.encode(infoDto.getPassword());
         }
 
         String imageUrl = image != null ? s3Service.upload(image, PROFILE) : user.getImage();
