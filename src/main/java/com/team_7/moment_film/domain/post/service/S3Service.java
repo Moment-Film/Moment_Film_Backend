@@ -21,7 +21,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-import static com.team_7.moment_film.global.dto.S3Prefix.POST;
+import static com.team_7.moment_film.global.dto.S3Prefix.FRAME;
 
 @Slf4j
 @Service
@@ -50,10 +50,10 @@ public class S3Service {
             String imageUrl = generateUnsignedUrl(fileName);
             String resizedImageUrl = generateResizedImageUrl(fileName);
             log.info("이미지 업로드 완료: " + imageUrl);
-            if (S3Prefix.equals(POST)) {
-                return resizedImageUrl;
+            if (S3Prefix.equals(FRAME)) {
+                return imageUrl;
             }
-            return imageUrl;
+            return resizedImageUrl;
         } catch (IOException e) {
             throw new UploadException(ErrorCodeEnum.UPLOAD_FAIL, e);
         }
@@ -174,14 +174,19 @@ public class S3Service {
      * @param resizedImageUrl 리사이징 이미지 URL
      * @return 원본 이미지 URL
      */
-    public String generateOriginalImageUrl(String resizedImageUrl) {
+    public String generateOriginalImageUrl(String resizedImageUrl, S3Prefix s3Prefix) {
+        if (resizedImageUrl == null) {
+            return null;
+        }
         String[] parts = resizedImageUrl.split("/");
         String uri = parts[2];
         String objectKey = parts[4];
 
         String originalUri = uri.replace("-resized", "");
 
-        return "https://" + originalUri + "/post/" + objectKey;
+        return "https://" + originalUri + "/" + s3Prefix.getDirectory() + objectKey;
     }
+
+
 
 }
