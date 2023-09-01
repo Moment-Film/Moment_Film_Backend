@@ -165,8 +165,13 @@ public class UserService {
 
     // 개인 정보 조회
     public ResponseEntity<ApiResponse> getInfo(User user) throws GeneralSecurityException, IOException {
-        // 휴대폰 번호 복호화 후 반환
-        String phone = encryptUtil.decrypt(user.getPhone());
+        // 휴대폰 번호는 복호화 후 반환
+        String phone = user.getPhone();
+        if (phone != null) {
+            phone = encryptUtil.decrypt(phone);
+        }else {
+            phone = null; // 소셜 로그인 계정일 경우
+        }
 
         UserInfoDto userInfoDto = UserInfoDto.builder()
                 .username(user.getUsername())
@@ -182,7 +187,8 @@ public class UserService {
     @Transactional
     public ResponseEntity<ApiResponse> updateInfo(UpdateUserInfoDto infoDto, MultipartFile image, User user) throws GeneralSecurityException, IOException {
         if (infoDto == null && image == null) {
-            throw new IllegalArgumentException("변경 내용이 없습니다.");
+            ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.NOT_MODIFIED).msg("변경 내용이 없습니다.").build();
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body(apiResponse);
         }
 
         String imageUrl = image != null ? s3Service.upload(image, PROFILE) : user.getImage();
