@@ -83,7 +83,7 @@ public class PostService {
                 .id(savepost.getId())
                 .title(savepost.getTitle())
                 .contents(savepost.getContents())
-                .image(s3Service.generateOriginalImageUrl(savepost.getImage()))
+                .image(s3Service.generateOriginalImageUrl(savepost.getImage(),POST))
                 .username(savepost.getUser().getUsername())
                 .filterId(savepost.getFilter().getId())
                 .frameId(savepost.getFrame().getId())
@@ -145,12 +145,12 @@ public class PostService {
                 .username(post.getUsername())
                 .title(post.getTitle())
                 .contents(post.getContents())
-                .image(s3Service.generateOriginalImageUrl(post.getImage()))
+                .image(s3Service.generateOriginalImageUrl(post.getImage(),POST))
                 .likeCount(post.getLikeList().size())
                 .viewCount(post.getViewCount())
                 .commentCount(post.getCommentList().size())
                 .likeUserId(likeUser)
-                .userImage(post.getUser().getImage())
+                .userImage(post.getUser().getResizedImage())
                 .frameId(post.getFrame().getId())
                 .frameName(post.getFrame().getFrameName())
                 .filterId(post.getFilter().getId())
@@ -177,7 +177,7 @@ public class PostService {
                     .content(comment.getContent())
                     .username(comment.getWriter().getUsername())
                     .userId(comment.getWriter().getId())
-                    .userImage(comment.getWriter().getImage())
+                    .userImage(comment.getWriter().getResizedImage())
                     .createdAt(comment.getCreatedAtFormatted())
                     .build();
             List<SubCommentResponseDTO> newSubComments = new ArrayList<>();
@@ -187,7 +187,7 @@ public class PostService {
                         .content(subComment.getContent())
                         .username(subComment.getWriter().getUsername())
                         .UserId(subComment.getWriter().getId())
-                        .userImage(subComment.getWriter().getImage())
+                        .userImage(subComment.getWriter().getResizedImage())
                         .createdAt(subComment.getCreatedAtFormatted())
                         .build();
                 newSubComments.add(newSubComment);

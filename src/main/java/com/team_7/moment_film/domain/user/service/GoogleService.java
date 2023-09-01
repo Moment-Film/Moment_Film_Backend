@@ -21,6 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j(topic = "Google Service")
@@ -130,14 +131,17 @@ public class GoogleService {
 
         ResponseEntity<GoogleUserInfoDto> response = restTemplate.exchange(uri, HttpMethod.GET, request, GoogleUserInfoDto.class);
         if (response.getStatusCode() == HttpStatus.OK) {
+            log.info("사용자 정보 " + response.getBody());
+            log.info("status : "+ response.getStatusCode());
             return response;
         }
-        log.info("사용자 정보 " + response.getBody());
+        log.error("status : " + response.getStatusCode());
         return null;
     }
 
     // AccessToken 요청 로직
     private ResponseEntity<GoogleResponseDto> getToken(String code) {
+        // Access Token 요청 URI
         URI uri = UriComponentsBuilder
                 .fromUriString("https://oauth2.googleapis.com")
                 .path("/token")
@@ -145,9 +149,11 @@ public class GoogleService {
                 .build()
                 .toUri();
 
+        // Request Header
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/x-www-form-urlencoded");
 
+        // Request Body
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("client_id", clientId);
         body.add("client_secret", clientSecret);
@@ -155,13 +161,16 @@ public class GoogleService {
         body.add("grant_type", "authorization_code");
         body.add("redirect_uri", redirectUri);
 
+        // Request Entity
         RequestEntity<MultiValueMap<String, String>> requestEntity = RequestEntity
                 .post(uri)
                 .headers(headers)
                 .body(body);
 
+        // Response Entity
         ResponseEntity<GoogleResponseDto> response = restTemplate.exchange(requestEntity, GoogleResponseDto.class);
         log.info("status " + response.getStatusCode());
+        log.info(response.getStatusCode().toString());
         log.info("access_token " + response.getBody().getAccess_token());
         log.info("token_type " + response.getBody().getToken_type());
         log.info("expires_in " + response.getBody().getExpires_in());

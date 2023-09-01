@@ -101,9 +101,10 @@ public class UserService {
                 .image(post.getImage())
                 .userId(post.getUserId())
                 .username(post.getUsername())
+                .userImage(post.getUserImage())
                 .build()).toList();
 
-        // 내가 좋아요한 게시글 리스트
+        // 내가 좋아요한 게시글 리스트!
         List<Post> likedPosts = postQueryRepository.getLikedPosts(userId);
         likedPosts.stream().map(post -> Post.builder()
                 .id(post.getId())
@@ -112,6 +113,7 @@ public class UserService {
                 .image(post.getImage())
                 .userId(post.getUserId())
                 .username(post.getUsername())
+                .userImage(post.getUserImage())
                 .build()).toList();
 
         // 조회한 유저의 팔로잉 리스트
@@ -215,7 +217,8 @@ public class UserService {
                 .password(user.getPassword())
                 .provider(user.getProvider())
                 .point(user.getPoint())
-                .image(imageUrl)
+                .image(s3Service.generateOriginalImageUrl(imageUrl, PROFILE))
+                .resizedImage(imageUrl)
                 .build();
 
         userRepository.save(updateUser);
