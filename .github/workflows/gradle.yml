@@ -20,8 +20,8 @@ jobs:
     
       - name: Make application.properties
         run: |
-            cd ./src/main/resources
-            echo "${{ secrets.PROPERTIES }}" > ./application.properties
+          cd ./src/main/resources
+          echo "${{ secrets.PROPERTIES }}" > ./application.properties
           
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
@@ -44,12 +44,12 @@ jobs:
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
-         host: ${{ secrets.HOST }}
-         username: ${{ secrets.USERNAME }}
-         password: ${{ secrets.PASSWORD }}
-         port: 22
-         script: |
-           sudo docker rm -f $(docker ps -qa)
-           sudo docker pull ${{ secrets.DOCKER_REPO }}/moment_film-spring
-           docker-compose up -d
-           docker image prune -f
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: 22
+          script: |
+            sudo docker rm -f $(docker ps -qa)
+            sudo docker pull ${{ secrets.DOCKER_REPO }}/moment_film-spring
+            docker-compose up -d
+            docker image prune -f
