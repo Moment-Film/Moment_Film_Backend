@@ -103,7 +103,7 @@ public class UserService {
                 .username(post.getUsername())
                 .build()).toList();
 
-        // 내가 좋아요한 게시글 리스트
+        // 내가 좋아요한 게시글 리스트!
         List<Post> likedPosts = postQueryRepository.getLikedPosts(userId);
         likedPosts.stream().map(post -> Post.builder()
                 .id(post.getId())
