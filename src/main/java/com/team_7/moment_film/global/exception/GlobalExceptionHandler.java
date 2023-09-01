@@ -6,6 +6,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import java.io.IOException;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
     // 클라이언트의 잘못된 요청 exception
     @ExceptionHandler(IllegalArgumentException.class)
@@ -144,6 +146,7 @@ public class GlobalExceptionHandler {
     // 요청된 데이터 형식이 잘못되었을 때 exception
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse> handleHttpMessageNotWritableException(HttpMessageNotReadableException ex) {
+        log.error(ex.getMessage());
         ApiResponse apiResponse = ApiResponse.builder()
                 .status(HttpStatus.BAD_REQUEST)
                 .msg("올바른 JSON 형식의 데이터를 전송해주세요.")
