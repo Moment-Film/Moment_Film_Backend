@@ -165,8 +165,13 @@ public class UserService {
 
     // 개인 정보 조회
     public ResponseEntity<ApiResponse> getInfo(User user) throws GeneralSecurityException, IOException {
-        // 휴대폰 번호 복호화 후 반환
-        String phone = encryptUtil.decrypt(user.getPhone());
+        // 휴대폰 번호는 복호화 후 반환
+        String phone = user.getPhone();
+        if (phone != null) {
+            phone = encryptUtil.decrypt(phone);
+        }else {
+            phone = null; // 소셜 로그인 계정일 경우
+        }
 
         UserInfoDto userInfoDto = UserInfoDto.builder()
                 .username(user.getUsername())
@@ -180,13 +185,27 @@ public class UserService {
 
     // 개인 정보 수정
     @Transactional
-    public ResponseEntity<ApiResponse> updateInfo(UpdateUserInfoDto infoDto, MultipartFile image, User user) throws GeneralSecurityException, IOException {
-        if (infoDto == null && image == null) {
-            throw new IllegalArgumentException("변경 내용이 없습니다.");
+    public ResponseEntity<ApiResponse> updateInfo(UpdateUserInfoDto infoDto, MultipartFile image, String code, User user) throws GeneralSecurityException, IOException {
+        // 변경 내용이 없는 경우
+        if (infoDto == null && image == null && code == null) {
+            ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.NOT_MODIFIED).msg("변경 내용이 없습니다.").build();
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body(apiResponse);
+        }
+
+        String password = user.getPassword();
+
+        // 비밀번호 변경 시 인증코드 확인 후 변경
+        if (code != null) {
+            if (!checkCode(user, code)) {
+                throw new IllegalArgumentException("코드가 일치하지 않습니다.");
+            }
+            if (infoDto.getPassword() == null) {
+                throw new IllegalArgumentException("새로운 비밀번호를 입력해주세요.");
+            }
+            password = passwordEncoder.encode(infoDto.getPassword());
         }
 
         String imageUrl = image != null ? s3Service.upload(image, PROFILE) : user.getImage();
-
         String username = user.getUsername();
         String encryptPhone = user.getPhone();
         String phoneHash = user.getPhoneHash();
@@ -214,7 +233,7 @@ public class UserService {
                 .username(username)
                 .phone(encryptPhone)
                 .phoneHash(phoneHash)
-                .password(user.getPassword())
+                .password(password)
                 .provider(user.getProvider())
                 .point(user.getPoint())
                 .image(s3Service.generateOriginalImageUrl(imageUrl, PROFILE))
@@ -223,25 +242,6 @@ public class UserService {
 
         userRepository.save(updateUser);
         ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("개인정보 수정 완료").build();
-        return ResponseEntity.ok(apiResponse);
-    }
-
-    // 비밀번호 변경
-    @Transactional
-    public ResponseEntity<ApiResponse> resetPassword(UpdatePasswordDto requestDto, User user, String code) {
-        if (!checkCode(user, code)) {
-            throw new IllegalArgumentException("코드가 일치하지 않습니다.");
-        }
-        if (requestDto.getPassword() == null) {
-            throw new IllegalArgumentException("새비밀번호를 입력해주세요.");
-        }
-
-        String newPassword = passwordEncoder.encode(requestDto.getPassword());
-
-        user.updatePassword(newPassword);
-        userRepository.save(user);
-
-        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).msg("비밀번호 변경 완료").build();
         return ResponseEntity.ok(apiResponse);
     }
 
@@ -310,6 +310,9 @@ public class UserService {
         String key = user.getEmail() + "(" + user.getProvider() + ")";
         String authCode = redisUtil.getData(key);
         log.info("code=" + authCode);
+        if (authCode == null) {
+            throw new IllegalArgumentException("인증 코드가 만료되었습니다.");
+        }
         return authCode.equals(code);
     }
 
