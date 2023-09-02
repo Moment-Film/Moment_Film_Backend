@@ -121,6 +121,7 @@ public class UserService {
         List<User> followings = followingList.stream().map(follow -> User.builder()
                 .id(follow.getFollowing().getId())
                 .username(follow.getFollowing().getUsername())
+                .image(follow.getFollowing().getResizedImage())
                 .build()).toList();
 
         // 조회한 유저의 팔로워 리스트
@@ -128,6 +129,7 @@ public class UserService {
         List<User> followers = followerList.stream().map(follow -> User.builder()
                 .id(follow.getFollower().getId())
                 .username(follow.getFollower().getUsername())
+                .image(follow.getFollower().getResizedImage())
                 .build()).toList();
 
         // 프로필 정보가 담긴 DTO
