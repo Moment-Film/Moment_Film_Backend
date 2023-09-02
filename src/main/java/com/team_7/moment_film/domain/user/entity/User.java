@@ -43,8 +43,4 @@ public class User {
     public void setPoint(Long point) {
         this.point = point;
     }
-
-    public void updatePassword(String newPassword) {
-        this.password = newPassword;
-    }
 }

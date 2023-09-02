@@ -2,7 +2,6 @@ package com.team_7.moment_film.domain.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.team_7.moment_film.domain.user.dto.SignupRequestDto;
-import com.team_7.moment_film.domain.user.dto.UpdatePasswordDto;
 import com.team_7.moment_film.domain.user.dto.UpdateUserInfoDto;
 import com.team_7.moment_film.domain.user.service.GoogleService;
 import com.team_7.moment_film.domain.user.service.KakaoService;
@@ -82,22 +81,15 @@ public class UserController {
     @PutMapping("/info")
     public ResponseEntity<ApiResponse> updateInfo(@Valid @RequestPart(value= "data", required = false) UpdateUserInfoDto requestDto,
                                                   @RequestPart(value = "imageFile", required = false) MultipartFile image,
+                                                  @RequestParam(required = false) String code,
                                                   @AuthenticationPrincipal UserDetailsImpl userDetails) throws GeneralSecurityException, IOException {
-        return userService.updateInfo(requestDto, image, userDetails.getUser());
+        return userService.updateInfo(requestDto, image, code, userDetails.getUser());
     }
 
     // 메일 전송 API
     @PostMapping("/email")
     public ResponseEntity<ApiResponse> sendEmail(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return mailService.sendEmail(userDetails.getUser());
-    }
-
-    // 비밀번호 재설정 API
-    @PutMapping("/password-reset")
-    public ResponseEntity<ApiResponse> resetPassword(@Valid @RequestBody UpdatePasswordDto requestDto,
-                                                     @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                     @RequestParam String code) {
-        return userService.resetPassword(requestDto, userDetails.getUser(), code);
     }
 
     // 회원 탈퇴 API
