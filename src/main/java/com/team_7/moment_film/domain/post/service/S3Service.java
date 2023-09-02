@@ -19,9 +19,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static com.team_7.moment_film.global.dto.S3Prefix.FRAME;
+import static com.team_7.moment_film.global.dto.S3Prefix.PROFILE;
 
 @Slf4j
 @Service
@@ -43,6 +46,15 @@ public class S3Service {
         if (multipartFile == null || multipartFile.isEmpty()) return null;
 
         try {
+            List<String> allowedExtentions = Arrays.asList("jpg","png","jpeg");
+
+            String originalFilename = multipartFile.getOriginalFilename();
+            String extention = extractExtension(originalFilename);
+
+            if (!allowedExtentions.contains(extention) && S3Prefix.equals(PROFILE)) {
+                throw new IllegalArgumentException("png, jpg, jpeg파일만 업로드 가능합니다.");
+            }
+
             byte[] fileBytes = multipartFile.getBytes();
             String fileName = S3Prefix.getDirectory() + generateFileName(multipartFile.getOriginalFilename());
             String contentType = multipartFile.getContentType();
