@@ -22,7 +22,7 @@ public class JwtUtil {
     //    private final Long ACCESS_TOKEN_EXPIRATION = 6 * 60 * 60 * 1000L; // 6시간
 //    private final Long REFRESH_TOKEN_EXPIRATION = 12 * 60 * 60 * 1000L; // 12시간
     private final Long ACCESS_TOKEN_EXPIRATION = 30 * 60 * 1000L; // 30분
-    private final Long REFRESH_TOKEN_EXPIRATION = 1 * 60 * 60 * 1000L; // 1시간
+    private final Long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000L; // 1주일
 
     @Value("${jwt.secret.key}")
     private String secretKey;
