@@ -1,4 +1,4 @@
-name: Java CI with Gradle
+name: Java CI/CD with Gradle
 
 on:
   push:
@@ -12,11 +12,11 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-    
+
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -32,11 +32,9 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-          
       - name: Make application.properties
         run: |
           echo "${{ secrets.PROPERTIES }}" > src/main/resources/application.properties
-          
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
@@ -50,11 +48,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Docker Image Build
-        run: docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/moment_film-spring .
+        run: docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/moment-film-spring .
 
       - name: DockerHub Push
-        run: docker push ${{ secrets.DOCKER_REPO }}/moment_film-spring
-    
+        run: docker push ${{ secrets.DOCKER_REPO }}/moment-film-spring
+
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
