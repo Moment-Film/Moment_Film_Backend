@@ -142,7 +142,7 @@ public class PostService {
         PostResponseDto responseDto = PostResponseDto.builder()
                 .id(postId)
                 .userId(post.getUser().getId())
-                .username(post.getUsername())
+                .username(post.getUser().getUsername())
                 .title(post.getTitle())
                 .contents(post.getContents())
                 .image(s3Service.generateOriginalImageUrl(post.getImage(),POST))
