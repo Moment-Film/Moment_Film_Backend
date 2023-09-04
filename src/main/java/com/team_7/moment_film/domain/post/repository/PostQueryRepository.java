@@ -66,8 +66,9 @@ public class PostQueryRepository {
 
     // 내가 작성한 게시글
     public List<Post> getMyPosts(Long id) {
+        QUser user = QUser.user;
         List<Post> postList = jpaQueryFactory
-                .select(Projections.constructor(Post.class, post.id, post.title, post.contents, post.image, post.user.id, post.username, post.user.resizedImage))
+                .select(Projections.constructor(Post.class, post.id, post.title, post.contents, post.image, user.id, user.username, user.resizedImage))
                 .from(post)
                 .where(post.user.id.eq(id))
                 .orderBy(post.createdAt.desc())
@@ -86,7 +87,7 @@ public class PostQueryRepository {
                 .where(user.id.eq(userId));
 
         List<Post> likedPostList = jpaQueryFactory
-                .select(Projections.constructor(Post.class, post.id, post.title, post.contents, post.image, post.user.id, post.username, post.user.resizedImage))
+                .select(Projections.constructor(Post.class, post.id, post.title, post.contents, post.image, user.id, user.username, post.user.resizedImage))
                 .from(post)
                 .where(post.id.in(subquery))
                 .fetch();
