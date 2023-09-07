@@ -25,7 +25,7 @@ public class FilterBookmarkService {
 
     // 필터 북마크 추가/취소
     @Transactional
-    public ResponseEntity<ApiResponse> bookMarkFilter(Long filterId, User user) {
+    public ResponseEntity<ApiResponse> bookmarkFilter(Long filterId, User user) {
         Filter filter = filterRepository.findById(filterId).orElseThrow(() ->
                 new EntityNotFoundException("존재하지 않는 필터입니다."));
         boolean bookmarked = bookMarkRepository.existsByUserIdAndFilterId(user.getId(),filterId);
@@ -47,7 +47,7 @@ public class FilterBookmarkService {
     }
 
     // 북마크한 필터 리스트 조회
-    public ResponseEntity<ApiResponse> getBookMarkFilter(User user) {
+    public ResponseEntity<ApiResponse> getBookmarkFilter(User user) {
 
         List<FilterResponseDto> bookMarkList = bookMarkRepository.findAllByUserId(user.getId())
                 .stream().map(filterBookMark-> FilterResponseDto.builder()
