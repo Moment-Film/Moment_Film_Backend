@@ -21,12 +21,12 @@ import java.util.List;
 public class FrameBookmarkService {
 
     private final FrameBookmarkRepository bookMarkRepository;
-    private final FrameRepository filterRepository;
+    private final FrameRepository frameRepository;
 
     // 프레임 북마크 추가/취소
     @Transactional
-    public ResponseEntity<ApiResponse> bookMarkFrame(Long frameId, User user) {
-        Frame frame = filterRepository.findById(frameId).orElseThrow(() ->
+    public ResponseEntity<ApiResponse> bookmarkFrame(Long frameId, User user) {
+        Frame frame = frameRepository.findById(frameId).orElseThrow(() ->
                 new EntityNotFoundException("존재하지 않는 프레임입니다."));
         boolean bookmarked = bookMarkRepository.existsByUserIdAndFrameId(user.getId(),frameId);
 
@@ -47,7 +47,7 @@ public class FrameBookmarkService {
     }
 
     // 북마크한 프레임 리스트 조회
-    public ResponseEntity<ApiResponse> getBookMarkFrame(User user) {
+    public ResponseEntity<ApiResponse> getBookmarkFrame(User user) {
 
         List<FrameResponseDto> bookMarkList = bookMarkRepository.findAllByUserId(user.getId())
                 .stream().map(frameBookMark-> FrameResponseDto.builder()

@@ -17,14 +17,14 @@ public class FilterBookmarkController {
 
     // 북마크 추가/취소 기능
     @PostMapping("/{filterId}/bookmark")
-    public ResponseEntity<ApiResponse> BookMarkFilter(@PathVariable Long filterId, @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return bookMarkService.bookMarkFilter(filterId, userDetails.getUser());
+    public ResponseEntity<ApiResponse> bookmarkFilter(@PathVariable Long filterId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return bookMarkService.bookmarkFilter(filterId, userDetails.getUser());
     }
 
     // 북마크한 필터 조회 기능
     @GetMapping("/bookmark")
-    public ResponseEntity<ApiResponse> GetBookMarkFilter(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        return bookMarkService.getBookMarkFilter(userDetails.getUser());
+    public ResponseEntity<ApiResponse> getBookmarkFilter(@AuthenticationPrincipal UserDetailsImpl userDetails){
+        return bookMarkService.getBookmarkFilter(userDetails.getUser());
     }
 
 }

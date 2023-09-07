@@ -1,14 +1,17 @@
 package com.team_7.moment_film.domain.user.repository;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.team_7.moment_film.domain.post.dto.PostSearchDto;
 import com.team_7.moment_film.domain.user.dto.PopularUserResponseDto;
 import com.team_7.moment_film.domain.user.dto.SearchResponseDto;
-import com.team_7.moment_film.global.dto.PageCustom;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
 
@@ -23,7 +26,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
 
     // 사용자 검색
     @Override
-    public PageCustom<SearchResponseDto> searchUserByName(String userKeyword, Pageable pageable) {
+    public Page<SearchResponseDto> searchUserByName(String userKeyword, Pageable pageable) {
         List<SearchResponseDto> result = queryFactory
                 .select(Projections.constructor(SearchResponseDto.class,
                         user.id,
@@ -42,7 +45,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
                 .from(user)
                 .leftJoin(post).on(user.id.eq(post.user.id))
                 .groupBy(user.id)
-                .where(user.username.like("%" + userKeyword + "%"))
+                .where(usernameEq(userKeyword))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -61,13 +64,17 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
         }
 
         // 총 데이터 수 구하기
-        Long total= queryFactory
+        JPAQuery<Long> total= queryFactory
                 .select(user.count())
                 .from(user)
-                .where(user.username.like("%" + userKeyword + "%"))
-                .fetchOne();
+                .where(usernameEq(userKeyword));
 
-        return new PageCustom<>(result, pageable, total);
+        return PageableExecutionUtils.getPage(result, pageable, total::fetchOne);
+    }
+
+    // 대소문자 상관없이 keyword가 username에 포함되는지 확인
+    private BooleanExpression usernameEq(String userKeyword){
+        return user.username.containsIgnoreCase(userKeyword);
     }
 
     // 팔로워 순으로 사용자 조회

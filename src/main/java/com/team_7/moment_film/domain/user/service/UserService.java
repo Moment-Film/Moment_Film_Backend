@@ -10,12 +10,14 @@ import com.team_7.moment_film.domain.user.entity.User;
 import com.team_7.moment_film.domain.user.point.PointCategory;
 import com.team_7.moment_film.domain.user.repository.UserRepository;
 import com.team_7.moment_film.global.dto.ApiResponse;
+import com.team_7.moment_film.global.dto.PageCustom;
 import com.team_7.moment_film.global.util.EncryptUtil;
 import com.team_7.moment_film.global.util.JwtUtil;
 import com.team_7.moment_film.global.util.RedisUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -155,7 +157,10 @@ public class UserService {
         }
         // page size 파라미터로 수정못하도록 고정
         Pageable defaultPageable = PageRequest.of(pageable.getPageNumber(),6);
-        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(userRepository.searchUserByName(userKeyword, defaultPageable)).build();
+
+        Page<SearchResponseDto> searchResult = userRepository.searchUserByName(userKeyword, defaultPageable);
+        PageCustom<SearchResponseDto> customPage = new PageCustom<>(searchResult);
+        ApiResponse apiResponse = ApiResponse.builder().status(HttpStatus.OK).data(customPage).build();
         return ResponseEntity.ok(apiResponse);
     }
 

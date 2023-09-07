@@ -17,14 +17,14 @@ public class FrameBookmarkController {
 
     // 북마크 추가/취소 기능
     @PostMapping("/{frameId}/bookmark")
-    public ResponseEntity<ApiResponse> BookMarkFilter(@PathVariable Long frameId, @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return bookMarkService.bookMarkFrame(frameId, userDetails.getUser());
+    public ResponseEntity<ApiResponse> bookmarkFrame(@PathVariable Long frameId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return bookMarkService.bookmarkFrame(frameId, userDetails.getUser());
     }
 
     // 북마크한 프레임 조회 기능
     @GetMapping("/bookmark")
-    public ResponseEntity<ApiResponse> GetBookMarkFilter(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        return bookMarkService.getBookMarkFrame(userDetails.getUser());
+    public ResponseEntity<ApiResponse> getBookmarkFrame(@AuthenticationPrincipal UserDetailsImpl userDetails){
+        return bookMarkService.getBookmarkFrame(userDetails.getUser());
     }
 
 }
