@@ -12,9 +12,9 @@ if [ -z $IS_GREEN ]; then
 
   while [ 1 = 1 ]; do
     echo "3. green health check..."
-    sleep 3
+    sleep 10
 
-    REQUEST=$(curl http://app1:8080)
+    REQUEST=$(curl http://localhost:8080)
     if [ -n "$REQUEST" ]; then
       echo "health check success"
       break;
@@ -38,7 +38,7 @@ else
 
   while [ 1 = 1 ]; do
     echo "3. blue health check..."
-    sleep 3
+    sleep 10
 
     REQUEST=$(curl http://app2:8081)
     if [ -n "$REQUEST" ]; then
