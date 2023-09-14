@@ -40,7 +40,7 @@ else
     echo "3. blue health check..."
     sleep 10
 
-    REQUEST=$(curl http://app2:8081)
+    REQUEST=$(curl http://localhost:8081)
     if [ -n "$REQUEST" ]; then
       echo "health check success"
       break;
