@@ -52,7 +52,17 @@ jobs:
 
       - name: DockerHub Push
         run: docker push ${{ secrets.DOCKER_REPO }}/moment_film-spring
-    
+      
+      - name: Send deploy.sh to Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: 22
+          source: ./deploy.sh
+          target: /home/ubuntu/
+      
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
@@ -61,17 +71,15 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: 22
           script: |
-            sudo docker rm -f $(docker ps -qa)
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/moment_film-spring
-            docker-compose up -d
-            docker image prune -f
+            sudo chmod +x /home/ubuntu/deploy.sh
+            /home/ubuntu/deploy.sh
       
       - name: action-slack
         uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
           author_name: Moment-Film GitHub
-          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+          fields: repo,message,commit,author,eventName,ref,workflow,took
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         if: always()
