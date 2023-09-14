@@ -1,56 +1,56 @@
-IS_GREEN=$(docker ps | grep green) # 현재 실행중인 App이 blue인지 확인합니다.
+IS_GREEN=$(docker ps | grep green) # green 컨테이너가 실행중인지 확인
 DEFAULT_CONF="/etc/nginx/nginx.conf"
 
-if [ -z $IS_GREEN ]; then # blue라면
+if [ -z $IS_GREEN ]; then
   echo "### BLUE => GREEN ###"
+  
+  echo "1. get green image"
+  docker-compose pull app1
 
-  # 1. get green image
-  docker-compose pull green # green으로 이미지를 내려받습니다.
-
-  # 2. green container up
-  docker-compose up -d green # green 컨테이너 실행
+  echo "2. green container Up"
+  docker-compose up -d app1
 
   while [ 1 = 1 ]; do
     echo "3. green health check..."
     sleep 3
 
-    REQUEST=$(curl http://127.0.0.1:8080) # green으로 request
-    if [ -n "$REQUEST" ]; then # 서비스 가능하면 health check 중지
+    REQUEST=$(curl http://app1:8080)
+    if [ -n "$REQUEST" ]; then
       echo "health check success"
-      break
+      break;
     fi
-  done
+  done;
 
-  # 4. reload nginx
-  sudo cp /etc/nginx/nginx.green.conf $DEFAULT_CONF
+  echo "4. reload nginx"
+  sudo cp /etc/nginx/nginx.green.conf /etc/nginx/nginx.conf
   sudo nginx -s reload
 
-  # 5. blue container down
-  docker-compose stop blue
+  echo "5. blue container down"
+  docker-compose stop app2
 else
   echo "### GREEN => BLUE ###"
 
-  # 1. get blue image
-  docker-compose pull blue
+  echo "1. get blue image"
+  docker-compose pull app2
 
-  # 2. blue container up
-  docker-compose up -d blue
+  echo "2. blue container up"
+  docker-compose up -d app2
 
   while [ 1 = 1 ]; do
     echo "3. blue health check..."
     sleep 3
-    REQUEST=$(curl http://127.0.0.1:8081) # blue로 request
 
-    if [ -n "$REQUEST" ]; then # 서비스 가능하면 health check 중지
+    REQUEST=$(curl http://app2:8081)
+    if [ -n "$REQUEST" ]; then
       echo "health check success"
-      break
+      break;
     fi
-  done
+  done;
 
-  # 4. reload nginx
-  sudo cp /etc/nginx/nginx.blue.conf $DEFAULT_CONF
+  echo "4. reload nginx" 
+  sudo cp /etc/nginx/nginx.blue.conf /etc/nginx/nginx.conf
   sudo nginx -s reload
 
-  # 5. green container down
-  docker-compose stop green
+  echo "5. green container down"
+  docker-compose stop app1
 fi
