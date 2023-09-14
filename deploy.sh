@@ -5,12 +5,11 @@ DEFAULT_CONF="/etc/nginx/nginx.conf" # nginx.conf(기본 설정 파일)
 if [ -z $IS_GREEN ]; then
   echo "### BLUE => GREEN ###"
   
-  echo "4. reload nginx"
+  echo "1. nginx.greem.conf => nginx.conf"
   sudo cp /etc/nginx/nginx.green.conf /etc/nginx/nginx.conf # nginx.green.conf 파일을 nginx.conf 파일로 복사(수정)
-  #sudo nginx -s reload # nginx 재시작
   
-  echo "1. get green image"
-  docker-compose pull app1 # app1 컨테이너의 이미지를 pull 받음.
+  #echo "2. get green image"
+  #docker-compose pull app1 # app1 컨테이너의 이미지를 pull 받음.
 
   echo "2. green container Up"
   docker-compose up -d app1 # app1 컨테이너를 백그라운드로 실행.
@@ -31,12 +30,11 @@ if [ -z $IS_GREEN ]; then
 else
   echo "### GREEN => BLUE ###"
   
-  echo "4. reload nginx" 
+  echo "1. nginx.blue.conf => nginx.conf" 
   sudo cp /etc/nginx/nginx.blue.conf /etc/nginx/nginx.conf
-  #sudo nginx -s reload
 
-  echo "1. get blue image"
-  docker-compose pull app2
+  #echo "1. get blue image"
+  #docker-compose pull app2
 
   echo "2. blue container up"
   docker-compose up -d app2
