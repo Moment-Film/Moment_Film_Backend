@@ -6,7 +6,7 @@ if [ -z $IS_GREEN ]; then
   
   echo "1. nginx.greem.conf => nginx.conf"
   sudo cp /etc/nginx/nginx.green.conf /etc/nginx/nginx.conf # nginx.green.conf 파일을 nginx.conf 파일로 복사(수정)
-  nginx -s reload
+  sudo docker restart nginx
   
   echo "2. green container Up"
   docker-compose up -d app1 # app1 컨테이너를 백그라운드로 실행.
@@ -29,7 +29,7 @@ else
   
   echo "1. nginx.blue.conf => nginx.conf" 
   sudo cp /etc/nginx/nginx.blue.conf /etc/nginx/nginx.conf
-  nginx -s reload
+  sudo docker restart nginx
   
   echo "2. blue container up"
   docker-compose up -d app2
