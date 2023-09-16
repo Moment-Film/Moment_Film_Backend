@@ -4,10 +4,6 @@ IS_GREEN=$(docker ps | grep green) # green 컨테이너가 실행중인지 확�
 if [ -z $IS_GREEN ]; then
   echo "### BLUE => GREEN ###"
   
-  echo "1. nginx.greem.conf => nginx.conf"
-  sudo cp /etc/nginx/nginx.green.conf /etc/nginx/nginx.conf # nginx.green.conf 파일을 nginx.conf 파일로 복사(수정)
-  sudo docker restart nginx
-  
   echo "2. green container Up"
   docker-compose up -d app1 # app1 컨테이너를 백그라운드로 실행.
 
@@ -22,14 +18,14 @@ if [ -z $IS_GREEN ]; then
     fi
   done;
 
+  echo "1. nginx.greem.conf => nginx.conf"
+  sudo cp /etc/nginx/nginx.green.conf /etc/nginx/nginx.conf # nginx.green.conf 파일을 nginx.conf 파일로 복사(수정)
+  sudo docker restart nginx
+  
   echo "4. blue container down"
   docker-compose stop app2 # app2 컨테이너 내림.
 else
   echo "### GREEN => BLUE ###"
-  
-  echo "1. nginx.blue.conf => nginx.conf" 
-  sudo cp /etc/nginx/nginx.blue.conf /etc/nginx/nginx.conf
-  sudo docker restart nginx
   
   echo "2. blue container up"
   docker-compose up -d app2
@@ -45,6 +41,10 @@ else
     fi
   done;
 
+  echo "1. nginx.blue.conf => nginx.conf" 
+  sudo cp /etc/nginx/nginx.blue.conf /etc/nginx/nginx.conf
+  sudo docker restart nginx
+  
   echo "4. green container down"
   docker-compose stop app1
 fi
