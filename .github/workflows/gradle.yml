@@ -53,15 +53,15 @@ jobs:
       - name: DockerHub Push
         run: docker push ${{ secrets.DOCKER_REPO }}/moment_film-spring
       
-      - name: Send deploy.sh to Server
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-          port: 22
-          source: ./deploy.sh
-          target: /home/ubuntu/
+      # - name: Send deploy.sh to Server
+      #   uses: appleboy/scp-action@master
+      #   with:
+      #     host: ${{ secrets.HOST }}
+      #     username: ${{ secrets.USERNAME }}
+      #     password: ${{ secrets.PASSWORD }}
+      #     port: 22
+      #     source: ./deploy.sh
+      #     target: /home/ubuntu/
       
       - name: Deploy to server
         uses: appleboy/ssh-action@master
